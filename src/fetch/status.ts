@@ -35,7 +35,7 @@ async function checkHealth(appUrl: string): Promise<NonNullable<Status["health"]
 export async function fetchStatus(repo: string): Promise<Status> {
   const key = process.env.RENDER_API_KEY;
   const serviceName = process.env.RENDER_SERVICE_NAME ?? "chess-tutor";
-  let appUrl = process.env.APP_URL ?? null;
+  let appUrl = process.env.APP_URL || null; // an unset Actions variable arrives as ""
   let deploy: Status["deploy"] = null;
   let deployUnavailable: string | null = null;
 
