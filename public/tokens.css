@@ -1,0 +1,146 @@
+/*
+ * FortyAU design system: tokens, base and shared components.
+ * Abstracted from fortyau.com (all 79 sitemap pages, 9 stylesheets) on 2026-11-16. See DESIGN.md.
+ * Fonts: Google Fonts link in the page <head> (Bricolage Grotesque, Instrument Serif, JetBrains Mono).
+ */
+
+:root {
+  /* Surfaces, darkest to lightest ("space" palette, names from the site) */
+  --void: #0f0c1a;     /* footer, final CTA, deepest wells */
+  --cosmos: #161228;   /* page background */
+  --nebula: #1e1a35;   /* raised surfaces, banded sections */
+  --cloud: #2a2548;    /* hover fills, glows */
+
+  /* Text */
+  --text-1: #f4eeff;   /* headings, primary text (16:1) */
+  --text-2: #d8c9f0;   /* body copy (11.7:1) */
+  --text-muted: #9a8fc4; /* ADDED: small readable secondary text (6.2:1). The site uses --text-3 here, which fails AA. */
+  --text-3: #6b5f96;   /* decoration only: index numerals, rules, placeholders (3.2:1) */
+
+  /* Accents */
+  --star: #fad542;     /* the brand yellow: primary buttons, labels, metrics, <em> */
+  --star-dim: rgba(250, 213, 66, .14);
+  --star-border: rgba(250, 213, 66, .25);
+  --pale-blue: #9cc4de; /* secondary accent: icons, links on dark */
+  --pale-blue-dim: rgba(156, 196, 222, .18);
+
+  /* ADDED for status UIs (the marketing site has no semantic colors). Tuned to the palette, AA on all surfaces. */
+  --good: #7fdcae;
+  --good-dim: rgba(127, 220, 174, .12);
+  --bad: #ff8a8a;
+  --bad-dim: rgba(255, 138, 138, .12);
+  --warn: var(--star);
+
+  /* Lines */
+  --border: rgba(255, 255, 255, .08);
+  --border-hard: rgba(255, 255, 255, .14);
+
+  /* Type */
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-accent: "Instrument Serif", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Spacing (4/8 scale) */
+  --space-micro: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 80px;
+  --space-5xl: 96px;
+
+  /* Shape and motion */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --duration-fast: .2s;
+  --duration-medium: .4s;
+  --ease-default: ease;
+
+  /* Layout */
+  --container-max: 1200px;
+  --container-narrow: 880px;
+  --gutter-x: clamp(16px, 4vw, 48px);
+  --label-rule-width: 28px;
+  --grain-opacity: .045;
+
+  color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+body {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-1);
+  background: var(--cosmos);
+}
+h1, h2, h3, h4 { font-family: var(--font-display); color: var(--text-1); margin: 0; }
+h1 { font-weight: 800; font-size: clamp(36px, 5vw, 64px); line-height: 1.02; letter-spacing: -.035em; }
+h2 { font-weight: 800; font-size: clamp(24px, 2.6vw, 32px); line-height: 1.1; letter-spacing: -.02em; }
+h3 { font-weight: 700; font-size: 19px; line-height: 1.25; letter-spacing: -.01em; }
+p { margin: 0; }
+/* The signature move: one or two words in italic serif, star yellow */
+em { font-family: var(--font-accent); font-weight: 400; font-style: italic; color: var(--star); letter-spacing: 0; }
+a { color: var(--text-1); text-decoration-color: var(--border-hard); text-underline-offset: 3px; transition: color var(--duration-fast) var(--ease-default), text-decoration-color var(--duration-fast) var(--ease-default); }
+a:hover { color: var(--star); text-decoration-color: var(--star); }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--star); outline-offset: 3px; border-radius: 2px; }
+::selection { background: var(--star); color: var(--cosmos); }
+
+/* ---------- Components ---------- */
+
+/* Film grain overlay: <div class="grain" aria-hidden="true"></div> as the last child of body */
+.grain { position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: var(--grain-opacity); }
+.grain::before {
+  content: ""; position: absolute; inset: 0; background-size: 256px 256px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+.container { width: 100%; max-width: var(--container-max); margin-inline: auto; padding-inline: var(--gutter-x); }
+
+/* Section label: yellow mono caps with a short leading rule */
+.section-label {
+  display: flex; align-items: center; gap: var(--space-sm);
+  font-family: var(--font-mono); font-weight: 700; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--star);
+}
+.section-label::before { content: ""; display: block; width: var(--label-rule-width); height: 1px; background: var(--star); flex-shrink: 0; }
+
+/* Mono micro-label (metric captions, meta lines) */
+.mono-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); }
+
+/* Card: hairline border, no fill; segmented grids share 1px dividers */
+.card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: transparent; }
+.card-index { font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--text-muted); }
+.gap-grid-segmented { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.gap-grid-segmented > * { background: var(--cosmos); }
+
+/* Metric: big star-yellow number over a mono caption (from the case-study pages) */
+.metric-value { display: block; font-family: var(--font-display); font-weight: 800; font-size: clamp(24px, 2.6vw, 34px); line-height: 1; letter-spacing: -.02em; color: var(--star); }
+
+/* Tag: tiny mono caps in a hairline box */
+.tag {
+  display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-muted); border: 1px solid var(--border-hard); border-radius: var(--radius-sm); padding: 2px 8px; vertical-align: 2px; white-space: nowrap;
+}
+.tag-star { color: var(--star); border-color: var(--star-border); background: var(--star-dim); }
+
+/* Buttons */
+.btn { display: inline-block; cursor: pointer; text-decoration: none; border: none; font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; border-radius: var(--radius-sm); transition: transform var(--duration-fast) var(--ease-default), color var(--duration-fast), border-color var(--duration-fast); }
+.btn-primary { background: var(--star); color: var(--cosmos); padding: 14px 32px; }
+.btn-primary:hover { color: var(--cosmos); transform: translateY(-1px); }
+.btn-secondary { background: transparent; color: var(--text-1); padding: 13px 31px; border: 1px solid var(--border-hard); }
+.btn-secondary:hover { border-color: var(--star); color: var(--star); }
+.btn-ghost { font-family: var(--font-mono); font-weight: 400; font-size: 13px; letter-spacing: .04em; text-transform: none; color: var(--text-2); text-decoration: none; border-bottom: 1px solid var(--border-hard); border-radius: 0; padding-bottom: 2px; }
+.btn-ghost:hover { color: var(--star); border-color: var(--star); }
+
+/* Glow: soft radial star light behind a hero or CTA */
+.glow { background: radial-gradient(ellipse at 30% 0%, rgba(42, 37, 72, .55), transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(250, 213, 66, .035), transparent 55%); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

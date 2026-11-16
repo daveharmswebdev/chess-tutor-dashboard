@@ -38,8 +38,12 @@ async function snapshotDates(): Promise<string[]> {
 
 app.get("/healthz", async () => ({ ok: true }));
 
-const css = await readFile(`${root}public/style.css`, "utf8");
-app.get("/style.css", async (_req, reply) => reply.type("text/css").header("Cache-Control", "max-age=300").send(css));
+// Static assets, loaded once at startup (a fixed list, so no path handling).
+const assets: Record<string, string> = { "/tokens.css": "text/css", "/style.css": "text/css", "/logo.svg": "image/svg+xml" };
+for (const [path, type] of Object.entries(assets)) {
+  const body = await readFile(`${root}public${path}`);
+  app.get(path, async (_req, reply) => reply.type(type).header("Cache-Control", "max-age=300").send(body));
+}
 
 app.get<{ Querystring: { date?: string } }>("/", async (req, reply) => {
   const dates = await snapshotDates();

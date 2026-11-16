@@ -6,95 +6,101 @@ const esc = (s: string | number | null | undefined) =>
 const a = (url: string | null | undefined, text: string, cls = "") =>
   url ? `<a href="${esc(url)}"${cls ? ` class="${cls}"` : ""} target="_blank" rel="noopener">${esc(text)}</a>` : esc(text);
 
-function when(iso: string | null | undefined, tz: string, withDate = true): string {
-  if (!iso) return "unknown";
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: tz,
-    ...(withDate ? { weekday: "short", month: "short", day: "numeric" } : {}),
-    hour: "numeric",
-    minute: "2-digit",
-    timeZoneName: "short",
-  }).format(new Date(iso));
-}
+const fmt = (iso: string, tz: string, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-US", { timeZone: tz, ...opts }).format(new Date(iso));
+const time = (iso: string | null | undefined, tz: string) => (iso ? fmt(iso, tz, { hour: "numeric", minute: "2-digit", timeZoneName: "short" }) : "unknown");
+const day = (iso: string | null | undefined, tz: string) => (iso ? fmt(iso, tz, { weekday: "short", month: "short", day: "numeric" }) : "unknown");
+const when = (iso: string | null | undefined, tz: string) => (iso ? `${day(iso, tz)}, ${time(iso, tz)}` : "unknown");
 
-const pill = (tone: "good" | "bad" | "warn" | "muted", text: string) => `<span class="pill ${tone}">${esc(text)}</span>`;
+type Tone = "good" | "bad" | "warn" | "muted" | "star";
+
+function metric(label: string, value: string, tone: Tone, detail: string): string {
+  return `<div class="metric">
+    <span class="mono-label">${esc(label)}</span>
+    <span class="metric-value tone-${tone}">${esc(value)}</span>
+    <div class="metric-detail">${detail}</div>
+  </div>`;
+}
 
 function statusStrip(s: Snapshot): string {
   const { status, timezone: tz } = s;
   const h = status.health;
-  const up = !h ? pill("muted", "Not checked") : h.ok ? pill("good", "Up") : pill("bad", "Down");
-  const upDetail = !h ? "No app address set yet" : h.ok ? `Answered in ${h.ms} ms` : `Health check ${h.httpStatus ? `returned ${h.httpStatus}` : h.error}`;
+  const app = !h
+    ? metric("The app", "Not checked", "muted", "No app address set yet")
+    : metric("The app", h.ok ? "Up" : "Down", h.ok ? "good" : "bad",
+        `${status.appUrl ? a(status.appUrl, "Open the app") + " · " : ""}${h.ok ? `answered in ${h.ms} ms` : esc(h.httpStatus ? `health check returned ${h.httpStatus}` : h.error)}`);
 
   const d = status.deploy;
   const live = d
-    ? `${d.status === "live" ? pill("good", "Live") : pill(d.status.includes("fail") ? "bad" : "warn", d.status.replace(/_/g, " "))}
-       <div class="detail">${a(d.commitUrl, d.commit?.slice(0, 7) ?? "unknown")} · ${esc(d.commitMessage ?? "")}</div>
-       <div class="detail">Deployed ${esc(when(d.finishedAt, tz))}</div>`
-    : `${pill("muted", "Unavailable")}<div class="detail">${esc(status.deployUnavailable)}</div>`;
+    ? metric("Version live", d.commit?.slice(0, 7) ?? "unknown", d.status === "live" ? "star" : d.status.includes("fail") ? "bad" : "warn",
+        `${a(d.commitUrl, d.commitMessage ?? "View commit")}<br>${d.status === "live" ? "Deployed" : esc(d.status.replace(/_/g, " "))} ${esc(when(d.finishedAt, tz))}`)
+    : metric("Version live", "Unavailable", "muted", esc(status.deployUnavailable));
 
   const ci = status.ci;
   const tests = ci
-    ? `${ci.conclusion === "success" ? pill("good", "Passing") : pill("bad", ci.conclusion ?? "unknown")}
-       <div class="detail">${a(ci.url, "Latest run on main")} · ${esc(when(ci.finishedAt, tz))}</div>`
-    : pill("muted", "Unavailable");
+    ? metric("Automated tests", ci.conclusion === "success" ? "Passing" : (ci.conclusion ?? "Unknown"), ci.conclusion === "success" ? "good" : "bad",
+        `${a(ci.url, "Latest run on main")} · ${esc(when(ci.finishedAt, tz))}`)
+    : metric("Automated tests", "Unavailable", "muted", "");
 
-  return `
-  <section class="strip" aria-label="Status">
-    <div class="cell">
-      <h3>The app</h3>
-      ${up}
-      <div class="detail">${status.appUrl ? a(status.appUrl, "Open the app") + " · " : ""}${esc(upDetail)}</div>
-    </div>
-    <div class="cell"><h3>Version live</h3>${live}</div>
-    <div class="cell"><h3>Automated tests</h3>${tests}</div>
-    <div class="cell"><h3>Last updated</h3><div class="big">${esc(when(s.generatedAt, tz, false))}</div><div class="detail">${esc(when(s.generatedAt, tz).split(",").slice(0, 2).join(","))}</div></div>
-  </section>`;
+  const updated = metric("Last updated", time(s.generatedAt, tz).replace(/ [A-Z]{2,4}$/, ""), "star", esc(`${day(s.generatedAt, tz)} · ${time(s.generatedAt, tz).split(" ").pop()}`));
+
+  return `<section class="strip gap-grid-segmented" aria-label="Status">${app}${live}${tests}${updated}</section>`;
 }
 
-function prLine(p: ShippedPr, tz: string): string {
+function sectionHead(n: string, label: string, title: string): string {
+  return `<div class="section-head"><span class="section-label">${esc(n)} · ${esc(label)}</span><h2>${title}</h2></div>`;
+}
+
+function prRow(p: ShippedPr, tz: string): string {
   const words = p.clientNote
-    ? `<span class="note">${esc(p.clientNote)}</span>`
-    : `<span class="note">${esc(p.title)}</span> <span class="tag" title="Client notes on every change are being added (chess-tutor #61). Until then this is the change's title.">title</span>`;
-  return `<li>${words}<div class="detail">${a(p.url, `#${p.number}`)} · ${esc(when(p.mergedAt, tz))}</div></li>`;
+    ? esc(p.clientNote)
+    : `${esc(p.title)} <span class="tag" title="Plain-language client notes on every change are being added (chess-tutor #61). Until then this is the change's title.">PR title</span>`;
+  return `<li class="row">
+    <span class="row-date"><span class="row-day">${esc(fmt(p.mergedAt, tz, { day: "numeric" }))}</span><span class="mono-label">${esc(fmt(p.mergedAt, tz, { month: "short" }))}</span></span>
+    <span class="row-body"><span class="row-title">${words}</span><span class="mono-label">${esc(time(p.mergedAt, tz))}</span></span>
+    ${a(p.url, `#${p.number} →`, "row-link btn-ghost")}
+  </li>`;
 }
 
-function itemLine(i: BoardItem): string {
-  const tags = [i.priority, i.kind, i.fromClient ? "your request" : null].filter(Boolean).map((t) => `<span class="tag">${esc(t)}</span>`).join(" ");
-  return `<li>${a(i.url, i.title)} ${tags}<div class="detail">#${i.number}${i.status ? ` · ${esc(i.status)}` : ""}</div></li>`;
+function itemRow(i: BoardItem): string {
+  const tags = [i.priority, i.kind].filter(Boolean).map((t) => `<span class="tag">${esc(t)}</span>`);
+  if (i.fromClient) tags.push(`<span class="tag tag-star">Your request</span>`);
+  return `<li class="item">${a(i.url, i.title)}<div class="item-meta"><span class="mono-label">#${i.number}</span> ${tags.join(" ")}</div></li>`;
 }
 
-function digest(s: Snapshot): string {
+function shipped(s: Snapshot): string {
   const d = s.digest;
   const tz = s.timezone;
   const today = d.shippedToday.length
-    ? `<ul class="list">${d.shippedToday.map((p) => prLine(p, tz)).join("")}</ul>`
-    : `<p class="quiet">Nothing new went live in the last 24 hours. Quiet days are usually testing and groundwork; anything in progress is listed below.</p>`;
+    ? `<ul class="rows">${d.shippedToday.map((p) => prRow(p, tz)).join("")}</ul>`
+    : `<p class="quiet">Nothing new went live in the last 24 hours. Quiet days are usually testing and groundwork; what's in progress is listed below.</p>`;
   const week = d.shippedThisWeek.length
-    ? `<details${d.shippedToday.length ? "" : " open"}><summary>Earlier this week (${d.shippedThisWeek.length})</summary><ul class="list">${d.shippedThisWeek.map((p) => prLine(p, tz)).join("")}</ul></details>`
+    ? `<details class="fold"${d.shippedToday.length ? "" : " open"}><summary><span class="mono-label">Earlier this week</span> <span class="count">${d.shippedThisWeek.length}</span></summary><ul class="rows">${d.shippedThisWeek.map((p) => prRow(p, tz)).join("")}</ul></details>`
     : "";
+  return `<section class="block">${sectionHead("01", "Shipped", "What went <em>live</em>")}${today}${week}</section>`;
+}
 
+function work(s: Snapshot): string {
+  const d = s.digest;
   const needs = d.needsYou.length
-    ? `<ul class="list">${d.needsYou.map(itemLine).join("")}</ul>`
+    ? `<ul class="items">${d.needsYou.map(itemRow).join("")}</ul>`
     : `<p class="quiet">Nothing needs a decision from you today.</p>`;
-
   const handling = [...d.inProgress, ...d.upNext];
-  return `
-  <section class="card">
-    <h2>What shipped today</h2>
-    ${today}
-    ${week}
-  </section>
-  <section class="split">
-    <div class="card needs ${d.needsYou.length ? "has" : ""}">
-      <h2>Needs a decision from you</h2>
-      ${needs}
-    </div>
-    <div class="card">
-      <h2>We're handling it</h2>
-      ${d.inProgress.length ? `<h4>In progress</h4><ul class="list">${d.inProgress.map(itemLine).join("")}</ul>` : ""}
-      ${d.upNext.length ? `<h4>Up next</h4><ul class="list">${d.upNext.map(itemLine).join("")}</ul>` : ""}
-      ${handling.length ? "" : `<p class="quiet">The work queue is empty.</p>`}
-      <p class="detail">${a(d.boardUrl, "See the full project board")}</p>
+  return `<section class="block">
+    ${sectionHead("02", "The work", "Who's <em>holding</em> what")}
+    <div class="split">
+      <div class="card pane ${d.needsYou.length ? "pane-needs" : ""}">
+        <span class="card-index">For you</span>
+        <h3>Needs a decision from you</h3>
+        ${needs}
+      </div>
+      <div class="card pane">
+        <span class="card-index">For us</span>
+        <h3>We're handling it</h3>
+        ${d.inProgress.length ? `<p class="mono-label sub">In progress</p><ul class="items">${d.inProgress.map(itemRow).join("")}</ul>` : ""}
+        ${d.upNext.length ? `<p class="mono-label sub">Up next</p><ul class="items">${d.upNext.map(itemRow).join("")}</ul>` : ""}
+        ${handling.length ? "" : `<p class="quiet">The work queue is empty.</p>`}
+        <p class="pane-foot">${a(d.boardUrl, "See the full project board", "btn-ghost")}</p>
+      </div>
     </div>
   </section>`;
 }
@@ -105,72 +111,107 @@ function progress(s: Snapshot): string {
   const groups = [...new Set(p.requirements.map((r) => r.group))];
   const repoUrl = `https://github.com/${s.repo}`;
   const row = (r: RequirementProgress) => {
-    const mark = r.state === "shipped" ? "✓" : r.state === "in-progress" ? "◐" : "○";
+    const mark = r.state === "shipped" ? "●" : r.state === "in-progress" ? "◐" : "○";
     const refs = [
       ...r.prs.slice(0, 3).map((n) => a(`${repoUrl}/pull/${n}`, `#${n}`)),
-      ...(r.prs.length > 3 ? [`+${r.prs.length - 3}`] : []),
+      ...(r.prs.length > 3 ? [`<span class="mono-label">+${r.prs.length - 3}</span>`] : []),
       ...r.openIssues.slice(0, 2).map((n) => a(`${repoUrl}/issues/${n}`, `#${n} open`)),
     ].join(" ");
     return `<li class="req ${r.state}"><span class="mark" aria-hidden="true">${mark}</span><span>${esc(r.label)} <span class="rid">${esc(r.id)}</span></span><span class="refs">${refs}</span></li>`;
   };
-  return `
-  <section class="card">
-    <h2>Progress against the plan</h2>
-    <div class="bar" role="img" aria-label="${p.shipped} of ${p.total} shipped, ${p.inProgress} in progress">
-      <span class="shipped" style="width:${pct(p.shipped)}%"></span><span class="inprog" style="width:${pct(p.inProgress)}%"></span>
+  const group = (g: string) => {
+    const rs = p.requirements.filter((r) => r.group === g);
+    const done = rs.filter((r) => r.state === "shipped").length;
+    return `<details class="fold group"><summary><span class="group-name">${esc(g)}</span><span class="count">${done}/${rs.length}</span></summary><ul class="reqs">${rs.map(row).join("")}</ul></details>`;
+  };
+  return `<section class="block">
+    ${sectionHead("03", "Progress", "Against the <em>plan</em>")}
+    <div class="progress-head">
+      <div><span class="metric-value big">${p.shipped}<span class="of">/${p.total}</span></span><span class="mono-label">Planned features with shipped work</span></div>
+      <div class="progress-side">
+        <div class="bar" role="img" aria-label="${p.shipped} of ${p.total} shipped, ${p.inProgress} in progress">
+          <span class="bar-shipped" style="width:${pct(p.shipped)}%"></span><span class="bar-inprog" style="width:${pct(p.inProgress)}%"></span>
+        </div>
+        <p class="legend"><span class="key key-shipped"></span>${p.shipped} shipped <span class="key key-inprog"></span>${p.inProgress} in progress <span class="key"></span>${p.total - p.shipped - p.inProgress} not started</p>
+        <p class="fine">A feature counts once a released change names it. Some will still have more to come.</p>
+      </div>
     </div>
-    <p class="legend"><b>${p.shipped}</b> of ${p.total} planned features have shipped work · <b>${p.inProgress}</b> in progress · ${p.total - p.shipped - p.inProgress} not started</p>
-    <p class="detail">A feature counts as having shipped work once a released change names it. Some will still have more to come.</p>
-    ${groups.map((g) => `<details><summary>${esc(g)} (${p.requirements.filter((r) => r.group === g && r.state === "shipped").length}/${p.requirements.filter((r) => r.group === g).length})</summary><ul class="reqs">${p.requirements.filter((r) => r.group === g).map(row).join("")}</ul></details>`).join("")}
+    <div class="groups">${groups.map(group).join("")}</div>
   </section>`;
 }
 
 function comingNext(s: Snapshot): string {
   const issue = (n: number) => a(`https://github.com/${s.repo}/issues/${n}`, `#${n}`);
-  return `
-  <section class="split">
-    <div class="card soon">
-      <h2>Today's demo video</h2>
-      <p class="quiet">Coming next: a short daily video of the live app, with the tutor catching a planned mistake. Being built in ${issue(59)}.</p>
-    </div>
-    <div class="card soon">
-      <h2>Usage and health</h2>
-      <p class="quiet">Coming next: games played, tutor replies, response times, errors and AI cost for the day. Being built in ${issue(60)}.</p>
+  return `<section class="block">
+    ${sectionHead("04", "Coming next", "Two more <em>windows</em> in")}
+    <div class="split">
+      <div class="card pane soon"><span class="card-index">Daily</span><h3>Today's demo video</h3><p class="quiet">A short video of the live app each day, with the tutor catching a planned mistake. Being built in ${issue(59)}.</p></div>
+      <div class="card pane soon"><span class="card-index">Daily</span><h3>Usage and health</h3><p class="quiet">Games played, tutor replies, response times, errors and AI cost for the day. Being built in ${issue(60)}.</p></div>
     </div>
   </section>`;
 }
 
 export function renderPage(s: Snapshot, history: string[], isLatest: boolean): string {
   const tz = s.timezone;
+  const longDate = fmt(s.generatedAt, tz, { weekday: "long", month: "long", day: "numeric" });
   const hist = history
     .slice(0, 14)
-    .map((d) => (d === s.date ? `<b>${esc(d)}</b>` : `<a href="/?date=${esc(d)}">${esc(d)}</a>`))
-    .join(" · ");
+    .map((d) => (d === s.date ? `<span class="hist-current">${esc(d)}</span>` : `<a href="/?date=${esc(d)}">${esc(d)}</a>`))
+    .join("");
+  const dashRepo = process.env.DASHBOARD_REPO ?? "daveharmswebdev/chess-tutor-dashboard";
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chess Tutor · Daily status</title>
+<meta name="theme-color" content="#161228">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="/tokens.css">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+<header class="topbar">
+  <div class="container topbar-inner">
+    <img src="/logo.svg" alt="FortyAU" class="logo" width="88" height="21">
+    <span class="mono-label topbar-title">Client status</span>
+    <span class="mono-label topbar-time">Updated ${esc(time(s.generatedAt, tz))}</span>
+  </div>
+</header>
 <main>
-  <header>
-    <p class="eyebrow">Chess Tutor build</p>
-    <h1>Daily status, ${esc(new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "long", month: "long", day: "numeric" }).format(new Date(s.generatedAt)))}</h1>
-    ${isLatest ? "" : `<p class="old">You're looking at an earlier day. <a href="/">See today</a>.</p>`}
-  </header>
-  ${statusStrip(s)}
-  ${digest(s)}
-  ${progress(s)}
-  ${comingNext(s)}
-  <footer>
-    <p>Every fact on this page is copied from GitHub, Render or a committed file. Nothing here is written by AI. Each item links to its source.</p>
-    <p>${a(`https://github.com/${process.env.DASHBOARD_REPO ?? "daveharmswebdev/chess-tutor-dashboard"}/blob/main/snapshots/${s.date}.json`, "This day's raw data")}${s.run ? ` · produced by ${a(s.run.url, s.run.label)}` : ""} · generated ${esc(when(s.generatedAt, tz))}</p>
-    ${history.length > 1 ? `<p class="history">Earlier days: ${hist}</p>` : ""}
-  </footer>
+  <section class="hero glow">
+    <div class="container">
+      <span class="section-label">Chess Tutor · ${esc(longDate)}</span>
+      <h1>The build, <em>today</em>.</h1>
+      <p class="lede">What's live, what changed, and what needs you. Every line links to where it came from.</p>
+      ${isLatest ? "" : `<p class="old">You're looking at ${esc(s.date)}. <a href="/">See today</a></p>`}
+      ${statusStrip(s)}
+    </div>
+  </section>
+  <div class="container">
+    ${shipped(s)}
+    ${work(s)}
+    ${progress(s)}
+    ${comingNext(s)}
+  </div>
 </main>
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-claim">
+      <img src="/logo.svg" alt="FortyAU" class="logo" width="88" height="21">
+      <p>Every fact on this page is copied from GitHub, Render or a committed file. <em>Nothing here is written by AI.</em></p>
+    </div>
+    <div class="footer-meta">
+      <p class="mono-label">Source</p>
+      <p>${a(`https://github.com/${dashRepo}/blob/main/snapshots/${s.date}.json`, "This day's raw data")}${s.run ? ` · ${a(s.run.url, s.run.label)}` : ""}</p>
+      <p class="fine">Generated ${esc(when(s.generatedAt, tz))}</p>
+    </div>
+    ${history.length > 1 ? `<div class="footer-meta"><p class="mono-label">Earlier days</p><p class="history">${hist}</p></div>` : ""}
+  </div>
+</footer>
+<div class="grain" aria-hidden="true"></div>
 </body>
 </html>`;
 }
