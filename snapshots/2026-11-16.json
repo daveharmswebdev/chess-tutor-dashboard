@@ -1,0 +1,689 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-16",
+  "generatedAt": "2026-11-16T21:17:59.988Z",
+  "timezone": "America/Chicago",
+  "run": null,
+  "repo": "daveharmswebdev/chess-tutor",
+  "status": {
+    "appUrl": null,
+    "health": null,
+    "deploy": null,
+    "deployUnavailable": "Render connection not set up yet",
+    "ci": {
+      "conclusion": "success",
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/43780700852",
+      "finishedAt": "2026-11-16T00:30:51Z",
+      "commit": "daa27c987d2e50a2abb26d0d40d155b3e09e2490"
+    }
+  },
+  "digest": {
+    "windowStart": "2026-11-15T21:17:59.988Z",
+    "shippedToday": [],
+    "shippedThisWeek": [
+      {
+        "number": 56,
+        "title": "Keep the tutor's notes with each move, saved with the game",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/56",
+        "mergedAt": "2026-11-15T20:43:32Z",
+        "clientNote": null,
+        "requirements": [
+          "FR-25",
+          "FR-10",
+          "FR-8",
+          "NFR-14",
+          "FR-5"
+        ]
+      },
+      {
+        "number": 55,
+        "title": "The tutor's text no longer goes stale after you move",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/55",
+        "mergedAt": "2026-11-15T20:37:33Z",
+        "clientNote": null,
+        "requirements": [
+          "FR-24",
+          "FR-8"
+        ]
+      },
+      {
+        "number": 49,
+        "title": "Show captured pieces and the material count during a game",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/49",
+        "mergedAt": "2026-11-15T16:21:59Z",
+        "clientNote": null,
+        "requirements": [
+          "FR-20",
+          "FR-10",
+          "FR-4"
+        ]
+      },
+      {
+        "number": 48,
+        "title": "A game is no longer lost when the server restarts or the page is refreshed",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/48",
+        "mergedAt": "2026-11-15T16:19:00Z",
+        "clientNote": null,
+        "requirements": [
+          "NFR-14",
+          "FR-5",
+          "NFR-9"
+        ]
+      },
+      {
+        "number": 40,
+        "title": "Eval graders: last false fails before the CI gate, regrade --out",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/40",
+        "mergedAt": "2026-11-15T13:04:32Z",
+        "clientNote": null,
+        "requirements": [
+          "NFR-6",
+          "NFR-7",
+          "NFR-10"
+        ]
+      },
+      {
+        "number": 39,
+        "title": "The bot-speed test sometimes fails in CI by a few milliseconds",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/39",
+        "mergedAt": "2026-11-15T12:25:04Z",
+        "clientNote": null,
+        "requirements": [
+          "NFR-2",
+          "NFR-3"
+        ]
+      },
+      {
+        "number": 38,
+        "title": "Deploy with native Stockfish: the WASM engine ran out of memory on Render (NFR-13, #12)",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/38",
+        "mergedAt": "2026-11-14T15:33:17Z",
+        "clientNote": null,
+        "requirements": [
+          "NFR-13"
+        ]
+      },
+      {
+        "number": 35,
+        "title": "Eval graders: close the false-pass holes and add --gate (part of #29)",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/35",
+        "mergedAt": "2026-11-10T17:29:10Z",
+        "clientNote": null,
+        "requirements": [
+          "NFR-6",
+          "NFR-7",
+          "NFR-10"
+        ]
+      },
+      {
+        "number": 34,
+        "title": "Deploy to Render: serve the web build and add /api/health",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/34",
+        "mergedAt": "2026-11-10T14:35:19Z",
+        "clientNote": null,
+        "requirements": [
+          "NFR-13"
+        ]
+      },
+      {
+        "number": 33,
+        "title": "Exact evaluation check and prompt v2: fewer give-aways (#26, #28)",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/33",
+        "mergedAt": "2026-11-10T13:18:13Z",
+        "clientNote": null,
+        "requirements": [
+          "FR-10",
+          "NFR-6",
+          "FR-8",
+          "NFR-7",
+          "NFR-10"
+        ]
+      }
+    ],
+    "needsYou": [],
+    "inProgress": [
+      {
+        "number": 1,
+        "title": "Epic: Play a coached game against a realistic sparring bot",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/1",
+        "status": "In Progress",
+        "priority": null,
+        "kind": "Epic",
+        "fromClient": false
+      }
+    ],
+    "upNext": [
+      {
+        "number": 8,
+        "title": "Ask-anything chat about the position",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/8",
+        "status": "Todo",
+        "priority": "P2",
+        "kind": "Feature",
+        "fromClient": false
+      },
+      {
+        "number": 9,
+        "title": "Cost tracking and a monthly budget guard",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/9",
+        "status": "Todo",
+        "priority": "P2",
+        "kind": "Feature",
+        "fromClient": false
+      },
+      {
+        "number": 29,
+        "title": "Eval graders can pass a bad reply; close the holes, then make the CI eval a blocking gate",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/29",
+        "status": "Todo",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": false
+      },
+      {
+        "number": 44,
+        "title": "Tutor tool that counts attackers and defenders and works out the exchange on a square",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/44",
+        "status": "Todo",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": true
+      },
+      {
+        "number": 45,
+        "title": "Tutor asks you to count attackers and defenders at capture moments, and checks your answer",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/45",
+        "status": "Todo",
+        "priority": "P2",
+        "kind": "Feature",
+        "fromClient": true
+      }
+    ],
+    "boardUrl": "https://github.com/users/daveharmswebdev/projects/5"
+  },
+  "progress": {
+    "requirements": [
+      {
+        "id": "FR-1",
+        "group": "Playing games",
+        "label": "Start a game against the bot as White or Black",
+        "state": "shipped",
+        "prs": [
+          25,
+          24,
+          19
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-2",
+        "group": "Playing games",
+        "label": "The bot opens like real human players at your level",
+        "state": "shipped",
+        "prs": [
+          22,
+          19,
+          14
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-3",
+        "group": "Playing games",
+        "label": "After the opening, the bot plays at a strength set for you",
+        "state": "shipped",
+        "prs": [
+          19
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-4",
+        "group": "Playing games",
+        "label": "Legal moves only, a move list, and takebacks",
+        "state": "shipped",
+        "prs": [
+          49,
+          25,
+          24
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-5",
+        "group": "Playing games",
+        "label": "Finished games are saved with the tutor's comments",
+        "state": "shipped",
+        "prs": [
+          56,
+          48,
+          24
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-20",
+        "group": "Playing games",
+        "label": "Captured pieces and the material count beside the board",
+        "state": "shipped",
+        "prs": [
+          49
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-6",
+        "group": "Coaching during the game",
+        "label": "The app spots the moments that matter",
+        "state": "shipped",
+        "prs": [
+          15
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-7",
+        "group": "Coaching during the game",
+        "label": "The tutor stays quiet the rest of the time",
+        "state": "shipped",
+        "prs": [
+          27,
+          20,
+          15
+        ],
+        "openIssues": [
+          45
+        ]
+      },
+      {
+        "id": "FR-8",
+        "group": "Coaching during the game",
+        "label": "The tutor asks you a question before giving the answer",
+        "state": "shipped",
+        "prs": [
+          56,
+          55,
+          33,
+          27
+        ],
+        "openIssues": [
+          41,
+          45,
+          50,
+          52
+        ]
+      },
+      {
+        "id": "FR-9",
+        "group": "Coaching during the game",
+        "label": "When the opponent leaves the book, the tutor explains the plan",
+        "state": "shipped",
+        "prs": [
+          27
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-10",
+        "group": "Coaching during the game",
+        "label": "Every move or score the tutor quotes comes from the chess engine",
+        "state": "shipped",
+        "prs": [
+          56,
+          49,
+          33,
+          27,
+          22,
+          19,
+          15
+        ],
+        "openIssues": [
+          41,
+          44,
+          45,
+          46,
+          52,
+          59
+        ]
+      },
+      {
+        "id": "FR-11",
+        "group": "Coaching during the game",
+        "label": "Arrows and highlights on the board",
+        "state": "shipped",
+        "prs": [
+          31,
+          27
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-12",
+        "group": "Coaching during the game",
+        "label": "A Hint button you can press at any time",
+        "state": "shipped",
+        "prs": [
+          27
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-24",
+        "group": "Coaching during the game",
+        "label": "Tutor text always matches the board, and results show as a short pop-up",
+        "state": "shipped",
+        "prs": [
+          55
+        ],
+        "openIssues": [
+          52
+        ]
+      },
+      {
+        "id": "FR-25",
+        "group": "Coaching during the game",
+        "label": "Tutor notes saved with each move",
+        "state": "shipped",
+        "prs": [
+          56
+        ],
+        "openIssues": [
+          54
+        ]
+      },
+      {
+        "id": "FR-13",
+        "group": "Ask the tutor",
+        "label": "Ask the tutor anything about the position",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          8
+        ]
+      },
+      {
+        "id": "FR-14",
+        "group": "Ask the tutor",
+        "label": "Paste a game or position and talk it through",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          8
+        ]
+      },
+      {
+        "id": "FR-15",
+        "group": "Ask the tutor",
+        "label": "Chat answers use the engine too",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          8
+        ]
+      },
+      {
+        "id": "FR-16",
+        "group": "Tutor's tools",
+        "label": "Tutor can analyze a position",
+        "state": "shipped",
+        "prs": [
+          27
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-17",
+        "group": "Tutor's tools",
+        "label": "Tutor can check how good a move was",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          46
+        ]
+      },
+      {
+        "id": "FR-18",
+        "group": "Tutor's tools",
+        "label": "Tutor can look up what real players chose",
+        "state": "shipped",
+        "prs": [
+          14
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-19",
+        "group": "Tutor's tools",
+        "label": "Tutor knows your London and King's Indian repertoire",
+        "state": "shipped",
+        "prs": [
+          27
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "FR-21",
+        "group": "Tutor's tools",
+        "label": "Tutor can count attackers and defenders on a square",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          43,
+          44,
+          45,
+          46
+        ]
+      },
+      {
+        "id": "FR-22",
+        "group": "Calculation training",
+        "label": "Count attackers and defenders, and get checked",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          43,
+          45
+        ]
+      },
+      {
+        "id": "FR-23",
+        "group": "Calculation training",
+        "label": "Rank competing captures, and see when counting misleads",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          43,
+          44,
+          46
+        ]
+      },
+      {
+        "id": "NFR-1",
+        "group": "Quality",
+        "label": "Tutor replies arrive quickly",
+        "state": "shipped",
+        "prs": [
+          27
+        ],
+        "openIssues": [
+          46
+        ]
+      },
+      {
+        "id": "NFR-2",
+        "group": "Quality",
+        "label": "Engine analysis is fast",
+        "state": "shipped",
+        "prs": [
+          39
+        ],
+        "openIssues": [
+          36
+        ]
+      },
+      {
+        "id": "NFR-3",
+        "group": "Quality",
+        "label": "The bot replies within 2 seconds",
+        "state": "shipped",
+        "prs": [
+          39,
+          27,
+          24,
+          14
+        ],
+        "openIssues": [
+          36
+        ]
+      },
+      {
+        "id": "NFR-4",
+        "group": "Quality",
+        "label": "AI cost stays under $25 a month",
+        "state": "shipped",
+        "prs": [
+          32
+        ],
+        "openIssues": [
+          9,
+          29
+        ]
+      },
+      {
+        "id": "NFR-5",
+        "group": "Quality",
+        "label": "AI cost is tracked per game and per month",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          9
+        ]
+      },
+      {
+        "id": "NFR-6",
+        "group": "Quality",
+        "label": "Tutor never mentions an illegal move or a made-up score",
+        "state": "shipped",
+        "prs": [
+          40,
+          35,
+          33,
+          32,
+          31
+        ],
+        "openIssues": [
+          29,
+          30,
+          44
+        ]
+      },
+      {
+        "id": "NFR-7",
+        "group": "Quality",
+        "label": "Tutor doesn't give the answer away too early",
+        "state": "shipped",
+        "prs": [
+          40,
+          35,
+          33,
+          32,
+          31
+        ],
+        "openIssues": [
+          29,
+          30
+        ]
+      },
+      {
+        "id": "NFR-8",
+        "group": "Quality",
+        "label": "Malformed tutor replies are never shown",
+        "state": "shipped",
+        "prs": [
+          27
+        ],
+        "openIssues": []
+      },
+      {
+        "id": "NFR-9",
+        "group": "Quality",
+        "label": "Games keep working if the AI service is down",
+        "state": "shipped",
+        "prs": [
+          48,
+          27
+        ],
+        "openIssues": [
+          9,
+          50
+        ]
+      },
+      {
+        "id": "NFR-10",
+        "group": "Quality",
+        "label": "Every tutor change is tested before release",
+        "state": "shipped",
+        "prs": [
+          40,
+          35,
+          33,
+          31
+        ],
+        "openIssues": [
+          11,
+          29,
+          44
+        ]
+      },
+      {
+        "id": "NFR-11",
+        "group": "Quality",
+        "label": "Fair play: no help in games on other sites",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          8
+        ]
+      },
+      {
+        "id": "NFR-12",
+        "group": "Quality",
+        "label": "Keys and secrets are never stored in the code",
+        "state": "not-started",
+        "prs": [],
+        "openIssues": []
+      },
+      {
+        "id": "NFR-13",
+        "group": "Quality",
+        "label": "Easy to run and deploy",
+        "state": "shipped",
+        "prs": [
+          38,
+          34
+        ],
+        "openIssues": [
+          36,
+          58
+        ]
+      },
+      {
+        "id": "NFR-14",
+        "group": "Quality",
+        "label": "A game survives a refresh, restart or update",
+        "state": "shipped",
+        "prs": [
+          56,
+          48
+        ],
+        "openIssues": [
+          50,
+          54
+        ]
+      }
+    ],
+    "shipped": 29,
+    "inProgress": 9,
+    "total": 39
+  }
+}

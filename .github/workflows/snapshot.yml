@@ -1,0 +1,45 @@
+# Builds today's snapshot from GitHub + Render and commits it; Render redeploys on the commit.
+name: Snapshot
+
+on:
+  schedule:
+    - cron: "0 13 * * *" # 7-8 AM US Central
+    - cron: "0 23 * * *" # 5-6 PM US Central (end of day)
+  workflow_dispatch:
+  repository_dispatch:
+    types: [chess-tutor-merged] # sent by chess-tutor on each merge to main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - name: Build snapshot
+        run: pnpm snapshot
+        env:
+          GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }} # reads chess-tutor + Project 5
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          APP_URL: ${{ vars.APP_URL }}
+      - name: Commit snapshot
+        run: |
+          git config user.name "dashboard-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add snapshots/
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
+          git commit -m "snapshot: $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push

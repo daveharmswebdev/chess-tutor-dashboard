@@ -1,0 +1,15 @@
+# Render Blueprint for the client dashboard. Holds no API keys: only the page password.
+services:
+  - type: web
+    name: chess-tutor-dashboard
+    runtime: node
+    plan: starter
+    buildCommand: pnpm install --frozen-lockfile
+    startCommand: pnpm start
+    healthCheckPath: /healthz
+    autoDeploy: true # each snapshot commit redeploys the page
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DASHBOARD_PASSWORD
+        sync: false # set in the Render dashboard
