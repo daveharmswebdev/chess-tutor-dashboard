@@ -1,12 +1,15 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-16",
-  "generatedAt": "2026-11-16T21:17:59.988Z",
+  "generatedAt": "2026-11-16T21:48:06.230Z",
   "timezone": "America/Chicago",
-  "run": null,
+  "run": {
+    "label": "Run 43963678936",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/43963678936"
+  },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
-    "appUrl": null,
+    "appUrl": "",
     "health": null,
     "deploy": null,
     "deployUnavailable": "Render connection not set up yet",
@@ -18,7 +21,7 @@
     }
   },
   "digest": {
-    "windowStart": "2026-11-15T21:17:59.988Z",
+    "windowStart": "2026-11-15T21:48:06.230Z",
     "shippedToday": [],
     "shippedThisWeek": [
       {
