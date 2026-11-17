@@ -1,0 +1,31 @@
+{
+  "brief_id": "017-demo-video-proxy-review-r1",
+  "agent": "reviewer",
+  "issue": 18,
+  "base_sha": "5904e94",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/26133ebd-b38d-4b7c-b736-653328d708ef/scratchpad/017-demo-video-proxy-review-r1",
+  "objective": "Review git diff bbab2cd..5904e94 (issue #18): a new GET/HEAD /demo/:file route in src/server.ts that proxies the snapshot's GitHub Release video with Content-Type video/mp4 so iPhones can play it, and src/page.ts pointing <video src> at /demo/<date>.mp4. Done when: (1) only the snapshot's own https github.com videoUrl can ever be fetched, for a date in the snapshot listing (no SSRF, no path traversal); (2) the route stays behind basic auth; (3) Range requests and seeking work (200/206/416 passthrough, Content-Range, Content-Length, Accept-Ranges); (4) no Content-Disposition, Content-Type video/mp4; (5) HEAD works without downloading; (6) failures give 502/404 plain text and never log the signed redirect URL or a credential; (7) the body streams and errors mid-stream don't crash the server; (8) every committed snapshot still renders and no page text changed. Specifically assess: AbortSignal.timeout(15_000) is passed to fetch, so it also aborts the body stream after 15 s; on a slow phone connection streaming a ~750 KB file, could playback be cut off, and what happens server-side when it fires mid-stream? Also assess whether iOS Safari will send basic-auth credentials for the same-origin <video> request. Give severities blocking / major / minor.",
+  "requirements": [
+    "D-6",
+    "O-2",
+    "O-4",
+    "P-1",
+    "P-2",
+    "P-6",
+    "P-7"
+  ],
+  "contract": "The spoke measured locally via the proxy: curl -r 0-1 /demo/2026-11-17.mp4 -> 206, content-type: video/mp4, cache-control: private, max-age=300, content-length: 2, content-range: bytes 0-1/744440, accept-ranges: bytes, no content-disposition; curl -I -> 200, content-length 744440. Gate at 5904e94: 244 tests passed, typecheck clean (re-run by the coordinator). Direct GitHub asset headers: 302 to a signed release-assets.githubusercontent.com URL, then content-type application/octet-stream, content-disposition attachment. Read src/server.ts and src/page.ts at 5904e94 from the repo, and the new tests in test/page/demo-route.test.ts.",
+  "scope": [],
+  "negative": [
+    "Read-only: do not edit, commit, or run anything that writes to the repo.",
+    "No network calls to the live dashboard."
+  ],
+  "rubric": [
+    "Every finding cites file:line and evidence (command output or code quote); no speculative findings without a concrete failure scenario.",
+    "Checks the eight Done-when items in the objective and the two specific questions.",
+    "Read-only: no file in the repo changes."
+  ],
+  "concurrency": "No other spoke is running.",
+  "round": 1,
+  "contract_files": []
+}

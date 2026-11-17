@@ -1,0 +1,36 @@
+{
+  "brief_id": "018-demo-video-proxy-r2",
+  "agent": "page-agent",
+  "issue": 18,
+  "base_sha": "5904e94",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/26133ebd-b38d-4b7c-b736-653328d708ef/scratchpad/018-demo-video-proxy-r2",
+  "objective": "Round 2 of #18 on your own branch (head 5904e94). The reviewer found one major and three minors you own. Fix all four:\n1. MAJOR src/server.ts: AbortSignal.timeout(15_000) also aborts the body stream, so a client slower than ~50 KB/s has the full-file response cut off at 15 s. Make the 15 s limit cover only the time until the upstream response headers arrive: an AbortController plus a setTimeout that is cleared as soon as fetch() resolves (and on throw). After that the body streams with no overall limit; if the client disconnects, the upstream body must still be cancelled (it is today; keep it).\n2. src/server.ts isGithubHttps: also require the pathname to match /^\\/[^/]+\\/[^/]+\\/releases\\/download\\/[^/]+\\/[^/]+\\.mp4$/ (a release asset only, no other github.com page).\n3. One rule for \"this snapshot has a playable video\", used by both page and server: export a single predicate (e.g. demoVideoSource(url): boolean) from src/page.ts with the rule from item 2 plus https/github.com/no port/no userinfo, and have server.ts import it instead of its own isGithubHttps. The page draws the <video> only when it returns true; otherwise the card shows its text with no player (the text is unchanged).\n4. Tests: an upstream body that errors mid-stream (server stays up, /healthz still 200); a client disconnect mid-stream cancels the upstream body; a body that takes longer than the header timeout to finish still completes (use fake timers or an injectable timeout ms via AppOptions, e.g. demoHeaderTimeoutMs, default 15000); the log never contains the upstream URL, a release-assets host, or the Authorization header (capture logs with a stream on Fastify logger option or app.log spy); a non-release github.com path is 404 and draws no <video>.",
+  "requirements": [
+    "D-6",
+    "P-2",
+    "P-6",
+    "P-7",
+    "O-4"
+  ],
+  "contract": "Reviewer evidence (brief 017): loopback run with AbortSignal.timeout(500): headers after 59 ms, body aborted after 510 ms at 90000 of 300000 bytes with TimeoutError. Through buildApp with a stub body erroring after 100 of 1000 bytes: Fastify logs level 40, the client sees aborted, /healthz still {\"ok\":true}, no uncaughtException. Client disconnect: upstream ReadableStream cancel was called. The current videoUrl shape: https://github.com/daveharmswebdev/chess-tutor-dashboard/releases/download/demos/demo-2026-11-17.mp4. Gate at 5904e94: 244 passed, typecheck clean. No page text changes (P-1).",
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope (src/types.ts, snapshots/, test/fixtures/, docs, .github, root files, lockfile).",
+    "No new dependencies. No network calls in tests. Never log a URL or credential (P-6).",
+    "Do not change page text or any other panel. Do not exempt /demo from basic auth."
+  ],
+  "rubric": [
+    "Tests first: each of the four items has a test that failed before the fix (record the red runs).",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "Repeat the manual check: pnpm dev against copied snapshots, curl -r 0-1 and curl -I on /demo/2026-11-17.mp4, report status and headers.",
+    "files_changed lists every file changed in 5904e94..your head. Commit message references D-6, P-6 and #18."
+  ],
+  "concurrency": "No other spoke is running.",
+  "round": 2,
+  "contract_files": []
+}

@@ -1,0 +1,42 @@
+{
+  "brief_id": "016-demo-video-proxy-r1",
+  "agent": "page-agent",
+  "issue": 18,
+  "base_sha": "bbab2cd",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/26133ebd-b38d-4b7c-b736-653328d708ef/scratchpad/016-demo-video-proxy-r1",
+  "objective": "Issue #18: the demo video (D-6, shipped in #6) does not play on iPhone. The <video> points straight at a GitHub Release asset, and GitHub serves it as \"content-type: application/octet-stream\" + \"content-disposition: attachment\"; iOS WebKit refuses to play a file declared that way (desktop Chrome sniffs and plays it). Fix: the dashboard server serves the video itself with the right headers.\n1. src/server.ts: add GET /demo/:file where :file must match exactly /^(\\d{4}-\\d{2}-\\d{2})\\.mp4$/ and the date must be in the snapshot directory listing (reuse snapshotDates(); never build a path or URL from raw input). Read that snapshot; take demo.videoUrl. Serve 404 (plain text) when the date is unknown, the snapshot has no demo or videoUrl is null, or videoUrl is not https:// on host github.com (prevents the server fetching arbitrary URLs).\n2. Fetch videoUrl upstream with the global fetch (injectable for tests via a new optional AppOptions.fetch, default globalThis.fetch), redirect \"follow\", forwarding the request's Range header if present. Pass through the upstream status when it is 200, 206 or 416, and the headers Content-Length, Content-Range, Accept-Ranges (default \"bytes\" when absent), Last-Modified, ETag. Always set Content-Type: video/mp4 and Cache-Control: \"private, max-age=300\". Never send Content-Disposition. Stream the body (Readable.fromWeb), don't buffer it. Any other upstream status, a thrown fetch or a timeout (AbortSignal.timeout, 15 s for the response headers): 502 plain text \"The demo video could not be loaded from GitHub.\" and log it.\n3. The route sits behind the same basic auth as \"/\" (the existing onRequest hook already covers it; only /healthz is exempt; keep it that way) and HEAD must work.\n4. src/page.ts demoCard: when httpUrl(d.videoUrl) is non-null, the <video src> becomes \"/demo/<s.date>.mp4\" instead of the GitHub URL; keep every other attribute. Add type=\"video/mp4\" is NOT needed (src attribute stays). Nothing else on the page changes.",
+  "requirements": [
+    "D-6",
+    "P-1",
+    "P-2",
+    "P-4",
+    "P-6",
+    "P-7",
+    "O-4"
+  ],
+  "contract": "Measured 2026-11-17 for today's asset (curl -sIL -r 0-1 <videoUrl>):\n  HTTP/2 302 (github.com) -> location: https://release-assets.githubusercontent.com/github-production-release-asset/... (signed, short-lived; never store or log it)\n  HTTP/2 206, accept-ranges: bytes, content-disposition: attachment; filename=demo-2026-11-17.mp4, content-type: application/octet-stream, content-range: bytes 0-1/763461\nThe file is H.264 yuv420p 1280x720 with faststart; only the headers are wrong for iOS.\nSnapshot demo field (snapshots/2026-11-17.json): { outcome:\"success\", recordedAt:\"2026-11-17T12:53:08.995Z\", version:\"621270d8...\", versionUrl:\"https://github.com/daveharmswebdev/chess-tutor/commit/...\", step:null, videoUrl:\"https://github.com/daveharmswebdev/chess-tutor-dashboard/releases/download/demos/demo-2026-11-17.mp4\", run:{label:\"Run 44086975028\", url:\".../actions/runs/44086975028\"} }. Failure snapshots may also carry a videoUrl (partial video) and the same route serves it.\nCurrent page code: demoCard builds `<video class=\"demo-video\" src=\"${esc(src)}\" controls preload=\"metadata\" playsinline aria-label=\"...\">` with src = httpUrl(d.videoUrl). Server: buildApp(AppOptions) in src/server.ts, snapshotDates() lists YYYY-MM-DD.json files newest first, onRequest hook runs basicAuth for everything except /healthz. Tests use app.inject() with a temp snapshots dir (see test/page/server.test.ts). Gate at base: 212 tests passed, typecheck clean.\nNo wording changes: no new client-facing sentence (P-1). The 404/502 texts above are for the video request only and never appear on the page.",
+  "contract_files": [
+    "src/types.ts",
+    "src/server.ts"
+  ],
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests: stub fetch via AppOptions.fetch. Never log the signed redirect URL or any credential (P-6).",
+    "Do not exempt /demo from basic auth. Do not proxy any URL that is not the snapshot's own github.com https videoUrl.",
+    "Do not change any page text, other panels, or the demo card beyond the video src."
+  ],
+  "rubric": [
+    "Tests first (red then green): unknown date -> 404 and fetch not called; malformed :file (../, no .mp4, extra chars) -> 404; snapshot without demo / videoUrl null / non-github or http videoUrl -> 404, fetch not called; 200 upstream -> 200, content-type video/mp4, no content-disposition, content-length passed, body bytes equal; Range request forwarded and 206 + content-range passed through; upstream 404/500 -> 502 with the exact text; fetch throws -> 502; with a password set, /demo without credentials -> 401; HEAD works; page renders src=\"/demo/<date>.mp4\" for a success and a failure-with-video snapshot and no <video> when videoUrl is null or non-http. Every committed snapshot still renders.",
+    "Run pnpm dev against a copy of the snapshots in your scratch dir, request /demo/2026-11-17.mp4 with curl (headers only, -r 0-1; this one live call is from your manual check, not a test) and report the status and headers you saw; look at the page at 390 px.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in base..your head. Commit message references D-6, P-6 and #18."
+  ],
+  "concurrency": "No other spoke is running.",
+  "round": 1
+}

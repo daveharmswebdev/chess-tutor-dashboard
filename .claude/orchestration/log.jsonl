@@ -61,3 +61,15 @@
 {"ts":"2026-11-17T12:47:58.049Z","event":"return_valid","agent_id":"a88287f7bb5d8eec6","agent_type":"data-agent","via":"handback"}
 {"ts":"2026-11-17T12:48:09.603Z","event":"coordinator_verdict","brief_id":"015-demo-record-r2","agent":"data-agent","verdict":"accepted","reason":"files match, 212 passed on combined branch, SNAPSHOT_DATE exercised; digest-window minor accepted"}
 {"ts":"2026-11-17T12:54:18.375Z","event":"shipped","issue":6,"pr":17}
+{"ts":"2026-11-17T13:54:13.449Z","event":"dispatch","subagent_type":"page-agent","brief_id":"016-demo-video-proxy-r1","base_sha":"bbab2cd","spoke":true}
+{"ts":"2026-11-17T13:54:13.705Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"016-demo-video-proxy-r1","agent_id":"a5f2022d777998d27","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T13:57:33.512Z","event":"return_valid","agent_id":"a5f2022d777998d27","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-17T13:58:28.645Z","event":"dispatch","subagent_type":"reviewer","brief_id":"017-demo-video-proxy-review-r1","base_sha":"5904e94","spoke":true}
+{"ts":"2026-11-17T13:58:28.854Z","event":"agent_complete","subagent_type":"reviewer","brief_id":"017-demo-video-proxy-review-r1","agent_id":"a28d88dc67d89e019","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T13:58:32.218Z","event":"coordinator_verdict","brief_id":"016-demo-video-proxy-r1","agent":"page-agent","verdict":"accepted","reason":"files match, gate 244 passed, diff read, no secrets; asset-size finding is the forced 13:53Z demo run, not a defect","tokens":51762,"duration_ms":200123}
+{"ts":"2026-11-17T14:01:40.783Z","event":"return_valid","agent_id":"a28d88dc67d89e019","agent_type":"reviewer","via":"handback"}
+{"ts":"2026-11-17T14:01:47.180Z","event":"coordinator_verdict","brief_id":"017-demo-video-proxy-review-r1","agent":"reviewer","verdict":"review","reason":"1 major (timeout covers body), 4 minor; round 2"}
+{"ts":"2026-11-17T14:06:18.685Z","event":"return_invalid","agent_id":"a5f2022d777998d27","agent_type":"page-agent","attempt":1,"errors":["/brief_defects/0: must be string"]}
+{"ts":"2026-11-17T14:06:33.669Z","event":"return_valid","agent_id":"a5f2022d777998d27","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-17T14:06:43.197Z","event":"coordinator_verdict","brief_id":"018-demo-video-proxy-r2","agent":"page-agent","verdict":"accepted","reason":"all 4 review items fixed; files match, gate 271 passed, diff read; body outlives header timeout at 40k/s","tokens":93579,"duration_ms":259097}
+{"ts":"2026-11-17T14:07:52.208Z","event":"shipped","issue":18,"pr":19}
