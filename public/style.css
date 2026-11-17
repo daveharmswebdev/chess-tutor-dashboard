@@ -11,6 +11,7 @@
 .hero { padding-block: var(--space-4xl) var(--space-3xl); border-bottom: 1px solid var(--border); }
 .hero h1 { margin-top: var(--space-lg); }
 .lede { margin-top: var(--space-md); max-width: 54ch; font-size: 18px; line-height: 1.7; color: var(--text-2); }
+.stale { margin-bottom: var(--space-xl); font-family: var(--font-mono); font-size: 14px; line-height: 1.6; color: var(--bad); background: var(--bad-dim); border: 1px solid var(--bad); border-left-width: 4px; border-radius: var(--radius-sm); padding: 12px 16px; max-width: 100%; overflow-wrap: anywhere; }
 .old { margin-top: var(--space-lg); display: inline-block; font-family: var(--font-mono); font-size: 13px; color: var(--star); background: var(--star-dim); border: 1px solid var(--star-border); border-radius: var(--radius-sm); padding: 8px 14px; }
 
 /* Status strip: the case-study metric row, in a segmented grid */
