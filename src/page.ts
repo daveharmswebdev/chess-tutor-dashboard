@@ -151,7 +151,12 @@ function comingNext(s: Snapshot): string {
   </section>`;
 }
 
-export function renderPage(s: Snapshot, history: string[], isLatest: boolean): string {
+/** Set when the requested day's file could not be opened and an earlier day is shown instead (#10). */
+export interface RenderNotice {
+  failedDate: string;
+}
+
+export function renderPage(s: Snapshot, history: string[], isLatest: boolean, notice?: RenderNotice): string {
   const tz = s.timezone;
   const longDate = fmt(s.generatedAt, tz, { weekday: "long", month: "long", day: "numeric" });
   const hist = history
@@ -186,7 +191,9 @@ export function renderPage(s: Snapshot, history: string[], isLatest: boolean): s
       <span class="section-label">Chess Tutor · ${esc(longDate)}</span>
       <h1>The build, <em>today</em>.</h1>
       <p class="lede">What's live, what changed, and what needs you. Every line links to where it came from.</p>
-      ${isLatest ? "" : `<p class="old">You're looking at ${esc(s.date)}. <a href="/">See today</a></p>`}
+      ${notice
+        ? `<p class="old">The status saved for ${esc(notice.failedDate)} could not be opened, so this shows ${esc(s.date)}, the most recent earlier day that could. ${a(`https://github.com/${dashRepo}/blob/main/snapshots/${notice.failedDate}.json`, "The file that could not be opened")}</p>`
+        : isLatest ? "" : `<p class="old">You're looking at ${esc(s.date)}. <a href="/">See today</a></p>`}
       ${statusStrip(s)}
     </div>
   </section>

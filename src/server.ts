@@ -78,8 +78,31 @@ export async function buildApp({ password, snapshotsDir, root = repoRoot, logger
     // Only a date found in the directory listing is ever used to build a path.
     const date = req.query.date && dates.includes(req.query.date) ? req.query.date : dates[0];
     if (!date) return reply.type("text/plain").code(503).send("No snapshot yet. Run `pnpm snapshot`.");
-    const snap = JSON.parse(await readFile(join(snapshotsDir, `${date}.json`), "utf8")) as Snapshot;
-    return reply.type("text/html").header("Cache-Control", "no-store").send(renderPage(snap, dates, date === dates[0]));
+
+    // Read, parse and render one day; a file that cannot be read, parsed or rendered counts as damaged (#10).
+    const tryRender = async (d: string, notice?: { failedDate: string }): Promise<string | null> => {
+      try {
+        const snap = JSON.parse(await readFile(join(snapshotsDir, `${d}.json`), "utf8")) as Snapshot;
+        return renderPage(snap, dates, d === dates[0], notice);
+      } catch (err) {
+        app.log.error({ err, date: d }, "snapshot could not be opened");
+        return null;
+      }
+    };
+    const html = (body: string) => reply.type("text/html").header("Cache-Control", "no-store").send(body);
+
+    const page = await tryRender(date);
+    if (page !== null) return html(page);
+    // Walk the older days in the listing, newest first, and show the first that renders.
+    for (const older of dates.slice(dates.indexOf(date) + 1)) {
+      const fallback = await tryRender(older, { failedDate: date });
+      if (fallback !== null) return html(fallback);
+    }
+    return reply
+      .type("text/plain")
+      .code(503)
+      .header("Cache-Control", "no-store")
+      .send(`The saved status for ${date} could not be opened, and no earlier day could be opened either.`);
   });
 
   await app.ready();
