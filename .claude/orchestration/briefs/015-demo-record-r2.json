@@ -1,0 +1,39 @@
+{
+  "brief_id": "015-demo-record-r2",
+  "agent": "data-agent",
+  "issue": 6,
+  "base_sha": "ebd83b0",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/26133ebd-b38d-4b7c-b736-653328d708ef/scratchpad/015-demo-record-r2",
+  "objective": "Round 2 of #6 data half, on your own branch (your last commit ebd83b0). Three changes from review 014:\n1. scripts/demo-wait.ts (and waitForLiveVersion's result): on success also append `url=<the app URL whose health it confirmed>` to $GITHUB_OUTPUT, on its own line after `version=`. The workflow will pass it to chess-tutor's demo as DEMO_BASE_URL, so the demo runs against exactly the app that was checked (today APP_URL is unset, so this is the Render service URL; an empty DEMO_BASE_URL makes chess-tutor fall back to http://localhost:5173).\n2. scripts/snapshot.ts: when env SNAPSHOT_DATE is set and non-empty it is used as the snapshot's date (and so the file name and the carry-over lookup) instead of today's date computed from now. It must match ^\\d{4}-\\d{2}-\\d{2}$ and be a real calendar date, else throw. Unset or \"\": unchanged behaviour. (The Demo workflow takes its date once at job start for the asset name; a manual run near midnight must not record day N's video in day N+1's file.)\n3. parseDemo / buildDemoResult: step must be null or a non-empty string after trimming; parseDemo rejects \"\" and whitespace-only; the log parser never yields an empty step (no step -> null).",
+  "requirements": [
+    "D-6",
+    "O-1",
+    "O-4",
+    "P-2",
+    "P-5",
+    "P-6",
+    "P-7"
+  ],
+  "contract": "Review 014 evidence: src/fetch/demo.ts:133 `const appUrl = env.APP_URL || service?.url || null;` and scripts/demo-wait.ts writes only `version=` to GITHUB_OUTPUT; measured: `gh variable list` on this repo returns nothing (APP_URL is unset). chess-tutor apps/web/demo/playwright.config.ts: `baseURL: process.env[\"DEMO_BASE_URL\"] || DEFAULT_DEMO_BASE_URL`, DEFAULT_DEMO_BASE_URL = \"http://localhost:5173\". Workflow after this round (coordinator edits it): record step env `DEMO_BASE_URL: ${{ steps.live.outputs.url }}`; Build snapshot env `SNAPSHOT_DATE: ${{ steps.day.outputs.date }}` (date from `TZ=America/Chicago date +%F`). Gate at ebd83b0: 171 passed in your worktree, typecheck clean (on the combined branch 192).",
+  "contract_files": [
+    "src/fetch/demo.ts",
+    "scripts/demo-wait.ts"
+  ],
+  "scope": [
+    "src/fetch/**",
+    "scripts/**",
+    "test/data/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6).",
+    "Change nothing else in the demo logic, the wait rule or existing snapshot fields."
+  ],
+  "rubric": [
+    "Tests first (red then green): demo-wait success output has version= and url= lines (both APP_URL set and the Render-URL fallback); SNAPSHOT_DATE used for date/file/carry-over; invalid SNAPSHOT_DATE ('2026-13-01', 'tomorrow') throws; empty SNAPSHOT_DATE ignored; parseDemo rejects step '' and '  '; a log line 'demo stopped at : x' yields step null.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in ebd83b0..your head. Commit message references the requirement IDs and #6."
+  ],
+  "concurrency": "Nothing else is running. The coordinator is editing .github/workflows/demo.yml, .github/workflows/snapshot.yml and package.json on the combined branch 6-demo-video; your commit will be cherry-picked onto it.",
+  "round": 2
+}

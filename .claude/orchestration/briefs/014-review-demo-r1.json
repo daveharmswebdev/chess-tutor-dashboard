@@ -1,0 +1,32 @@
+{
+  "brief_id": "014-review-demo-r1",
+  "agent": "reviewer",
+  "issue": 6,
+  "base_sha": "24246c2",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/26133ebd-b38d-4b7c-b736-653328d708ef/scratchpad/014-review-demo-r1",
+  "objective": "Review `git diff main...24246c2` (issue #6: the evening demo video). Commits: bf2eca6 (coordinator: .github/workflows/demo.yml, package.json \"demo\" script), fcb27cc (data-agent: src/fetch/demo.ts, scripts/demo-wait.ts, scripts/demo-result.ts, scripts/snapshot.ts, test/data/demo.test.ts), 24246c2 (page-agent: src/page.ts demo card, public/style.css, test/page/demo.test.ts). The contract (optional Snapshot.demo, interface Demo) is in src/types.ts, already on main at 3f7df37. Report correctness bugs and requirement gaps with severity blocking / major / minor.\nDone-when for #6 (read the issue's comments: gh issue view 6 --comments): the workflow waits for the live app's version, runs chess-tutor's demo against it (chess-tutor apps/web/demo/, pnpm demo there), converts to mp4, uploads as a GitHub Release asset (tag demos, demo-YYYY-MM-DD.mp4, all kept, a manual run replaces today's), records the result in today's snapshot; a manual run (workflow_dispatch, pnpm demo) does the same; the panel shows the video, or the failure and its step, using the user's approved words exactly (D-6, P-1, P-2, P-7).\nLook specifically for: the workflow (step conditions and outcomes: does every failure path still write a result and commit the snapshot? does the date used for the asset match snapshot.ts's date? does the concurrency group really serialize with snapshot.yml? anything in it that would leak a secret into logs or the public repo, P-6; does persist-credentials/token handling make sense; does the final fail step fire correctly); a later Snapshot run the same day wiping or corrupting demo; a failure of the carry-over breaking the twice-daily Snapshot run; the step parser on real Playwright output (failure messages are printed several times; is the first match the right one?); the page's wording versus the approved sentences (character for character), the 'the ' stripping, escaping of step/labels, non-http URLs; older snapshots (no demo field) rendering byte-identical (O-4); 390 px (O-5); tests that would pass without the change.",
+  "requirements": [
+    "D-6",
+    "O-1",
+    "O-4",
+    "O-5",
+    "P-1",
+    "P-2",
+    "P-4",
+    "P-5",
+    "P-6",
+    "P-7"
+  ],
+  "contract": "Approved wording (issue #6, word for word): heading \"Today's demo video\"; success \"A short video of the live app each day, with the tutor catching a planned mistake.\" + \"Recorded on the live app at <h:mm AM/PM>, version <short sha>.\" (sha links to the commit); failure \"Today's demo failed at the <step> step.\" (a leading \"the \" in the step is dropped) or \"Today's demo failed.\" when no step, then the run link labelled \"Run <id>\"; partial video shown if saved; null today \"Today's demo hasn't run yet. It runs each evening.\"; null earlier day \"No demo ran this day.\"; Coming next title \"One more <em>window</em> in\" once the demo card leaves it; card goes at the end of 01 Shipped. Accepted coordinator decisions: a failing Render API makes demo-wait keep waiting (times out) rather than accept an unconfirmed version; an invalid carried-over demo throws (only our writers produce it). chess-tutor's demo source is in ../chess-tutor (git show origin/main:apps/web/demo/tutor.demo.ts, steps.ts). Live health shape: {\"ok\":true,\"engine\":\"ready\",\"commit\":\"<40-hex>\"}. Gate at 24246c2: 192 passed, typecheck clean.",
+  "scope": [],
+  "negative": [
+    "Read-only: do not edit, commit, or run anything that writes to the repo."
+  ],
+  "rubric": [
+    "Every finding cites file:line and evidence (command output or code quote); no speculative findings without a concrete failure scenario.",
+    "Checks requirement coverage of D-6, O-1, O-4, O-5, P-1, P-2, P-4, P-6, P-7 against the Done-when list in the objective.",
+    "Read-only: no file in the repo changes."
+  ],
+  "concurrency": "Nothing else is running. You review the combined branch 6-demo-video at 24246c2.",
+  "round": 1
+}

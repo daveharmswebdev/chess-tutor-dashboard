@@ -1,0 +1,42 @@
+{
+  "brief_id": "013-demo-panel-r1",
+  "agent": "page-agent",
+  "issue": 6,
+  "base_sha": "3f7df37",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/26133ebd-b38d-4b7c-b736-653328d708ef/scratchpad/013-demo-panel-r1",
+  "objective": "Issue #6 (evening demo video), page half. Render Snapshot.demo (src/types.ts) as a card titled \"Today's demo video\" at the END of section \"01 Shipped · What went live\" (function shipped() in src/page.ts), and take the demo card out of \"Coming next\" on pages that have the feature. Four cases, by s.demo:\n1. undefined (snapshot predates the feature, i.e. every snapshot committed so far): NO demo card in Shipped; Coming next renders exactly as at base (both cards, \"Two more <em>windows</em> in\").\n2. null: if this snapshot is today's (opts.now given: s.date equals opts.now's calendar date in s.timezone; opts.now absent: isLatest) the card says \"Today's demo hasn't run yet. It runs each evening.\"; otherwise \"No demo ran this day.\"\n3. outcome \"success\": a <video> of videoUrl (controls, preload=\"metadata\", playsinline, width 100%, no autoplay), then \"A short video of the live app each day, with the tutor catching a planned mistake.\" then \"Recorded on the live app at <h:mm AM/PM>, version <short sha>.\" where the time is recordedAt in s.timezone (en-US, hour numeric, minute 2-digit, NO time-zone name, plain space before AM/PM like the existing fmt helper), <short sha> is the first 7 characters of version, linked to versionUrl.\n4. outcome \"failure\": \"Today's demo failed at the <step> step.\" when step is non-null, where a step beginning with \"the \" (lower-case, exactly) has those four characters removed first (so \"the tutor's question\" -> \"Today's demo failed at the tutor's question step.\"; \"Hint\" -> \"Today's demo failed at the Hint step.\"). When step is null: \"Today's demo failed.\" Either way followed by a link to run.url with text run.label, and the <video> above the text when videoUrl is non-null (a partial video).\nIn cases 2-4 Coming next drops the demo card and its title becomes \"One more <em>window</em> in\" (the Usage and health card stays as is).",
+  "requirements": [
+    "D-6",
+    "P-1",
+    "P-2",
+    "P-4",
+    "P-7",
+    "O-4",
+    "O-5",
+    "P-6"
+  ],
+  "contract": "ALL WORDING IS DECIDED BY THE USER (issue #6 comments, 2026-11-17), WORD FOR WORD. Do not reword, add, or \"improve\" any sentence (P-1):\n- Card heading: Today's demo video\n- Success line 1: A short video of the live app each day, with the tutor catching a planned mistake.\n- Success line 2: Recorded on the live app at <h:mm AM/PM>, version <short sha>.\n- Failure: Today's demo failed at the <step> step.  |  no step: Today's demo failed.   then the run link (label = run.label, e.g. \"Run 123456\").\n- Not run yet (today only): Today's demo hasn't run yet. It runs each evening.\n- Earlier day, none recorded: No demo ran this day.\n- Coming next title when the demo card has left: One more <em>window</em> in\n- Placement: a card at the end of the 01 Shipped section (user's choice), not a new section.\nEscape every snapshot string (step, run.label, URLs) with the existing esc()/a() helpers; step comes from chess-tutor's error text, so treat it as untrusted. Only http(s) URLs may become a src/href (a non-http videoUrl: no <video>, still show the text).\nCurrent code at base: shipped() returns `<section class=\"block\">${sectionHead(\"01\", \"Shipped\", \"What went <em>live</em>\")}${today}${week}</section>`; comingNext() has two `<div class=\"card pane soon\">` cards inside `<div class=\"split\">`. Reuse existing card/pane classes and tokens from public/style.css and DESIGN.md; add CSS only if needed (video must not overflow at 390 px: max-width 100%, height auto).\nExample Demo values: { outcome: \"success\", recordedAt: \"2026-11-18T00:41:07Z\", version: \"621270d89f9b95b9632a336fbd63e52574a87f37\", versionUrl: \"https://github.com/daveharmswebdev/chess-tutor/commit/621270d89f9b95b9632a336fbd63e52574a87f37\", step: null, videoUrl: \"https://github.com/daveharmswebdev/chess-tutor-dashboard/releases/download/demos/demo-2026-11-17.mp4\", run: { label: \"Run 19400000000\", url: \"https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/19400000000\" } } — in America/Chicago that recordedAt is \"6:41 PM\". Failure example: outcome \"failure\", step \"the tutor's question\", videoUrl set (partial), version set.\ntest/fixtures/snapshot.json has no demo field (old style); build new-style snapshots in test code by spreading it (as test/page/render.test.ts does for progress.rule). test/page/snapshots.test.ts renders every committed snapshot. Gate at base 3f7df37: 116 passed, typecheck clean.",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6).",
+    "Do not change any other panel, the stale warning, the hero, or the footer.",
+    "Do not render the demo card for snapshots without the demo field (they must render exactly as at base).",
+    "Do not autoplay the video or add any text beyond the approved sentences (no captions, no alt prose; aria-label on the video may be exactly the card heading)."
+  ],
+  "rubric": [
+    "Tests first (red then green): demo undefined -> no card, Coming next byte-identical to base; null + today -> not-run sentence; null + earlier day -> 'No demo ran this day.'; null with no opts.now uses isLatest; success -> video src, both sentences exact, time 6:41 PM for the example, 7-char sha linked to versionUrl; failure with 'the tutor's question' -> exact sentence with single 'the'; failure 'Hint'; failure step null -> 'Today's demo failed.'; failure with and without videoUrl; run link label/href; a step containing <script> is escaped; javascript: videoUrl not used; Coming next title 'One more <em>window</em> in' and no demo card when demo present. Every committed snapshot still renders. Look at it at desktop and 390 px (pnpm dev against a fixture copy in your scratch dir) and say what you saw.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 3f7df37..your head. Commit message references the requirement IDs and #6."
+  ],
+  "concurrency": "One other spoke on #6 in parallel: data-agent (brief 012) adds src/fetch/demo.ts, scripts/demo-wait.ts, scripts/demo-result.ts and changes scripts/snapshot.ts and test/data/**. No file overlap with you.",
+  "round": 1
+}
