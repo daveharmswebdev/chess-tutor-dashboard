@@ -9,10 +9,12 @@ import { readdir, readFile } from "node:fs/promises";
 import { realpathSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { join } from "node:path";
+import { PassThrough, Readable } from "node:stream";
+import type { ReadableStream as WebReadableStream } from "node:stream/web";
 import { fileURLToPath } from "node:url";
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, { type FastifyInstance, type FastifyReply } from "fastify";
 import basicAuth from "@fastify/basic-auth";
-import { renderPage } from "./page.ts";
+import { demoVideoSource, renderPage } from "./page.ts";
 import type { Snapshot } from "./types.ts";
 
 export interface AppOptions {
@@ -22,9 +24,14 @@ export interface AppOptions {
   snapshotsDir: string;
   /** Repo root; static assets are read from `<root>/public`. Defaults to this repo. */
   root?: string;
-  logger?: boolean;
+  /** true, false, or pino options (tests pass a stream to read the log). */
+  logger?: boolean | { level?: string; stream: { write(msg: string): void } };
   /** The clock used to decide whether the default view is stale (#3). Tests fix it. */
   now?: () => Date;
+  /** Fetches the demo video from GitHub for /demo/:file (#18). Tests stub it. */
+  fetch?: typeof globalThis.fetch;
+  /** How long /demo waits for GitHub's response headers, in ms. The body itself has no limit. */
+  demoHeaderTimeoutMs?: number;
 }
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
@@ -33,6 +40,21 @@ const same = (a: string, b: string) => {
   const x = Buffer.from(a), y = Buffer.from(b);
   return x.length === y.length && timingSafeEqual(x, y);
 };
+
+/** What may be logged about an upstream failure: the error's name and code, never its message (P-6). */
+function errorFacts(err: unknown): { error: string; code?: string; cause?: string } {
+  if (!(err instanceof Error)) return { error: typeof err };
+  const code = (err as { code?: unknown }).code;
+  const cause = err.cause instanceof Error ? ((err.cause as { code?: unknown }).code ?? err.cause.name) : undefined;
+  return {
+    error: err.name,
+    ...(typeof code === "string" ? { code } : {}),
+    ...(typeof cause === "string" ? { cause } : {}),
+  };
+}
+
+const badGateway = (reply: FastifyReply) =>
+  reply.type("text/plain").code(502).header("Cache-Control", "no-store").send("The demo video could not be loaded from GitHub.");
 
 /**
  * Fail closed (O-2, P-6): on Render or in production a missing password must stop the server
@@ -46,7 +68,7 @@ export function startupRefusal(env: Record<string, string | undefined>): string 
   return null;
 }
 
-export async function buildApp({ password, snapshotsDir, root = repoRoot, logger = false, now = () => new Date() }: AppOptions): Promise<FastifyInstance> {
+export async function buildApp({ password, snapshotsDir, root = repoRoot, logger = false, now = () => new Date(), fetch = globalThis.fetch, demoHeaderTimeoutMs = 15_000 }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
 
   await app.register(basicAuth, {
@@ -109,6 +131,76 @@ export async function buildApp({ password, snapshotsDir, root = repoRoot, logger
       .header("Cache-Control", "no-store")
       .send(`The status saved for ${date} could not be opened, and no earlier day could be opened either.`);
   });
+
+  // The day's demo video, served with headers iOS will play (#18, D-6). GitHub sends the release
+  // asset as an octet-stream attachment, which iOS WebKit refuses. Only the snapshot's own https
+  // github.com videoUrl is ever fetched, for a date found in the directory listing (P-6).
+  const demoFile = /^(\d{4}-\d{2}-\d{2})\.mp4$/;
+  const passHeaders = ["content-length", "content-range", "accept-ranges", "last-modified", "etag"];
+  const notFound = (reply: FastifyReply) => reply.type("text/plain").code(404).header("Cache-Control", "no-store").send("Not found.");
+  // GET and HEAD registered together so Fastify's automatic HEAD route doesn't reset Content-Length.
+  app.route<{ Params: { file: string } }>({ method: ["GET", "HEAD"], url: "/demo/:file", handler: async (req, reply) => {
+    const date = demoFile.exec(req.params.file)?.[1];
+    const dates = await snapshotDates();
+    if (!date || !dates.includes(date)) return notFound(reply);
+    let videoUrl: string | null | undefined;
+    try {
+      const snap = JSON.parse(await readFile(join(snapshotsDir, `${date}.json`), "utf8")) as Snapshot;
+      videoUrl = snap.demo?.videoUrl;
+    } catch (err) {
+      app.log.error({ err, date }, "snapshot could not be opened for its demo video");
+      return notFound(reply);
+    }
+    if (!videoUrl || !demoVideoSource(videoUrl)) return notFound(reply);
+
+    // The time limit covers only the wait for GitHub's response headers. Once they arrive the timer
+    // is cleared, so a slow client can take as long as it needs to download the body.
+    let upstream: Response;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(new DOMException("No response headers from GitHub in time", "TimeoutError")), demoHeaderTimeoutMs);
+    try {
+      const range = req.headers.range;
+      upstream = await fetch(videoUrl, {
+        method: req.method === "HEAD" ? "HEAD" : "GET",
+        redirect: "follow",
+        headers: range ? { range } : {},
+        signal: controller.signal,
+      });
+    } catch (err) {
+      // Never the message: it can carry the signed redirect URL (P-6).
+      app.log.error({ date, ...errorFacts(err) }, "demo video fetch failed");
+      return badGateway(reply);
+    } finally {
+      clearTimeout(timer);
+    }
+    if (![200, 206, 416].includes(upstream.status)) {
+      await upstream.body?.cancel().catch(() => {});
+      app.log.error({ date, status: upstream.status }, "demo video fetch returned an unexpected status");
+      return badGateway(reply);
+    }
+    reply.code(upstream.status).header("Content-Type", "video/mp4").header("Cache-Control", "private, max-age=300");
+    for (const h of passHeaders) {
+      const v = upstream.headers.get(h);
+      if (v !== null) reply.header(h, v);
+    }
+    if (!upstream.headers.has("accept-ranges")) reply.header("Accept-Ranges", "bytes");
+    if (!upstream.body || req.method === "HEAD") {
+      await upstream.body?.cancel().catch(() => {});
+      return reply.send();
+    }
+    // Stream through a PassThrough so an upstream error is logged without its message (it can carry
+    // the signed URL, P-6) and ends only this response. A client that leaves closes `out`, which
+    // destroys `source` and cancels the upstream body.
+    const source = Readable.fromWeb(upstream.body as WebReadableStream<Uint8Array>);
+    const out = new PassThrough();
+    source.on("error", (err) => {
+      app.log.warn({ date, ...errorFacts(err) }, "demo video stream from GitHub broke off");
+      out.destroy(new Error("The demo video stream from GitHub broke off."));
+    });
+    out.on("close", () => source.destroy());
+    source.pipe(out);
+    return reply.send(out);
+  } });
 
   await app.ready();
   return app;
