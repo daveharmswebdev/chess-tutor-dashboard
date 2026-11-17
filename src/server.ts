@@ -78,10 +78,10 @@ export async function buildApp({ password, snapshotsDir, root = repoRoot, logger
   app.get<{ Querystring: { date?: string } }>("/", async (req, reply) => {
     const dates = await snapshotDates();
     // Only a date found in the directory listing is ever used to build a path.
-    const requestedDate = Boolean(req.query.date && dates.includes(req.query.date));
-    const date = requestedDate ? req.query.date : dates[0];
+    const date = req.query.date && dates.includes(req.query.date) ? req.query.date : dates[0];
     if (!date) return reply.type("text/plain").code(503).send("No snapshot yet. Run `pnpm snapshot`.");
-    // A day named on purpose (?date= found in the listing) is history, never stale (#3).
+    // An older day named on purpose is history, never stale (#3). ?date=<newest> is the default view.
+    const requestedDate = date !== dates[0];
     const renderOpts = { now: now(), requestedDate };
 
     // Read, parse and render one day; a file that cannot be read, parsed or rendered counts as damaged (#10).

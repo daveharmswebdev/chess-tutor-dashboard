@@ -223,13 +223,32 @@ describe("server stale warning (#3, P-2, P-7)", () => {
     await app.close();
   });
 
-  it("/?date= of a known old day is never stale", async () => {
+  it("/?date= of an older day is never stale", async () => {
     const app = await appAt(30 * 24 * H, snapshotsDir(["2026-11-15", "2026-11-16"]));
-    for (const url of ["/?date=2026-11-15", "/?date=2026-11-16"]) {
-      const res = await app.inject({ url, headers: auth });
-      expect(res.statusCode).toBe(200);
-      expect(res.body).not.toContain('class="stale"');
-    }
+    const res = await app.inject({ url: "/?date=2026-11-15", headers: auth });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toContain(`<span class="hist-current">2026-11-15</span>`);
+    expect(res.body).not.toContain('class="stale"');
+    await app.close();
+  });
+
+  it("/?date=<newest day> (the history link back) is the default view and shows the warning", async () => {
+    const app = await appAt(30 * H, snapshotsDir(["2026-11-15", "2026-11-16"]));
+    const res = await app.inject({ url: "/?date=2026-11-16", headers: auth });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toContain(`<span class="hist-current">2026-11-16</span>`);
+    expect(res.body).toContain(SENTENCE);
+    await app.close();
+  });
+
+  it("a newest file whose generatedAt is not a timestamp counts as damaged and falls back with the notice", async () => {
+    const dir = snapshotsDir(["2026-11-15"]);
+    writeFileSync(join(dir, "2026-11-16.json"), JSON.stringify({ ...JSON.parse(fixture), date: "2026-11-16", generatedAt: "not a date" }));
+    const app = await appAt(2 * H, dir);
+    const res = await app.inject({ url: "/", headers: auth });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toContain("The status saved for 2026-11-16 could not be opened, so this shows 2026-11-15, the most recent healthy file.");
+    expect(res.body).toContain(`<span class="hist-current">2026-11-15</span>`);
     await app.close();
   });
 

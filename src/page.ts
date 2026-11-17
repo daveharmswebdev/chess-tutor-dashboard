@@ -164,7 +164,7 @@ export interface RenderNotice {
 export interface RenderOptions {
   /** The current time. Without it the page is never marked stale. */
   now?: Date;
-  /** True when the request named a day (?date=): viewing history on purpose is never stale. */
+  /** True when the request named an older day than the newest (?date=): viewing history on purpose is never stale. */
   requestedDate?: boolean;
 }
 
@@ -174,13 +174,13 @@ const STALE_MS = 26 * 3600 * 1000;
 /** True when the default view shows a snapshot generated more than 26 hours before `now`. */
 function isStale(s: Snapshot, opts: RenderOptions): boolean {
   if (!opts.now || opts.requestedDate) return false;
-  const generated = Date.parse(s.generatedAt);
-  if (Number.isNaN(generated)) return false;
-  return opts.now.getTime() - generated > STALE_MS;
+  return opts.now.getTime() - Date.parse(s.generatedAt) > STALE_MS;
 }
 
 export function renderPage(s: Snapshot, history: string[], isLatest: boolean, notice?: RenderNotice, opts: RenderOptions = {}): string {
   const tz = s.timezone;
+  // A snapshot without a real generation time cannot be dated; the server treats it as damaged (#10).
+  if (Number.isNaN(Date.parse(s.generatedAt))) throw new Error("snapshot generatedAt is not a valid timestamp");
   const stale = isStale(s, opts);
   // Approved wording (#3), word for word.
   const staleBand = stale

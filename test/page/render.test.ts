@@ -119,12 +119,17 @@ describe("renderPage stale warning (#3, P-2, P-7, D-1)", () => {
     expect(html).toContain("This page hasn&#39;t updated since Tuesday 3:05 PM. We&#39;re looking into it.");
   });
 
-  it("an unparseable generatedAt renders without a warning and without throwing (O-4)", () => {
+  it("an unparseable generatedAt throws, so the server treats the file as damaged (#10, P-2)", () => {
     const s = fixture();
     s.generatedAt = "not a date";
-    const html = renderPage(s, [s.date], true, undefined, { now: new Date("2027-01-01T00:00:00Z"), requestedDate: false });
-    expect(hasWarning(html)).toBe(false);
-    expect(html).toContain("Last updated");
+    expect(() => renderPage(s, [s.date], true, undefined, { now: new Date("2027-01-01T00:00:00Z"), requestedDate: false })).toThrow(Error);
+    expect(() => renderPage(s, [s.date], true)).toThrow(Error);
+  });
+
+  it("other unparseable timestamps still print unknown (O-4)", () => {
+    const s = fixture();
+    if (s.status.deploy) s.status.deploy.finishedAt = "not a date";
+    const html = renderPage(s, [s.date], true);
     expect(html).not.toMatch(/>\s*(undefined|null|NaN|Invalid Date)\s*</);
   });
 
