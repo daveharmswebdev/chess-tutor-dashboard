@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-16",
-  "generatedAt": "2026-11-17T02:58:59.680Z",
+  "generatedAt": "2026-11-17T04:55:59.274Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44006848103",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44006848103"
+    "label": "Run 44020501869",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44020501869"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-17T02:59:00.127Z",
+      "checkedAt": "2026-11-17T04:56:00.062Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 271,
+      "ms": 189,
       "error": null
     },
     "deploy": {
@@ -27,14 +27,34 @@
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44006466776",
-      "finishedAt": "2026-11-17T02:56:30Z",
-      "commit": "de786d065b37d71837993a520e1bb57eee7cecba"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44009234062",
+      "finishedAt": "2026-11-17T03:19:26Z",
+      "commit": "621270d89f9b95b9632a336fbd63e52574a87f37"
     }
   },
   "digest": {
-    "windowStart": "2026-11-16T02:58:59.680Z",
+    "windowStart": "2026-11-16T04:55:59.274Z",
     "shippedToday": [
+      {
+        "number": 77,
+        "title": "An automatic daily demo video of the live app",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/77",
+        "mergedAt": "2026-11-17T03:18:10Z",
+        "clientNote": "A short guided video of the live app can now be recorded automatically, showing the tutor catching a real mistake.",
+        "requirements": [
+          "FR-27",
+          "FR-10",
+          "FR-28"
+        ]
+      },
+      {
+        "number": 76,
+        "title": "The dashboard updates as soon as a change is merged",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/76",
+        "mergedAt": "2026-11-17T02:59:58Z",
+        "clientNote": "The progress dashboard now refreshes within minutes of each finished change instead of once or twice a day.",
+        "requirements": []
+      },
       {
         "number": 74,
         "title": "Yesterday's usage numbers, safe to show a client",
@@ -247,30 +267,12 @@
     "needsYou": [],
     "inProgress": [
       {
-        "number": 59,
-        "title": "An automatic daily demo video of the live app",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/59",
-        "status": "In Progress",
-        "priority": "P2",
-        "kind": "Engineering",
-        "fromClient": false
-      },
-      {
         "number": 1,
         "title": "Epic: Play a coached game against a realistic sparring bot",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/1",
         "status": "In Progress",
         "priority": null,
         "kind": "Epic",
-        "fromClient": false
-      },
-      {
-        "number": 63,
-        "title": "The dashboard updates as soon as a change is merged",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/63",
-        "status": "In Review",
-        "priority": "P3",
-        "kind": "Engineering",
         "fromClient": false
       }
     ],
@@ -496,6 +498,7 @@
         "label": "Every move or score the tutor quotes comes from the chess engine",
         "state": "in-progress",
         "prs": [
+          77,
           73,
           56,
           49,
@@ -509,8 +512,7 @@
           41,
           44,
           45,
-          46,
-          59
+          46
         ],
         "doneIssues": [
           7,
@@ -518,7 +520,8 @@
           26,
           42,
           52,
-          53
+          53,
+          59
         ]
       },
       {
