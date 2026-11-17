@@ -10,7 +10,8 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
     "snapshot": "tsx scripts/snapshot.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc -p .claude/hooks --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@fastify/basic-auth": "^6.3.1",
@@ -19,6 +20,8 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
-    "typescript": "^7.0.2"
+    "ajv": "^8.20.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
   }
 }

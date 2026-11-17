@@ -1,0 +1,22 @@
+{
+  "brief_id": "001-uptime-fetcher-r1",
+  "agent": "data-agent",
+  "issue": 3,
+  "base_sha": "a29019a",
+  "scratch_dir": "/tmp/chess-tutor-dashboard-scratch/001-uptime-fetcher-r1",
+  "objective": "Add src/fetch/uptime.ts: fetchUptime(env) returns the external monitor's 7-day uptime % and latest response time for chess-tutor, or null with a plain-words reason when the monitor key is missing or the API fails (O-3, P-2). Wire it into scripts/snapshot.ts under status.uptime.",
+  "requirements": ["O-3", "P-2", "P-6"],
+  "contract": "Status.uptime was added to src/types.ts at base (inlined below): { percent7d: number; responseMs: number | null; checkedAt: string } | null, plus uptimeUnavailable: string | null.\nMonitor API: GET https://api.uptimerobot.com/v2/getMonitors (POST form api_key, custom_uptime_ratios=7). Recorded response is at test/data/fixtures/uptimerobot-getMonitors.json (scrubbed).",
+  "contract_files": ["src/types.ts"],
+  "scope": ["src/fetch/**", "scripts/**", "test/data/**"],
+  "negative": [
+    "Do not edit src/types.ts, src/page.ts or public/ (coordinator and page-agent): report needed changes as findings.",
+    "No live network calls in tests; no new dependencies; never print or commit the monitor key."
+  ],
+  "rubric": [
+    "Tests first: a recorded success, a missing key, a 401 and a timeout, each recorded red then green.",
+    "pnpm test and pnpm typecheck clean (phase gate)."
+  ],
+  "concurrency": null,
+  "round": 1
+}

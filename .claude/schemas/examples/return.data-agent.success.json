@@ -1,0 +1,17 @@
+{
+  "status": "success",
+  "agent": "data-agent",
+  "brief_id": "001-uptime-fetcher-r1",
+  "base_sha": "a29019a",
+  "head_sha": "b4c5d6e",
+  "summary": "Added fetchUptime() with honest fallbacks for a missing key, an auth failure and a timeout, wired into the snapshot as status.uptime; 4 fixture-based tests.",
+  "files_changed": ["src/fetch/uptime.ts", "scripts/snapshot.ts", "test/data/uptime.test.ts", "test/data/fixtures/uptimerobot-getMonitors.json"],
+  "tests_run": [
+    { "command": "pnpm vitest run test/data/uptime.test.ts", "phase": "red", "result": "fail", "summary": "4 failed: fetchUptime is not a function" },
+    { "command": "pnpm vitest run test/data/uptime.test.ts", "phase": "green", "result": "pass", "summary": "4 passed" },
+    { "command": "pnpm test && pnpm typecheck", "phase": "gate", "result": "pass", "summary": "18 passed; typecheck clean" }
+  ],
+  "contract_gaps": [],
+  "brief_defects": [],
+  "findings": []
+}

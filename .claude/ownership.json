@@ -1,0 +1,18 @@
+{
+  "$comment": [
+    "Who may edit what: the single source for guard-edit-scope.ts (PreToolUse) and for",
+    "delegation.ts's brief and return checks. Globs are repo-relative: `dir/**` covers",
+    "everything under dir; other patterns match segment by segment (`*` within a segment).",
+    "Anything no agent owns belongs to the coordinator: src/types.ts (the snapshot contract, O-4),",
+    "glossary.json (client wording, P-1), snapshots/ (history, P-5), test/fixtures/, docs/, DESIGN.md,",
+    "CLAUDE.md, .claude/, .github/, render.yaml and root config (package.json, pnpm-lock.yaml, tsconfig.json, vitest.config.ts).",
+    "edit_scope_mode: `block` denies an out-of-scope edit; `warn` allows it and logs it."
+  ],
+  "edit_scope_mode": "block",
+  "agents": {
+    "data-agent": { "kind": "implementation", "owns": ["src/fetch/**", "scripts/**", "test/data/**"] },
+    "page-agent": { "kind": "implementation", "owns": ["src/page.ts", "src/server.ts", "public/**", "test/page/**"] },
+    "reviewer":   { "kind": "read-only", "owns": [] },
+    "researcher": { "kind": "read-only", "owns": [] }
+  }
+}
