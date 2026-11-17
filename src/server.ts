@@ -9,8 +9,10 @@ import { readdir, readFile } from "node:fs/promises";
 import { realpathSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { join } from "node:path";
+import { Readable } from "node:stream";
+import type { ReadableStream as WebReadableStream } from "node:stream/web";
 import { fileURLToPath } from "node:url";
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, { type FastifyInstance, type FastifyReply } from "fastify";
 import basicAuth from "@fastify/basic-auth";
 import { renderPage } from "./page.ts";
 import type { Snapshot } from "./types.ts";
@@ -25,6 +27,8 @@ export interface AppOptions {
   logger?: boolean;
   /** The clock used to decide whether the default view is stale (#3). Tests fix it. */
   now?: () => Date;
+  /** Fetches the demo video from GitHub for /demo/:file (#18). Tests stub it. */
+  fetch?: typeof globalThis.fetch;
 }
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
@@ -33,6 +37,19 @@ const same = (a: string, b: string) => {
   const x = Buffer.from(a), y = Buffer.from(b);
   return x.length === y.length && timingSafeEqual(x, y);
 };
+
+/** True only for an https URL on github.com itself (no other host, no credentials, default port). */
+function isGithubHttps(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    return u.protocol === "https:" && u.hostname === "github.com" && u.port === "" && !u.username && !u.password;
+  } catch {
+    return false;
+  }
+}
+
+const badGateway = (reply: FastifyReply) =>
+  reply.type("text/plain").code(502).header("Cache-Control", "no-store").send("The demo video could not be loaded from GitHub.");
 
 /**
  * Fail closed (O-2, P-6): on Render or in production a missing password must stop the server
@@ -46,7 +63,7 @@ export function startupRefusal(env: Record<string, string | undefined>): string 
   return null;
 }
 
-export async function buildApp({ password, snapshotsDir, root = repoRoot, logger = false, now = () => new Date() }: AppOptions): Promise<FastifyInstance> {
+export async function buildApp({ password, snapshotsDir, root = repoRoot, logger = false, now = () => new Date(), fetch = globalThis.fetch }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
 
   await app.register(basicAuth, {
@@ -109,6 +126,59 @@ export async function buildApp({ password, snapshotsDir, root = repoRoot, logger
       .header("Cache-Control", "no-store")
       .send(`The status saved for ${date} could not be opened, and no earlier day could be opened either.`);
   });
+
+  // The day's demo video, served with headers iOS will play (#18, D-6). GitHub sends the release
+  // asset as an octet-stream attachment, which iOS WebKit refuses. Only the snapshot's own https
+  // github.com videoUrl is ever fetched, for a date found in the directory listing (P-6).
+  const demoFile = /^(\d{4}-\d{2}-\d{2})\.mp4$/;
+  const passHeaders = ["content-length", "content-range", "accept-ranges", "last-modified", "etag"];
+  const notFound = (reply: FastifyReply) => reply.type("text/plain").code(404).header("Cache-Control", "no-store").send("Not found.");
+  // GET and HEAD registered together so Fastify's automatic HEAD route doesn't reset Content-Length.
+  app.route<{ Params: { file: string } }>({ method: ["GET", "HEAD"], url: "/demo/:file", handler: async (req, reply) => {
+    const date = demoFile.exec(req.params.file)?.[1];
+    const dates = await snapshotDates();
+    if (!date || !dates.includes(date)) return notFound(reply);
+    let videoUrl: string | null | undefined;
+    try {
+      const snap = JSON.parse(await readFile(join(snapshotsDir, `${date}.json`), "utf8")) as Snapshot;
+      videoUrl = snap.demo?.videoUrl;
+    } catch (err) {
+      app.log.error({ err, date }, "snapshot could not be opened for its demo video");
+      return notFound(reply);
+    }
+    if (!videoUrl || !isGithubHttps(videoUrl)) return notFound(reply);
+
+    let upstream: Response;
+    try {
+      const range = req.headers.range;
+      upstream = await fetch(videoUrl, {
+        method: req.method === "HEAD" ? "HEAD" : "GET",
+        redirect: "follow",
+        headers: range ? { range } : {},
+        signal: AbortSignal.timeout(15_000),
+      });
+    } catch (err) {
+      // Log only the error name and message: the redirect target is a signed URL (P-6).
+      app.log.error({ date, error: err instanceof Error ? `${err.name}: ${err.message}` : String(err) }, "demo video fetch failed");
+      return badGateway(reply);
+    }
+    if (![200, 206, 416].includes(upstream.status)) {
+      await upstream.body?.cancel().catch(() => {});
+      app.log.error({ date, status: upstream.status }, "demo video fetch returned an unexpected status");
+      return badGateway(reply);
+    }
+    reply.code(upstream.status).header("Content-Type", "video/mp4").header("Cache-Control", "private, max-age=300");
+    for (const h of passHeaders) {
+      const v = upstream.headers.get(h);
+      if (v !== null) reply.header(h, v);
+    }
+    if (!upstream.headers.has("accept-ranges")) reply.header("Accept-Ranges", "bytes");
+    if (!upstream.body || req.method === "HEAD") {
+      await upstream.body?.cancel().catch(() => {});
+      return reply.send();
+    }
+    return reply.send(Readable.fromWeb(upstream.body as WebReadableStream<Uint8Array>));
+  } });
 
   await app.ready();
   return app;

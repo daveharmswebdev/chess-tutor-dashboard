@@ -102,9 +102,9 @@ function demoCard(s: Snapshot, isToday: boolean): string {
   if (!d) {
     body = `<p class="quiet">${esc(isToday ? "Today's demo hasn't run yet. It runs each evening." : "No demo ran this day.")}</p>`;
   } else {
-    const src = httpUrl(d.videoUrl);
-    const video = src
-      ? `<video class="demo-video" src="${esc(src)}" controls preload="metadata" playsinline aria-label="${esc("Today's demo video")}"></video>`
+    // The server serves the file itself with headers iOS will play (#18); the GitHub URL stays server-side.
+    const video = httpUrl(d.videoUrl)
+      ? `<video class="demo-video" src="${esc(`/demo/${s.date}.mp4`)}" controls preload="metadata" playsinline aria-label="${esc("Today's demo video")}"></video>`
       : "";
     body = `${video}${demoText(d, s.timezone)}`;
   }

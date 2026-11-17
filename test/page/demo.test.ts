@@ -85,7 +85,8 @@ describe("demo null: none recorded for this date (P-2)", () => {
 describe("demo success (D-6, P-4)", () => {
   it("shows the video, both approved sentences, the recorded time and a linked short sha", () => {
     const card = demoCard(render(withDemo(SUCCESS)));
-    expect(card).toContain(`src="${SUCCESS.videoUrl}"`);
+    expect(card).toContain(`src="/demo/2026-11-16.mp4"`);
+    expect(card).not.toContain(SUCCESS.videoUrl as string);
     const video = card.match(/<video[^>]*>/)?.[0] ?? "";
     expect(video).toContain(" controls");
     expect(video).toContain('preload="metadata"');
@@ -135,7 +136,8 @@ describe("demo failure (P-7: bad news as visible as good)", () => {
 
   it("shows a partial video above the text when one was saved", () => {
     const card = demoCard(render(withDemo(FAILURE)));
-    expect(card).toContain(`src="${FAILURE.videoUrl}"`);
+    expect(card).toContain(`src="/demo/2026-11-16.mp4"`);
+    expect(card).not.toContain(FAILURE.videoUrl as string);
     expect(card.indexOf("<video")).toBeLessThan(card.indexOf("failed"));
   });
 
@@ -169,10 +171,17 @@ describe("demo strings are untrusted (P-6, P-4)", () => {
     expect(f).toContain("Run 1");
   });
 
-  it("escapes quotes in a URL attribute", () => {
+  it("never prints the video URL itself, so quotes in it cannot reach an attribute (#18)", () => {
     const html = render(withDemo({ ...SUCCESS, videoUrl: `https://x.test/a.mp4" onerror="alert(1)` }));
     expect(html).not.toContain(`" onerror="`);
-    expect(html).toContain("&quot; onerror=&quot;");
+    expect(html).not.toContain("x.test");
+    expect(demoCard(html)).toContain(`src="/demo/2026-11-16.mp4"`);
+  });
+
+  it("escapes the snapshot date in the video src", () => {
+    const html = render({ ...withDemo(SUCCESS), date: `2026-11-16"><b>` });
+    expect(html).not.toContain(`"><b>`);
+    expect(html).toContain(`src="/demo/2026-11-16&quot;&gt;&lt;b&gt;.mp4"`);
   });
 });
 
