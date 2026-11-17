@@ -1,0 +1,27 @@
+{
+  "brief_id": "003-review-server-auth-r1",
+  "agent": "reviewer",
+  "issue": 5,
+  "base_sha": "1844ddc",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/c754aa60-b59d-4781-95f9-ae558c6224b4/scratchpad/003-review-server-auth-r1",
+  "objective": "Review `git diff c4538e5..1844ddc` (issue #5: src/server.ts now exports buildApp and startupRefusal, listens only as the entry point, and fails closed on Render/production without a password; new test/page/server.test.ts). Report findings with severity blocking/major/minor. Blocking = the page could be served without the password, a path outside snapshots/ or public/ could be read, `pnpm start` on Render could fail to listen with a password set, or a test passes without proving its claim.",
+  "requirements": [
+    "O-2",
+    "P-6",
+    "P-2",
+    "P-5",
+    "O-4"
+  ],
+  "contract": "Issue #5 Done when: `/`, `/?date=…`, `/style.css`, `/tokens.css`, `/logo.svg` return 401 without the password and 200 with it; `/healthz` 200 without it (O-2, P-6). A wrong password is refused; an unknown `?date=` falls back to the newest snapshot instead of reading other files. Tests run without a real port or network.\nCoordinator checks already done at 1844ddc (rebased on main c4538e5): pnpm test 72 passed, typecheck clean. Ran `DASHBOARD_PASSWORD=pw PORT=3188 pnpm start`: /healthz 200 both ways; /, /style.css, /?date=../package 401 without auth and 200 with. `RENDER=true pnpm start` without DASHBOARD_PASSWORD printed the refusal and exited 1.\nProduction facts: render.yaml startCommand `pnpm start` (= `tsx src/server.ts`); DASHBOARD_PASSWORD is set in the Render dashboard (live / answers 401 today). Render sets RENDER=true.\nPoints worth a hard look: the isEntry() realpath comparison under tsx on Render (would the server silently not listen?); the onRequest hook exempting exactly req.url === '/healthz' (query strings, trailing slash, case); empty-string password handling; whether any test could pass vacuously.",
+  "scope": [],
+  "negative": [
+    "Read-only: do not edit, commit, or run anything that writes to the repo."
+  ],
+  "rubric": [
+    "Every finding cites file:line and evidence (command output or code quote); no speculative findings without a concrete failure scenario.",
+    "Checks requirement coverage of O-2, P-6, P-2 against the Done-when list above.",
+    "Read-only: no file in the repo changes."
+  ],
+  "concurrency": null,
+  "round": 1
+}

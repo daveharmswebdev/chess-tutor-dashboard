@@ -1,0 +1,33 @@
+{
+  "brief_id": "002-snapshots-render-test-r1",
+  "agent": "page-agent",
+  "issue": 8,
+  "base_sha": "cf20405",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/c754aa60-b59d-4781-95f9-ae558c6224b4/scratchpad/002-snapshots-render-test-r1",
+  "objective": "Add test/page/snapshots.test.ts: a test that renders every committed file in snapshots/ (every snapshots/YYYY-MM-DD.json present at test time) with renderPage and fails if any throws, comes out empty, leaks undefined/null/NaN/[object Object], or does not contain its own date. Closes #8.",
+  "requirements": [
+    "O-4",
+    "P-5",
+    "P-6",
+    "P-2"
+  ],
+  "contract": "Issue #8 Done when (verbatim):\n- A test renders every committed file in `snapshots/` and fails if any of them throws or comes out empty (O-4, P-5)\n- The test reads files only from disk, with no network calls (P-6)\n\nFacts measured at base cf20405:\n- snapshots/ holds one file today: 2026-11-16.json (schemaVersion 1). The Snapshot Action adds one or two per day, so discover files with readdirSync, never a hard-coded list, and fail (not pass vacuously) if zero snapshot files are found.\n- Signature: `export function renderPage(s: Snapshot, history: string[], isLatest: boolean): string` in src/page.ts. Pass history = all discovered dates sorted newest first, isLatest = (date === newest).\n- Existing test/page/render.test.ts loads the fixture with `JSON.parse(readFileSync(new URL(\"../fixtures/snapshot.json\", import.meta.url), \"utf8\")) as Snapshot` and asserts `expect(html).not.toMatch(/>\\s*(undefined|null|NaN)\\s*</)` and `not.toContain(\"[object Object]\")`. Reuse the same assertions; do not edit render.test.ts.\n- How the date appears in the rendered page: read src/page.ts for how s.date is printed and assert on that exact form (read the code, do not guess).\n- Never edit or create files in snapshots/ (P-5). src/types.ts is inlined below for reference.\n- One test per file (it.each or a loop of it), so a failure names the broken day.\nGate at base: 4 files, 35 tests passed.",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "test/page/snapshots.test.ts"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Prove the test can fail: temporarily break something locally (e.g. render a deliberately damaged in-memory copy, or point discovery at an empty list) and confirm red, then revert; describe what you did in the return. The committed test modifies no file on disk.",
+    "The test fails if zero snapshot files are found.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in cf20405..your head. Commit message references O-4, P-5 and #8."
+  ],
+  "concurrency": "Running in parallel: brief 001 (page-agent, #5) edits src/server.ts and adds test/page/server.test.ts. Do not touch either.",
+  "round": 1
+}

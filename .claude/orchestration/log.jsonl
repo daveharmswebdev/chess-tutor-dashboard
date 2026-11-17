@@ -1,0 +1,14 @@
+{"ts":"2026-11-17T01:22:55.456Z","event":"dispatch","subagent_type":"page-agent","brief_id":"001-server-auth-tests-r1","base_sha":"cf20405","spoke":true}
+{"ts":"2026-11-17T01:23:15.495Z","event":"dispatch","subagent_type":"page-agent","brief_id":"002-snapshots-render-test-r1","base_sha":"cf20405","spoke":true}
+{"ts":"2026-11-17T01:23:15.724Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"001-server-auth-tests-r1","agent_id":"a8e5d356cb66ecfdf","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T01:23:15.751Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"002-snapshots-render-test-r1","agent_id":"a47fd22367e430829","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T01:24:24.236Z","event":"return_valid","agent_id":"a47fd22367e430829","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-17T01:24:38.821Z","event":"coordinator_verdict","brief_id":"002-snapshots-render-test-r1","agent":"page-agent","verdict":"accepted","reason":"diff = files_changed, gate 37 passed, test-only so no reviewer","tokens":23764,"duration_ms":68831}
+{"ts":"2026-11-17T01:25:20.104Z","event":"return_valid","agent_id":"a8e5d356cb66ecfdf","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-17T01:25:38.047Z","event":"shipped","issue":8,"pr":9}
+{"ts":"2026-11-17T01:26:42.359Z","event":"dispatch","subagent_type":"reviewer","brief_id":"003-review-server-auth-r1","base_sha":"1844ddc","spoke":true}
+{"ts":"2026-11-17T01:26:42.554Z","event":"agent_complete","subagent_type":"reviewer","brief_id":"003-review-server-auth-r1","agent_id":"ac2455cbbc74fda02","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T01:26:47.099Z","event":"coordinator_verdict","brief_id":"001-server-auth-tests-r1","agent":"page-agent","verdict":"accepted","reason":"diff = files_changed, rebased gate 72 passed, ran server: auth + fail-closed confirmed; reviewer launched","tokens":28506,"duration_ms":124748}
+{"ts":"2026-11-17T01:28:23.110Z","event":"return_valid","agent_id":"ac2455cbbc74fda02","agent_type":"reviewer","via":"handback"}
+{"ts":"2026-11-17T01:28:49.045Z","event":"coordinator_verdict","brief_id":"003-review-server-auth-r1","agent":"reviewer","verdict":"review","reason":"0 blocking, 3 minor + leftover process (killed); corrupt-snapshot 500 filed","tokens":29915,"duration_ms":100856}
+{"ts":"2026-11-17T01:29:55.975Z","event":"shipped","issue":5,"pr":11}

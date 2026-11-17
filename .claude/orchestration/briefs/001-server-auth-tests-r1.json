@@ -1,0 +1,37 @@
+{
+  "brief_id": "001-server-auth-tests-r1",
+  "agent": "page-agent",
+  "issue": 5,
+  "base_sha": "cf20405",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/c754aa60-b59d-4781-95f9-ae558c6224b4/scratchpad/001-server-auth-tests-r1",
+  "objective": "Make src/server.ts testable and prove with tests that the dashboard stays password-protected (#5). Export `buildApp({ password, snapshotsDir, root? })` returning a ready (not listening) Fastify instance; keep `listen()` only in an entry path that runs when the file is executed directly (`pnpm start` = `tsx src/server.ts`, also `pnpm dev`). Add test/page/server.test.ts using `app.inject()` (no real port, no network) covering every Done-when case. Fail closed: when no password is set AND (process.env.RENDER is set OR NODE_ENV=production), the entry path must refuse to start (exit non-zero with a plain message), so a missing env var on Render cannot expose the page.",
+  "requirements": [
+    "O-2",
+    "P-6",
+    "P-2",
+    "P-5",
+    "O-4"
+  ],
+  "contract": "Issue #5 Done when (verbatim):\n- Tests prove: `/`, `/?date=…`, `/style.css`, `/tokens.css`, `/logo.svg` return 401 without the password and 200 with it; `/healthz` returns 200 without it (O-2, P-6)\n- A wrong password is refused; an unknown `?date=` falls back to the newest snapshot instead of reading other files\n- The tests run without opening a real port or touching the network\n\nFacts measured at base cf20405:\n- src/server.ts (inlined below) reads DASHBOARD_PASSWORD at module scope, registers @fastify/basic-auth, serves /healthz open, three static assets from public/, and `/` from snapshots/YYYY-MM-DD.json, then calls app.listen() at import time with top-level await. So it cannot be imported by a test today.\n- package.json scripts: start = `tsx src/server.ts`, dev = `tsx watch src/server.ts`. render.yaml startCommand: `pnpm start`; DASHBOARD_PASSWORD is `sync: false` (set in the Render dashboard). Render sets env RENDER=true on its services.\n- With no password the server currently serves openly and logs a warning (local dev). Keep that for local dev; only the Render/production case fails closed.\n- Tests: vitest includes test/**/*.test.ts; unstubGlobals true. Gate at base: 4 files, 35 tests passed.\n- Snapshot fixture: test/fixtures/snapshot.json (coordinator-owned: read it, never edit it). For a snapshotsDir in tests, create a temp dir (node:fs mkdtemp under os.tmpdir()) and copy the fixture in as e.g. 2026-11-16.json and 2026-11-15.json (set each copy's date field to match). Never write under snapshots/.\n- An unknown ?date= must never be used to build a path: the current code only reads a date found in the readdir list; keep that and test it with e.g. `?date=../package` and `?date=2099-01-01` (both fall back to the newest, status 200).\n\nDecision: the entry guard. Compare `import.meta.url` with `pathToFileURL(process.argv[1]).href` (or an equivalent that works under tsx). Verify by actually running `DASHBOARD_PASSWORD=x PORT=3199 pnpm start` in the background, curl http://localhost:3199/healthz (expect 200), then kill it; and run `RENDER=true pnpm start` with DASHBOARD_PASSWORD unset and confirm it exits non-zero. Report both outputs in the return.",
+  "contract_files": [
+    "src/server.ts"
+  ],
+  "scope": [
+    "src/server.ts",
+    "test/page/server.test.ts"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green) in test/page/server.test.ts for each Done-when case: 401 without password on /, /?date=<valid>, /style.css, /tokens.css, /logo.svg; 200 with the right password on each; 401 with a wrong password; /healthz 200 without a password; unknown and path-like ?date= fall back to the newest snapshot (200, body contains the newest date); no snapshots gives 503 plain text (P-2).",
+    "A test that buildApp with no password serves openly (local dev), and a unit-testable check (e.g. an exported function) that the fail-closed rule refuses when RENDER or NODE_ENV=production is set without a password.",
+    "Tests use app.inject() only: no listen(), no network.",
+    "`pnpm start` still listens when run directly, and refuses on RENDER without a password (paste the command output).",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in cf20405..your head. Commit message references the requirement IDs and #5."
+  ],
+  "concurrency": "Running in parallel: brief 002 (page-agent, #8) adds only test/page/snapshots.test.ts and reads src/page.ts. Do not create or edit test/page/snapshots.test.ts; do not edit src/page.ts.",
+  "round": 1
+}
