@@ -75,6 +75,23 @@ function itemRow(i: BoardItem): string {
 /** Only http(s) addresses may become a src or href; anything else is dropped (P-4, P-6). */
 const httpUrl = (url: string | null | undefined) => (url && /^https?:\/\//i.test(url) ? url : null);
 
+const RELEASE_ASSET_PATH = /^\/[^/]+\/[^/]+\/releases\/download\/[^/]+\/[^/]+\.mp4$/;
+
+/**
+ * The one rule for "this demo has a playable video" (#18, P-6), shared with the server's /demo route:
+ * an https GitHub Release .mp4 asset on github.com itself (no other host, port or credentials).
+ * The page draws the player only when this holds; the server fetches only such a URL.
+ */
+export function demoVideoSource(url: string | null | undefined): boolean {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && u.hostname === "github.com" && u.port === "" && !u.username && !u.password && RELEASE_ASSET_PATH.test(u.pathname);
+  } catch {
+    return false;
+  }
+}
+
 /** YYYY-MM-DD of `d` in `tz`, to compare with Snapshot.date. */
 const calendarDate = (d: Date, tz: string) => {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d);
@@ -103,7 +120,7 @@ function demoCard(s: Snapshot, isToday: boolean): string {
     body = `<p class="quiet">${esc(isToday ? "Today's demo hasn't run yet. It runs each evening." : "No demo ran this day.")}</p>`;
   } else {
     // The server serves the file itself with headers iOS will play (#18); the GitHub URL stays server-side.
-    const video = httpUrl(d.videoUrl)
+    const video = demoVideoSource(d.videoUrl)
       ? `<video class="demo-video" src="${esc(`/demo/${s.date}.mp4`)}" controls preload="metadata" playsinline aria-label="${esc("Today's demo video")}"></video>`
       : "";
     body = `${video}${demoText(d, s.timezone)}`;

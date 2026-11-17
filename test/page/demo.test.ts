@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { renderPage } from "../../src/page.ts";
+import { demoVideoSource, renderPage } from "../../src/page.ts";
 import type { Demo, Snapshot } from "../../src/types.ts";
 
 /** Evening demo video card (#6, D-6, P-1, P-2, P-4, P-7, O-4). Wording is the user's, word for word. */
@@ -172,10 +172,13 @@ describe("demo strings are untrusted (P-6, P-4)", () => {
   });
 
   it("never prints the video URL itself, so quotes in it cannot reach an attribute (#18)", () => {
-    const html = render(withDemo({ ...SUCCESS, videoUrl: `https://x.test/a.mp4" onerror="alert(1)` }));
-    expect(html).not.toContain(`" onerror="`);
-    expect(html).not.toContain("x.test");
-    expect(demoCard(html)).toContain(`src="/demo/2026-11-16.mp4"`);
+    for (const videoUrl of [`https://x.test/a.mp4" onerror="alert(1)`, `${SUCCESS.videoUrl}" onerror="alert(1)`]) {
+      const html = render(withDemo({ ...SUCCESS, videoUrl }));
+      expect(html).not.toContain(`" onerror="`);
+      expect(html).not.toContain("x.test");
+      expect(html).not.toContain("releases/download");
+      expect(demoCard(html)).not.toContain("<video");
+    }
   });
 
   it("escapes the snapshot date in the video src", () => {
@@ -204,5 +207,33 @@ describe("Coming next once the demo card has left (D-6)", () => {
     const shipped = section(render(withDemo(SUCCESS)), "01");
     expect(shipped.trimEnd().endsWith("</div>")).toBe(true);
     expect(shipped.lastIndexOf("demo-video")).toBeGreaterThan(shipped.lastIndexOf("</details>"));
+  });
+});
+
+describe("one rule for a playable demo video, shared with the server (#18, P-6)", () => {
+  it.each([
+    [SUCCESS.videoUrl, true],
+    ["https://github.com/o/r/releases/download/demos/demo-2026-11-17.mp4", true],
+    [null, false],
+    ["", false],
+    ["http://github.com/o/r/releases/download/demos/demo.mp4", false],
+    ["https://example.com/o/r/releases/download/demos/demo.mp4", false],
+    ["https://github.com.evil.test/o/r/releases/download/demos/demo.mp4", false],
+    ["https://user@github.com/o/r/releases/download/demos/demo.mp4", false],
+    ["https://github.com:8443/o/r/releases/download/demos/demo.mp4", false],
+    ["https://github.com/o/r/releases/download/demos/demo.mov", false],
+    ["https://github.com/o/r/releases/download/demos/sub/demo.mp4", false],
+    ["https://github.com/o/r/blob/main/demo.mp4", false],
+    ["https://github.com/login", false],
+    ["https://github.com/o/r/releases/download/demos/", false],
+    ["javascript:alert(1)", false],
+  ] as const)("%s -> %s", (url, ok) => {
+    expect(demoVideoSource(url)).toBe(ok);
+  });
+
+  it("a github.com URL that is not a release asset draws no <video> but keeps the text", () => {
+    const card = demoCard(render(withDemo({ ...SUCCESS, videoUrl: "https://github.com/daveharmswebdev/chess-tutor/blob/main/demo.mp4" })));
+    expect(card).not.toContain("<video");
+    expect(card).toContain("A short video of the live app each day, with the tutor catching a planned mistake.");
   });
 });
