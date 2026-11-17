@@ -192,7 +192,7 @@ export function renderPage(s: Snapshot, history: string[], isLatest: boolean, no
       <h1>The build, <em>today</em>.</h1>
       <p class="lede">What's live, what changed, and what needs you. Every line links to where it came from.</p>
       ${notice
-        ? `<p class="old">The status saved for ${esc(notice.failedDate)} could not be opened, so this shows ${esc(s.date)}, the most recent earlier day that could. ${a(`https://github.com/${dashRepo}/blob/main/snapshots/${notice.failedDate}.json`, "The file that could not be opened")}</p>`
+        ? `<p class="old">The status saved for ${esc(notice.failedDate)} could not be opened, so this shows ${esc(s.date)}, the most recent healthy file. ${a(`https://github.com/${dashRepo}/blob/main/snapshots/${notice.failedDate}.json`, "damaged file")}</p>`
         : isLatest ? "" : `<p class="old">You're looking at ${esc(s.date)}. <a href="/">See today</a></p>`}
       ${statusStrip(s)}
     </div>

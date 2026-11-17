@@ -124,8 +124,8 @@ describe("server with a damaged snapshot (#10, P-2, P-7, P-4)", () => {
   const dashRepo = process.env.DASHBOARD_REPO ?? "daveharmswebdev/chess-tutor-dashboard";
   const auth = { authorization: basic(PASSWORD) };
   const notice = (failed: string, shown: string) =>
-    `<p class="old">The status saved for ${failed} could not be opened, so this shows ${shown}, the most recent earlier day that could. ` +
-    `<a href="https://github.com/${dashRepo}/blob/main/snapshots/${failed}.json" target="_blank" rel="noopener">The file that could not be opened</a></p>`;
+    `<p class="old">The status saved for ${failed} could not be opened, so this shows ${shown}, the most recent healthy file. ` +
+    `<a href="https://github.com/${dashRepo}/blob/main/snapshots/${failed}.json" target="_blank" rel="noopener">damaged file</a></p>`;
   const noLeak = (body: string) => {
     expect(body).not.toContain("Internal Server Error");
     expect(body).not.toContain("Unexpected end");
@@ -179,7 +179,7 @@ describe("server with a damaged snapshot (#10, P-2, P-7, P-4)", () => {
     const res = await app.inject({ url: "/", headers: auth });
     expect(res.statusCode).toBe(503);
     expect(res.headers["content-type"]).toContain("text/plain");
-    expect(res.body).toBe("The saved status for 2026-11-16 could not be opened, and no earlier day could be opened either.");
+    expect(res.body).toBe("The status saved for 2026-11-16 could not be opened, and no earlier day could be opened either.");
     noLeak(res.body);
     await app.close();
   });
@@ -188,7 +188,7 @@ describe("server with a damaged snapshot (#10, P-2, P-7, P-4)", () => {
     const app = await buildApp({ password: PASSWORD, snapshotsDir: damagedDir(["2026-11-16"], { "2026-11-15": TRUNCATED }) });
     const res = await app.inject({ url: "/?date=2026-11-15", headers: auth });
     expect(res.statusCode).toBe(503);
-    expect(res.body).toBe("The saved status for 2026-11-15 could not be opened, and no earlier day could be opened either.");
+    expect(res.body).toBe("The status saved for 2026-11-15 could not be opened, and no earlier day could be opened either.");
     await app.close();
   });
 

@@ -102,7 +102,7 @@ export async function buildApp({ password, snapshotsDir, root = repoRoot, logger
       .type("text/plain")
       .code(503)
       .header("Cache-Control", "no-store")
-      .send(`The saved status for ${date} could not be opened, and no earlier day could be opened either.`);
+      .send(`The status saved for ${date} could not be opened, and no earlier day could be opened either.`);
   });
 
   await app.ready();
