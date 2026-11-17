@@ -1,40 +1,52 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-17",
-  "generatedAt": "2026-11-17T14:22:24.225Z",
+  "generatedAt": "2026-11-17T14:43:30.202Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44102324387",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44102324387"
+    "label": "Run 44106200414",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44106200414"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-17T14:22:24.700Z",
+      "checkedAt": "2026-11-17T14:43:30.557Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 248,
+      "ms": 352,
       "error": null
     },
     "deploy": {
       "status": "live",
-      "commit": "621270d89f9b95b9632a336fbd63e52574a87f37",
-      "commitMessage": "An automatic daily demo video of the live app (#77)",
-      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/621270d89f9b95b9632a336fbd63e52574a87f37",
-      "finishedAt": "2026-11-17T12:29:33.54332Z"
+      "commit": "7d135418e0fa7a00ec1043988d66c353630769c7",
+      "commitMessage": "chess-core: ExchangeResult contract for exchange_on_square (FR-21, FR-10, FR-23; #44)",
+      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/7d135418e0fa7a00ec1043988d66c353630769c7",
+      "finishedAt": "2026-11-17T14:24:50.231097Z"
     },
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44083697942",
-      "finishedAt": "2026-11-17T12:31:07Z",
-      "commit": "c83a98c2295450fd6c3e59b24e2b34e3907a2b05"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44102294709",
+      "finishedAt": "2026-11-17T14:23:10Z",
+      "commit": "7d135418e0fa7a00ec1043988d66c353630769c7"
     }
   },
   "digest": {
-    "windowStart": "2026-11-16T14:22:24.225Z",
+    "windowStart": "2026-11-16T14:43:30.202Z",
     "shippedToday": [
+      {
+        "number": 78,
+        "title": "Show the tutor's notes in the move list",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/78",
+        "mergedAt": "2026-11-17T14:43:06Z",
+        "clientNote": "The move list now keeps the tutor's notes next to the moves they were about, so you can reread them after moving on.",
+        "requirements": [
+          "FR-25",
+          "FR-10",
+          "NFR-14"
+        ]
+      },
       {
         "number": 77,
         "title": "An automatic daily demo video of the live app",
@@ -238,29 +250,10 @@
           "NFR-7",
           "NFR-10"
         ]
-      },
-      {
-        "number": 34,
-        "title": "Deploy to Render: serve the web build and add /api/health",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/34",
-        "mergedAt": "2026-11-10T14:35:19Z",
-        "clientNote": null,
-        "requirements": [
-          "NFR-13"
-        ]
       }
     ],
     "needsYou": [],
     "inProgress": [
-      {
-        "number": 54,
-        "title": "Show the tutor's notes in the move list",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/54",
-        "status": "In Progress",
-        "priority": "P2",
-        "kind": "Feature",
-        "fromClient": true
-      },
       {
         "number": 41,
         "title": "Tutor sometimes can't answer after the opponent leaves the book: it names plan moves it wasn't given",
@@ -502,6 +495,7 @@
         "label": "Every move or score the tutor quotes comes from the chess engine",
         "state": "in-progress",
         "prs": [
+          78,
           77,
           73,
           56,
@@ -574,15 +568,15 @@
         "id": "FR-25",
         "group": "Coaching during the game",
         "label": "Tutor notes saved with each move",
-        "state": "in-progress",
+        "state": "shipped",
         "prs": [
+          78,
           56
         ],
-        "openIssues": [
-          54
-        ],
+        "openIssues": [],
         "doneIssues": [
-          53
+          53,
+          54
         ]
       },
       {
@@ -921,6 +915,7 @@
         "label": "A game survives a refresh, restart or update",
         "state": "in-progress",
         "prs": [
+          78,
           72,
           70,
           69,
@@ -928,18 +923,18 @@
           48
         ],
         "openIssues": [
-          50,
-          54
+          50
         ],
         "doneIssues": [
           47,
           53,
+          54,
           71
         ]
       }
     ],
-    "shipped": 12,
-    "inProgress": 14,
+    "shipped": 13,
+    "inProgress": 13,
     "total": 39,
     "rule": "every-issue-done"
   },
