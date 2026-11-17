@@ -1,40 +1,129 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-16",
-  "generatedAt": "2026-11-16T21:53:18.953Z",
+  "generatedAt": "2026-11-17T02:58:59.680Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 43964541153",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/43964541153"
+    "label": "Run 44006848103",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44006848103"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-16T21:53:19.331Z",
+      "checkedAt": "2026-11-17T02:59:00.127Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 335,
+      "ms": 271,
       "error": null
     },
     "deploy": {
       "status": "live",
-      "commit": "3a56c1d3883c5d97b587f72fe6ff18b68468987e",
-      "commitMessage": "Keep the tutor's notes with each move, saved with the game (#56)",
-      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/3a56c1d3883c5d97b587f72fe6ff18b68468987e",
-      "finishedAt": "2026-11-15T20:46:32.843293Z"
+      "commit": "de786d065b37d71837993a520e1bb57eee7cecba",
+      "commitMessage": "web: engine devDependency and demo script for the demo video (FR-27; #59)",
+      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/de786d065b37d71837993a520e1bb57eee7cecba",
+      "finishedAt": "2026-11-17T02:57:46.087415Z"
     },
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/43780700852",
-      "finishedAt": "2026-11-16T00:30:51Z",
-      "commit": "daa27c987d2e50a2abb26d0d40d155b3e09e2490"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44006466776",
+      "finishedAt": "2026-11-17T02:56:30Z",
+      "commit": "de786d065b37d71837993a520e1bb57eee7cecba"
     }
   },
   "digest": {
-    "windowStart": "2026-11-15T21:53:18.953Z",
-    "shippedToday": [],
+    "windowStart": "2026-11-16T02:58:59.680Z",
+    "shippedToday": [
+      {
+        "number": 74,
+        "title": "Yesterday's usage numbers, safe to show a client",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/74",
+        "mergedAt": "2026-11-17T02:31:04Z",
+        "clientNote": "The app can now report yesterday's usage in plain numbers (games, tutor replies, response times, errors and AI cost) for the client dashboard, without sharing anything a player typed.",
+        "requirements": [
+          "FR-29",
+          "FR-28",
+          "NFR-15",
+          "NFR-5"
+        ]
+      },
+      {
+        "number": 73,
+        "title": "A short pop-up shows how your retry went",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/73",
+        "mergedAt": "2026-11-17T02:20:10Z",
+        "clientNote": "When you retry a move the tutor stopped on, a short pop-up above the board tells you how it went, then disappears on its own.",
+        "requirements": [
+          "FR-24",
+          "FR-10"
+        ]
+      },
+      {
+        "number": 72,
+        "title": "The daily demo can end a real player's game in progress",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/72",
+        "mergedAt": "2026-11-17T02:05:34Z",
+        "clientNote": "The daily demo can now run while someone is playing, without ending their game.",
+        "requirements": [
+          "FR-28",
+          "NFR-14",
+          "NFR-3"
+        ]
+      },
+      {
+        "number": 70,
+        "title": "Demo games don't count as real usage",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/70",
+        "mergedAt": "2026-11-17T01:24:00Z",
+        "clientNote": "The app can now tell the daily demo's games apart from real players' games, so the usage numbers you see won't count the robot.",
+        "requirements": [
+          "FR-28",
+          "NFR-14"
+        ]
+      },
+      {
+        "number": 69,
+        "title": "Incident runbook: how to roll back past a database upgrade",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/69",
+        "mergedAt": "2026-11-17T01:20:43Z",
+        "clientNote": "If we ever need to undo a release quickly, the steps are now written down, including the one case that needs extra care.",
+        "requirements": [
+          "NFR-14",
+          "NFR-16"
+        ]
+      },
+      {
+        "number": 68,
+        "title": "The health check says which version is live",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/68",
+        "mergedAt": "2026-11-17T01:15:04Z",
+        "clientNote": "The app now reports which version is running, so the dashboard can show you exactly what's live.",
+        "requirements": [
+          "FR-26"
+        ]
+      },
+      {
+        "number": 67,
+        "title": "When something breaks, the client gets a plain incident note",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/67",
+        "mergedAt": "2026-11-17T01:12:23Z",
+        "clientNote": "If the app ever breaks, you'll get a short plain-language note about it: what happened, who was affected, what we did, and what stops it happening again.",
+        "requirements": [
+          "NFR-16"
+        ]
+      },
+      {
+        "number": 66,
+        "title": "Every PR carries one plain sentence for the client",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/66",
+        "mergedAt": "2026-11-17T01:10:49Z",
+        "clientNote": "Every change now comes with one plain sentence explaining what it means for you.",
+        "requirements": [
+          "NFR-16"
+        ]
+      }
+    ],
     "shippedThisWeek": [
       {
         "number": 56,
@@ -158,12 +247,30 @@
     "needsYou": [],
     "inProgress": [
       {
+        "number": 59,
+        "title": "An automatic daily demo video of the live app",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/59",
+        "status": "In Progress",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": false
+      },
+      {
         "number": 1,
         "title": "Epic: Play a coached game against a realistic sparring bot",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/1",
         "status": "In Progress",
         "priority": null,
         "kind": "Epic",
+        "fromClient": false
+      },
+      {
+        "number": 63,
+        "title": "The dashboard updates as soon as a change is merged",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/63",
+        "status": "In Review",
+        "priority": "P3",
+        "kind": "Engineering",
         "fromClient": false
       }
     ],
@@ -228,7 +335,12 @@
           24,
           19
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          5,
+          6,
+          23
+        ]
       },
       {
         "id": "FR-2",
@@ -240,7 +352,12 @@
           19,
           14
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          4,
+          5,
+          17
+        ]
       },
       {
         "id": "FR-3",
@@ -250,7 +367,10 @@
         "prs": [
           19
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          5
+        ]
       },
       {
         "id": "FR-4",
@@ -262,7 +382,12 @@
           25,
           24
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          6,
+          23,
+          42
+        ]
       },
       {
         "id": "FR-5",
@@ -274,7 +399,12 @@
           48,
           24
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          6,
+          47,
+          53
+        ]
       },
       {
         "id": "FR-20",
@@ -284,7 +414,10 @@
         "prs": [
           49
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          42
+        ]
       },
       {
         "id": "FR-6",
@@ -294,27 +427,38 @@
         "prs": [
           15
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          3,
+          13,
+          16
+        ]
       },
       {
         "id": "FR-7",
         "group": "Coaching during the game",
         "label": "The tutor stays quiet the rest of the time",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           27,
           20,
           15
         ],
         "openIssues": [
-          45
+          45,
+          75
+        ],
+        "doneIssues": [
+          3,
+          7,
+          16
         ]
       },
       {
         "id": "FR-8",
         "group": "Coaching during the game",
         "label": "The tutor asks you a question before giving the answer",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           56,
           55,
@@ -325,25 +469,34 @@
           41,
           45,
           50,
-          52
+          75
+        ],
+        "doneIssues": [
+          7,
+          28,
+          51,
+          52,
+          53
         ]
       },
       {
         "id": "FR-9",
         "group": "Coaching during the game",
         "label": "When the opponent leaves the book, the tutor explains the plan",
-        "state": "shipped",
+        "state": "not-started",
         "prs": [
           27
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": []
       },
       {
         "id": "FR-10",
         "group": "Coaching during the game",
         "label": "Every move or score the tutor quotes comes from the chess engine",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
+          73,
           56,
           49,
           33,
@@ -357,20 +510,28 @@
           44,
           45,
           46,
-          52,
           59
+        ],
+        "doneIssues": [
+          7,
+          17,
+          26,
+          42,
+          52,
+          53
         ]
       },
       {
         "id": "FR-11",
         "group": "Coaching during the game",
         "label": "Arrows and highlights on the board",
-        "state": "shipped",
+        "state": "not-started",
         "prs": [
           31,
           27
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": []
       },
       {
         "id": "FR-12",
@@ -380,17 +541,25 @@
         "prs": [
           27
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          7
+        ]
       },
       {
         "id": "FR-24",
         "group": "Coaching during the game",
         "label": "Tutor text always matches the board, and results show as a short pop-up",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
+          73,
           55
         ],
         "openIssues": [
+          75
+        ],
+        "doneIssues": [
+          51,
           52
         ]
       },
@@ -398,43 +567,49 @@
         "id": "FR-25",
         "group": "Coaching during the game",
         "label": "Tutor notes saved with each move",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           56
         ],
         "openIssues": [
           54
+        ],
+        "doneIssues": [
+          53
         ]
       },
       {
         "id": "FR-13",
         "group": "Ask the tutor",
         "label": "Ask the tutor anything about the position",
-        "state": "in-progress",
+        "state": "not-started",
         "prs": [],
         "openIssues": [
           8
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "FR-14",
         "group": "Ask the tutor",
         "label": "Paste a game or position and talk it through",
-        "state": "in-progress",
+        "state": "not-started",
         "prs": [],
         "openIssues": [
           8
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "FR-15",
         "group": "Ask the tutor",
         "label": "Chat answers use the engine too",
-        "state": "in-progress",
+        "state": "not-started",
         "prs": [],
         "openIssues": [
           8
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "FR-16",
@@ -444,17 +619,21 @@
         "prs": [
           27
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          7
+        ]
       },
       {
         "id": "FR-17",
         "group": "Tutor's tools",
         "label": "Tutor can check how good a move was",
-        "state": "in-progress",
+        "state": "not-started",
         "prs": [],
         "openIssues": [
           46
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "FR-18",
@@ -464,7 +643,10 @@
         "prs": [
           14
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          4
+        ]
       },
       {
         "id": "FR-19",
@@ -474,74 +656,88 @@
         "prs": [
           27
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          7
+        ]
       },
       {
         "id": "FR-21",
         "group": "Tutor's tools",
         "label": "Tutor can count attackers and defenders on a square",
-        "state": "in-progress",
+        "state": "not-started",
         "prs": [],
         "openIssues": [
           43,
           44,
           45,
           46
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "FR-22",
         "group": "Calculation training",
         "label": "Count attackers and defenders, and get checked",
-        "state": "in-progress",
+        "state": "not-started",
         "prs": [],
         "openIssues": [
           43,
           45
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "FR-23",
         "group": "Calculation training",
         "label": "Rank competing captures, and see when counting misleads",
-        "state": "in-progress",
+        "state": "not-started",
         "prs": [],
         "openIssues": [
           43,
           44,
           46
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "NFR-1",
         "group": "Quality",
         "label": "Tutor replies arrive quickly",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           27
         ],
         "openIssues": [
           46
+        ],
+        "doneIssues": [
+          7
         ]
       },
       {
         "id": "NFR-2",
         "group": "Quality",
         "label": "Engine analysis is fast",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           39
         ],
         "openIssues": [
           36
+        ],
+        "doneIssues": [
+          2,
+          37
         ]
       },
       {
         "id": "NFR-3",
         "group": "Quality",
         "label": "The bot replies within 2 seconds",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
+          72,
           39,
           27,
           24,
@@ -549,36 +745,43 @@
         ],
         "openIssues": [
           36
+        ],
+        "doneIssues": [
+          6
         ]
       },
       {
         "id": "NFR-4",
         "group": "Quality",
         "label": "AI cost stays under $25 a month",
-        "state": "shipped",
+        "state": "not-started",
         "prs": [
           32
         ],
         "openIssues": [
           9,
           29
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "NFR-5",
         "group": "Quality",
         "label": "AI cost is tracked per game and per month",
-        "state": "in-progress",
-        "prs": [],
+        "state": "not-started",
+        "prs": [
+          74
+        ],
         "openIssues": [
           9
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "NFR-6",
         "group": "Quality",
         "label": "Tutor never mentions an illegal move or a made-up score",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           40,
           35,
@@ -590,13 +793,17 @@
           29,
           30,
           44
+        ],
+        "doneIssues": [
+          10,
+          26
         ]
       },
       {
         "id": "NFR-7",
         "group": "Quality",
         "label": "Tutor doesn't give the answer away too early",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           40,
           35,
@@ -607,6 +814,10 @@
         "openIssues": [
           29,
           30
+        ],
+        "doneIssues": [
+          10,
+          28
         ]
       },
       {
@@ -617,13 +828,17 @@
         "prs": [
           27
         ],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": [
+          7,
+          28
+        ]
       },
       {
         "id": "NFR-9",
         "group": "Quality",
         "label": "Games keep working if the AI service is down",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           48,
           27
@@ -631,13 +846,16 @@
         "openIssues": [
           9,
           50
+        ],
+        "doneIssues": [
+          47
         ]
       },
       {
         "id": "NFR-10",
         "group": "Quality",
         "label": "Every tutor change is tested before release",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           40,
           35,
@@ -648,17 +866,21 @@
           11,
           29,
           44
+        ],
+        "doneIssues": [
+          10
         ]
       },
       {
         "id": "NFR-11",
         "group": "Quality",
         "label": "Fair play: no help in games on other sites",
-        "state": "in-progress",
+        "state": "not-started",
         "prs": [],
         "openIssues": [
           8
-        ]
+        ],
+        "doneIssues": []
       },
       {
         "id": "NFR-12",
@@ -666,19 +888,23 @@
         "label": "Keys and secrets are never stored in the code",
         "state": "not-started",
         "prs": [],
-        "openIssues": []
+        "openIssues": [],
+        "doneIssues": []
       },
       {
         "id": "NFR-13",
         "group": "Quality",
         "label": "Easy to run and deploy",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           38,
           34
         ],
         "openIssues": [
-          36,
+          36
+        ],
+        "doneIssues": [
+          12,
           58
         ]
       },
@@ -686,19 +912,28 @@
         "id": "NFR-14",
         "group": "Quality",
         "label": "A game survives a refresh, restart or update",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
+          72,
+          70,
+          69,
           56,
           48
         ],
         "openIssues": [
           50,
           54
+        ],
+        "doneIssues": [
+          47,
+          53,
+          71
         ]
       }
     ],
-    "shipped": 29,
-    "inProgress": 9,
-    "total": 39
+    "shipped": 12,
+    "inProgress": 14,
+    "total": 39,
+    "rule": "every-issue-done"
   }
 }
