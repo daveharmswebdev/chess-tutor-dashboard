@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-17",
-  "generatedAt": "2026-11-17T12:53:09.195Z",
+  "generatedAt": "2026-11-17T13:53:55.511Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44086975028",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44086975028"
+    "label": "Run 44096985848",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44096985848"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-17T12:53:09.488Z",
+      "checkedAt": "2026-11-17T13:53:55.799Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 125,
+      "ms": 67,
       "error": null
     },
     "deploy": {
@@ -33,7 +33,7 @@
     }
   },
   "digest": {
-    "windowStart": "2026-11-16T12:53:09.195Z",
+    "windowStart": "2026-11-16T13:53:55.511Z",
     "shippedToday": [
       {
         "number": 77,
@@ -247,20 +247,6 @@
         "clientNote": null,
         "requirements": [
           "NFR-13"
-        ]
-      },
-      {
-        "number": 33,
-        "title": "Exact evaluation check and prompt v2: fewer give-aways (#26, #28)",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/33",
-        "mergedAt": "2026-11-10T13:18:13Z",
-        "clientNote": null,
-        "requirements": [
-          "FR-10",
-          "NFR-6",
-          "FR-8",
-          "NFR-7",
-          "NFR-10"
         ]
       }
     ],
@@ -941,14 +927,14 @@
   },
   "demo": {
     "outcome": "success",
-    "recordedAt": "2026-11-17T12:53:08.995Z",
+    "recordedAt": "2026-11-17T13:53:55.269Z",
     "version": "621270d89f9b95b9632a336fbd63e52574a87f37",
     "versionUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/621270d89f9b95b9632a336fbd63e52574a87f37",
     "step": null,
     "videoUrl": "https://github.com/daveharmswebdev/chess-tutor-dashboard/releases/download/demos/demo-2026-11-17.mp4",
     "run": {
-      "label": "Run 44086975028",
-      "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44086975028"
+      "label": "Run 44096985848",
+      "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44096985848"
     }
   }
 }
