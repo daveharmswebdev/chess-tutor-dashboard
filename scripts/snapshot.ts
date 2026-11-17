@@ -35,7 +35,7 @@ const snapshot: Snapshot = {
   repo,
   status,
   digest: buildDigest(merged, board, now),
-  progress: buildProgress(glossary, merged, board.open),
+  progress: buildProgress(glossary, merged, board.issues),
 };
 
 await mkdir(`${root}snapshots`, { recursive: true });
