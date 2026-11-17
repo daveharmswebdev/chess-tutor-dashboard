@@ -4,6 +4,7 @@
  */
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import { loadSnapshotDemo } from "../src/fetch/demo.ts";
 import { buildDigest, fetchBoard, fetchMergedPrs } from "../src/fetch/digest.ts";
 import { buildProgress, type Glossary } from "../src/fetch/progress.ts";
 import { fetchStatus } from "../src/fetch/status.ts";
@@ -19,6 +20,8 @@ const now = new Date();
 const date = new Intl.DateTimeFormat("en-CA", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
 
 const glossary = JSON.parse(await readFile(`${root}glossary.json`, "utf8")) as Glossary;
+// The evening demo (#6): from the Demo workflow's result file, else kept from today's earlier snapshot.
+const demo = await loadSnapshotDemo({ resultFile: process.env.DEMO_RESULT_FILE, snapshotsDir: `${root}snapshots`, date });
 const [merged, board, status] = await Promise.all([fetchMergedPrs(repo), fetchBoard(repo, owner, projectNumber), fetchStatus(repo)]);
 
 const run =
@@ -36,6 +39,7 @@ const snapshot: Snapshot = {
   status,
   digest: buildDigest(merged, board, now),
   progress: buildProgress(glossary, merged, board.issues),
+  demo,
 };
 
 await mkdir(`${root}snapshots`, { recursive: true });
