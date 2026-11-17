@@ -24,7 +24,13 @@ export interface WaitDeps {
   sleep: (ms: number) => Promise<void>;
 }
 
-export type WaitResult = { ok: true; version: string } | { ok: false; reason: string };
+// url: the app address whose health confirmed the version (the demo runs against exactly this app).
+export type WaitResult = { ok: true; version: string; url: string } | { ok: false; reason: string };
+
+/** The lines demo-wait appends to $GITHUB_OUTPUT: `version=` then `url=`. */
+export function githubOutput(result: { version: string; url: string }): string {
+  return `version=${result.version}\nurl=${result.url}\n`;
+}
 
 interface RenderService {
   service: { id: string; name: string; serviceDetails?: { url?: string } };
@@ -135,7 +141,7 @@ export async function waitForLiveVersion(deps: WaitDeps): Promise<WaitResult> {
       const health = await checkHealth(f, appUrl);
       seen.unshift(health.seen);
       if (health.commit && deployReady && (deployCommit === null || deployCommit === health.commit)) {
-        return { ok: true, version: health.commit };
+        return { ok: true, version: health.commit, url: appUrl };
       }
     } else {
       seen.unshift("no app address (APP_URL is empty and Render gave none)");
@@ -164,7 +170,8 @@ const STEP = /demo stopped at (.+?): /;
 
 /** The <step> from chess-tutor's first "demo stopped at <step>: <reason>", word for word, or null. */
 export function findStep(log: string): string | null {
-  return STEP.exec(log.replace(ANSI, ""))?.[1] ?? null;
+  const step = STEP.exec(log.replace(ANSI, ""))?.[1] ?? null;
+  return step !== null && step.trim() !== "" ? step : null; // a blank step is no step
 }
 
 function runLink(env: Env): Demo["run"] {
@@ -218,7 +225,7 @@ export function parseDemo(value: unknown, source = "demo result"): Demo {
   if (typeof v.recordedAt !== "string" || Number.isNaN(Date.parse(v.recordedAt))) bad("recordedAt must be a timestamp");
   if (!(v.version === null || (typeof v.version === "string" && SHA.test(v.version)))) bad("version must be a 40-hex sha or null");
   if (!nullableString(v.versionUrl)) bad("versionUrl must be a string or null");
-  if (!nullableString(v.step)) bad("step must be a string or null");
+  if (!(v.step === null || (typeof v.step === "string" && v.step.trim() !== ""))) bad("step must be a non-empty string or null");
   if (!nullableString(v.videoUrl)) bad("videoUrl must be a string or null");
   const r = v.run as Record<string, unknown> | null | undefined;
   if (typeof r !== "object" || r === null || typeof r.label !== "string" || typeof r.url !== "string") bad("run must be { label, url }");

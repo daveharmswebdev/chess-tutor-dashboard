@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { buildDemoResult, loadSnapshotDemo, parseDemo, waitForLiveVersion, type WaitDeps } from "../../src/fetch/demo.ts";
+import { buildDemoResult, findStep, githubOutput, loadSnapshotDemo, parseDemo, waitForLiveVersion, type WaitDeps } from "../../src/fetch/demo.ts";
 import type { Demo } from "../../src/types.ts";
 
 const SHA_OLD = "de786d065b37d71837993a520e1bb57eee7cecba";
@@ -57,7 +57,7 @@ describe("waitForLiveVersion (D-6, O-1)", () => {
       "app.example/api/health": () => health(SHA_OLD),
     });
     const d = deps(f.fn, { RENDER_API_KEY: "k", APP_URL: "https://app.example" });
-    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD });
+    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD, url: "https://app.example" });
     expect(d.slept).toEqual([]);
   });
 
@@ -68,7 +68,7 @@ describe("waitForLiveVersion (D-6, O-1)", () => {
       "app.example/api/health": (n) => (n <= 2 ? health(SHA_OLD) : health(SHA_NEW)),
     });
     const d = deps(f.fn, { RENDER_API_KEY: "k", APP_URL: "https://app.example" });
-    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_NEW });
+    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_NEW, url: "https://app.example" });
     expect(d.slept).toEqual([20_000, 20_000]);
   });
 
@@ -79,7 +79,7 @@ describe("waitForLiveVersion (D-6, O-1)", () => {
       "app.example/api/health": (n) => (n < 4 ? health(SHA_OLD) : health(SHA_NEW)),
     });
     const d = deps(f.fn, { RENDER_API_KEY: "k", APP_URL: "https://app.example" });
-    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_NEW });
+    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_NEW, url: "https://app.example" });
     expect(d.slept).toHaveLength(3);
   });
 
@@ -106,7 +106,7 @@ describe("waitForLiveVersion (D-6, O-1)", () => {
       "app.example/api/health": () => health(SHA_OLD),
     });
     const d = deps(f.fn, { RENDER_API_KEY: "k", APP_URL: "https://app.example" });
-    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD });
+    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD, url: "https://app.example" });
   });
 
   it("accepts the health commit when the newest deploy was canceled", async () => {
@@ -116,7 +116,7 @@ describe("waitForLiveVersion (D-6, O-1)", () => {
       "app.example/api/health": () => health(SHA_OLD),
     });
     const d = deps(f.fn, { RENDER_API_KEY: "k", APP_URL: "https://app.example" });
-    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD });
+    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD, url: "https://app.example" });
   });
 
   it("without RENDER_API_KEY accepts the first ready health and never calls Render", async () => {
@@ -124,7 +124,7 @@ describe("waitForLiveVersion (D-6, O-1)", () => {
       "app.example/api/health": (n) => (n === 1 ? new Response("starting", { status: 503 }) : health(SHA_OLD)),
     });
     const d = deps(f.fn, { RENDER_API_KEY: "", APP_URL: "https://app.example" });
-    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD });
+    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD, url: "https://app.example" });
     expect(f.urls.some((u) => u.includes("render.com"))).toBe(false);
     expect(d.slept).toEqual([20_000]);
   });
@@ -134,7 +134,7 @@ describe("waitForLiveVersion (D-6, O-1)", () => {
       "app.example/api/health": (n) => (n === 1 ? json({ ok: true, commit: "abc" }) : n === 2 ? json({ ok: false, commit: SHA_OLD }) : health(SHA_OLD)),
     });
     const d = deps(f.fn, { APP_URL: "https://app.example" });
-    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD });
+    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD, url: "https://app.example" });
     expect(d.slept).toHaveLength(2);
   });
 
@@ -171,7 +171,7 @@ describe("waitForLiveVersion (D-6, O-1)", () => {
       "svc.example/api/health": () => health(SHA_OLD),
     });
     const d = deps(f.fn, { RENDER_API_KEY: "k", APP_URL: "" });
-    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD });
+    expect(await waitForLiveVersion(d)).toEqual({ ok: true, version: SHA_OLD, url: "https://svc.example" });
     expect(f.urls).toContain("https://svc.example/api/health");
   });
 
@@ -181,7 +181,7 @@ describe("waitForLiveVersion (D-6, O-1)", () => {
       "/deploys": () => deploy("live", SHA_OLD),
       "svc.example/api/health": () => health(SHA_OLD),
     });
-    expect(await waitForLiveVersion(deps(f.fn, { RENDER_API_KEY: "k", RENDER_SERVICE_NAME: "other-svc" }))).toEqual({ ok: true, version: SHA_OLD });
+    expect(await waitForLiveVersion(deps(f.fn, { RENDER_API_KEY: "k", RENDER_SERVICE_NAME: "other-svc" }))).toEqual({ ok: true, version: SHA_OLD, url: "https://svc.example" });
   });
 
   it("keeps polling through a failing Render API and says so on timeout, without the key", async () => {
@@ -381,5 +381,34 @@ describe("loadSnapshotDemo (D-6, P-5)", () => {
   it("ignores a same-named file whose date field is another day", async () => {
     await writeFile(join(snapshotsDir(), "2026-11-17.json"), JSON.stringify({ schemaVersion: 1, date: "2026-11-16", demo: sample }));
     expect(await loadSnapshotDemo({ resultFile: undefined, snapshotsDir: snapshotsDir(), date: "2026-11-17" })).toBeNull();
+  });
+});
+
+describe("round 2 (review 014): url output, non-empty step", () => {
+  it("writes version= then url= for GITHUB_OUTPUT when APP_URL is set", async () => {
+    const f = stubFetch({ "app.example/api/health": () => health(SHA_OLD) });
+    const r = await waitForLiveVersion(deps(f.fn, { APP_URL: "https://app.example" }));
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(githubOutput(r)).toBe(`version=${SHA_OLD}\nurl=https://app.example\n`);
+  });
+
+  it("writes the Render service URL it confirmed when APP_URL is empty", async () => {
+    const f = stubFetch({
+      "/v1/services?": () => service.clone(),
+      "/deploys": () => deploy("live", SHA_OLD),
+      "svc.example/api/health": () => health(SHA_OLD),
+    });
+    const r = await waitForLiveVersion(deps(f.fn, { RENDER_API_KEY: "k", APP_URL: "" }));
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(githubOutput(r)).toBe(`version=${SHA_OLD}\nurl=https://svc.example\n`);
+  });
+
+  it.each(["", "  ", "\t"])("parseDemo rejects step %j", (step) => {
+    expect(() => parseDemo({ ...sample, step })).toThrow(/step/);
+  });
+
+  it.each(["demo stopped at : x", "demo stopped at    : x", "demo stopped at \u001b[1m\u001b[22m: x"])("a log line %j yields no step", async (log) => {
+    expect(findStep(log)).toBeNull();
+    expect((await result({ ...allSuccess, DEMO_OUTCOME: "failure" }, log)).step).toBeNull();
   });
 });
