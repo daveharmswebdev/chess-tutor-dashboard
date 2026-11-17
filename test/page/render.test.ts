@@ -137,3 +137,71 @@ describe("renderPage stale warning (#3, P-2, P-7, D-1)", () => {
     expect(renderPage(fixture(), ["2026-11-16"], true, undefined, {})).toBe(renderPage(fixture(), ["2026-11-16"], true));
   });
 });
+
+describe("progress fine print and evidence links follow Progress.rule (D-3, P-1, P-4, O-4, #4)", () => {
+  const OLD_LINE = "A feature counts once a released change names it. Some will still have more to come.";
+  const NEW_LINE = "A feature counts as done once every issue for it is marked Done on the project board. If new work is added to a done feature, it goes back to in progress.";
+  const panel = (html: string) => {
+    const at = html.indexOf("Against the <em>plan</em>");
+    const start = html.lastIndexOf("<section", at);
+    return html.slice(start, html.indexOf("</section>", at) + "</section>".length);
+  };
+  const reqRow = (html: string, id: string) => {
+    const m = html.match(new RegExp(`<li class="req [^"]*">(?:(?!</li>).)*<span class="rid">${id}</span>(?:(?!</li>).)*</li>`, "s"));
+    return m ? m[0] : "";
+  };
+  const everyIssueDone = (): Snapshot => {
+    const s = fixture();
+    const base = s.progress.requirements;
+    s.progress = {
+      ...s.progress,
+      rule: "every-issue-done",
+      requirements: [
+        { ...base[0]!, id: "FR-1", state: "shipped", prs: [25, 24, 19], doneIssues: [5, 6, 23], openIssues: [] },
+        { ...base[1]!, id: "FR-8", state: "in-progress", prs: [30, 31, 32, 33], doneIssues: [7, 28, 51, 52, 53], openIssues: [41, 45, 50, 75] },
+        { ...base[2]!, id: "FR-9", state: "not-started", prs: [27], doneIssues: [], openIssues: [] },
+      ],
+    };
+    return s;
+  };
+  const repo = "https://github.com/daveharmswebdev/chess-tutor";
+  const link = (path: string, text: string) => `<a href="${repo}/${path}" target="_blank" rel="noopener">${text}</a>`;
+
+  it("with rule every-issue-done, prints the approved sentence word for word and not the old line", () => {
+    const html = panel(renderPage(everyIssueDone(), ["2026-11-16"], true));
+    expect(html).toContain(`<p class="fine">${NEW_LINE}</p>`);
+    expect(html).not.toContain(OLD_LINE);
+  });
+
+  it("with rule every-issue-done, links done issues (first 3 then +k) and open issues, never PRs", () => {
+    const html = panel(renderPage(everyIssueDone(), ["2026-11-16"], true));
+    expect(html).not.toContain("/pull/");
+    const fr1 = reqRow(html, "FR-1");
+    for (const n of [5, 6, 23]) expect(fr1).toContain(link(`issues/${n}`, `#${n}`));
+    const fr8 = reqRow(html, "FR-8");
+    expect(fr8).toContain(
+      `<span class="refs">${link("issues/7", "#7")} ${link("issues/28", "#28")} ${link("issues/51", "#51")} <span class="mono-label">+2</span> ${link("issues/41", "#41 open")} ${link("issues/45", "#45 open")}</span>`,
+    );
+  });
+
+  it("with rule every-issue-done, a not-started row with PRs but no issues shows no links", () => {
+    const fr9 = reqRow(panel(renderPage(everyIssueDone(), ["2026-11-16"], true)), "FR-9");
+    expect(fr9).toContain(`<span class="refs"></span>`);
+    expect(fr9).not.toContain("<a ");
+  });
+
+  it("with rule every-issue-done but doneIssues missing on a row, renders without crashing (O-4)", () => {
+    const s = everyIssueDone();
+    delete s.progress.requirements[0]!.doneIssues;
+    const html = panel(renderPage(s, ["2026-11-16"], true));
+    expect(html).not.toMatch(/>\s*(undefined|null|NaN)\s*</);
+    expect(reqRow(html, "FR-1")).toContain(`<span class="refs"></span>`);
+  });
+
+  it("without a rule (older snapshots), keeps the old line and PR links", () => {
+    const html = panel(renderPage(fixture(), ["2026-11-16"], true));
+    expect(html).toContain(`<p class="fine">${OLD_LINE}</p>`);
+    expect(html).not.toContain(NEW_LINE);
+    expect(reqRow(html, "FR-1")).toContain(`<span class="refs">${link("pull/25", "#25")} ${link("pull/24", "#24")} ${link("pull/19", "#19")}</span>`);
+  });
+});
