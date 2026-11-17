@@ -5,7 +5,9 @@
  *   #3  Todo  Feature P2  READY                          Key-moment detector: ...
  *
  * READY = open, Status Todo, not an Epic, not claimed (label in-progress), and every
- * blocked-by issue closed. Sorted READY first, then by priority. Used by /orient.
+ * blocker closed. Blockers are GitHub blocked-by links plus, for work in another repo
+ * (GitHub can't link across repos), a body line "Waits on owner/repo#n" (several allowed).
+ * Sorted READY first, then by priority. Used by /orient.
  *
  *   node .claude/scripts/ready.ts            # human-readable
  *   node .claude/scripts/ready.ts --json
@@ -26,7 +28,7 @@ interface Row {
   priority: string;
   claimed: boolean;
   fromUser: boolean;
-  blockers: { number: number; state: string }[];
+  blockers: { ref: string; state: string }[];
   ready: boolean;
 }
 
@@ -36,8 +38,20 @@ const items = JSON.parse(gh(["project", "item-list", PROJECT, "--owner", OWNER, 
 const board = new Map(items.items.filter((i) => i.content.type === "Issue").map((i) => [i.content.number!, i]));
 
 const open = JSON.parse(
-  gh(["issue", "list", "--repo", `${OWNER}/${REPO}`, "--state", "open", "--limit", "300", "--json", "number,title,labels"]),
-) as { number: number; title: string; labels: { name: string }[] }[];
+  gh(["issue", "list", "--repo", `${OWNER}/${REPO}`, "--state", "open", "--limit", "300", "--json", "number,title,labels,body"]),
+) as { number: number; title: string; labels: { name: string }[]; body: string }[];
+
+/** Cross-repo blockers from "Waits on owner/repo#n" lines, e.g. "Waits on daveharmswebdev/chess-tutor#58 (...) and daveharmswebdev/chess-tutor#59". */
+function crossRepoBlockers(body: string): { ref: string; state: string }[] {
+  const refs = body
+    .split("\n")
+    .filter((l) => /^\s*Waits on\b/i.test(l))
+    .flatMap((l) => [...l.matchAll(/([\w.-]+\/[\w.-]+)#(\d+)/g)].map((m) => [m[1]!, m[2]!] as const));
+  return refs.map(([repo, n]) => ({
+    ref: `${repo === `${OWNER}/${REPO}` ? "" : repo}#${n}`,
+    state: (JSON.parse(gh(["api", `repos/${repo}/issues/${n}`])) as { state: string }).state,
+  }));
+}
 
 const rows: Row[] = open.map((issue) => {
   const b = board.get(issue.number);
@@ -46,7 +60,9 @@ const rows: Row[] = open.map((issue) => {
       number: number;
       state: string;
     }[]
-  ).map(({ number, state }) => ({ number, state }));
+  )
+    .map(({ number, state }) => ({ ref: `#${number}`, state }))
+    .concat(crossRepoBlockers(issue.body ?? ""));
   const labels = issue.labels.map((l) => l.name);
   const row: Row = {
     number: issue.number,
@@ -77,7 +93,7 @@ if (process.argv.includes("--json")) {
       : r.claimed
         ? "CLAIMED"
         : open.length
-          ? `BLOCKED by ${open.map((x) => `#${x.number}`).join(" ")}`
+          ? `BLOCKED by ${open.map((x) => x.ref).join(" ")}`
           : r.kind === "Epic"
             ? "EPIC"
             : r.status;
