@@ -1,4 +1,4 @@
-import type { BoardItem, RequirementProgress, ShippedPr, Snapshot } from "./types.ts";
+import type { BoardItem, Demo, RequirementProgress, ShippedPr, Snapshot } from "./types.ts";
 
 const esc = (s: string | number | null | undefined) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -72,7 +72,46 @@ function itemRow(i: BoardItem): string {
   return `<li class="item">${a(i.url, i.title)}<div class="item-meta"><span class="mono-label">#${i.number}</span> ${tags.join(" ")}</div></li>`;
 }
 
-function shipped(s: Snapshot): string {
+/** Only http(s) addresses may become a src or href; anything else is dropped (P-4, P-6). */
+const httpUrl = (url: string | null | undefined) => (url && /^https?:\/\//i.test(url) ? url : null);
+
+/** YYYY-MM-DD of `d` in `tz`, to compare with Snapshot.date. */
+const calendarDate = (d: Date, tz: string) => {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+};
+
+// Approved wording (#6), word for word.
+function demoText(d: Demo, tz: string): string {
+  if (d.outcome === "success") {
+    const at = fmt(d.recordedAt, tz, { hour: "numeric", minute: "2-digit" });
+    const sha = d.version ? d.version.slice(0, 7) : "unknown";
+    return `<p class="quiet">${esc("A short video of the live app each day, with the tutor catching a planned mistake.")}</p>
+    <p class="quiet">${esc(`Recorded on the live app at ${at}, version `)}${a(httpUrl(d.versionUrl), sha)}.</p>`;
+  }
+  const step = d.step === null ? null : d.step.startsWith("the ") ? d.step.slice(4) : d.step;
+  const sentence = step === null ? "Today's demo failed." : `Today's demo failed at the ${step} step.`;
+  return `<p class="demo-failed">${esc(sentence)} ${a(httpUrl(d.run.url), d.run.label)}</p>`;
+}
+
+/** The evening demo card (#6, D-6). Only rendered when the snapshot carries the demo field (O-4). */
+function demoCard(s: Snapshot, isToday: boolean): string {
+  const d = s.demo;
+  let body: string;
+  if (!d) {
+    body = `<p class="quiet">${esc(isToday ? "Today's demo hasn't run yet. It runs each evening." : "No demo ran this day.")}</p>`;
+  } else {
+    const src = httpUrl(d.videoUrl);
+    const video = src
+      ? `<video class="demo-video" src="${esc(src)}" controls preload="metadata" playsinline aria-label="${esc("Today's demo video")}"></video>`
+      : "";
+    body = `${video}${demoText(d, s.timezone)}`;
+  }
+  return `<div class="card pane demo"><h3>${esc("Today's demo video")}</h3>${body}</div>`;
+}
+
+function shipped(s: Snapshot, isToday: boolean): string {
   const d = s.digest;
   const tz = s.timezone;
   const today = d.shippedToday.length
@@ -81,7 +120,7 @@ function shipped(s: Snapshot): string {
   const week = d.shippedThisWeek.length
     ? `<details class="fold"${d.shippedToday.length ? "" : " open"}><summary><span class="mono-label">Earlier this week</span> <span class="count">${d.shippedThisWeek.length}</span></summary><ul class="rows">${d.shippedThisWeek.map((p) => prRow(p, tz)).join("")}</ul></details>`
     : "";
-  return `<section class="block">${sectionHead("01", "Shipped", "What went <em>live</em>")}${today}${week}</section>`;
+  return `<section class="block">${sectionHead("01", "Shipped", "What went <em>live</em>")}${today}${week}${s.demo === undefined ? "" : demoCard(s, isToday)}</section>`;
 }
 
 function work(s: Snapshot): string {
@@ -154,11 +193,13 @@ function progress(s: Snapshot): string {
 
 function comingNext(s: Snapshot): string {
   const issue = (n: number) => a(`https://github.com/${s.repo}/issues/${n}`, `#${n}`);
+  // Once the snapshot carries the demo field, the demo card lives in Shipped (#6).
+  const demoShipped = s.demo !== undefined;
   return `<section class="block">
-    ${sectionHead("04", "Coming next", "Two more <em>windows</em> in")}
+    ${sectionHead("04", "Coming next", demoShipped ? "One more <em>window</em> in" : "Two more <em>windows</em> in")}
     <div class="split">
-      <div class="card pane soon"><span class="card-index">Daily</span><h3>Today's demo video</h3><p class="quiet">A short video of the live app each day, with the tutor catching a planned mistake. Being built in ${issue(59)}.</p></div>
-      <div class="card pane soon"><span class="card-index">Daily</span><h3>Usage and health</h3><p class="quiet">Games played, tutor replies, response times, errors and AI cost for the day. Being built in ${issue(60)}.</p></div>
+${demoShipped ? "" : `      <div class="card pane soon"><span class="card-index">Daily</span><h3>Today's demo video</h3><p class="quiet">A short video of the live app each day, with the tutor catching a planned mistake. Being built in ${issue(59)}.</p></div>
+`}      <div class="card pane soon"><span class="card-index">Daily</span><h3>Usage and health</h3><p class="quiet">Games played, tutor replies, response times, errors and AI cost for the day. Being built in ${issue(60)}.</p></div>
     </div>
   </section>`;
 }
@@ -234,7 +275,7 @@ export function renderPage(s: Snapshot, history: string[], isLatest: boolean, no
     </div>
   </section>
   <div class="container">
-    ${shipped(s)}
+    ${shipped(s, opts.now ? calendarDate(opts.now, tz) === s.date : isLatest)}
     ${work(s)}
     ${progress(s)}
     ${comingNext(s)}

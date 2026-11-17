@@ -11,7 +11,8 @@
     "start": "tsx src/server.ts",
     "snapshot": "tsx scripts/snapshot.ts",
     "typecheck": "tsc --noEmit && tsc -p .claude/hooks --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "demo": "bash .github/scripts/run-demo.sh"
   },
   "dependencies": {
     "@fastify/basic-auth": "^6.3.1",

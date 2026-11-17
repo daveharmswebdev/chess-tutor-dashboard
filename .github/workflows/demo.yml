@@ -1,0 +1,141 @@
+# The evening demo video (#6, D-6): waits for the live app to settle on its newest version, runs
+# chess-tutor's guided demo against it with video on, stores the video as a public GitHub Release
+# asset (one per day, all kept) and records the result in today's snapshot. It doubles as a smoke
+# test of the live app, so a failed demo fails this run. Start it by hand with the Run workflow
+# button or `pnpm demo`; a manual run replaces today's video under the same asset name.
+#
+# Every failure path still records a result: each step that can fail has continue-on-error, and
+# the result, snapshot and commit steps run unless the run was cancelled (P-2, P-7).
+name: Demo
+
+on:
+  schedule:
+    - cron: "30 0 * * *" # 6:30-7:30 PM US Central, same calendar day as the evening snapshot
+  workflow_dispatch:
+
+permissions:
+  contents: write # commit the snapshot, upload the release asset
+
+# Its own group: sharing Snapshot's group would let a queued Snapshot cancel a pending Demo.
+# The two never overwrite each other: commit-snapshot.sh rebuilds on the latest main when it moved.
+concurrency:
+  group: demo
+  cancel-in-progress: false
+
+env:
+  TARGET_REPO: daveharmswebdev/chess-tutor
+  RELEASE_TAG: demos
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false # chess-tutor's install and demo run in this workspace; no token on disk
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Today's date
+        id: day
+        run: echo "date=$(TZ="${DASHBOARD_TZ:-America/Chicago}" date +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for the live version
+        id: live
+        continue-on-error: true
+        run: pnpm exec tsx scripts/demo-wait.ts # writes version= and url= (the app it confirmed)
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          APP_URL: ${{ vars.APP_URL }}
+
+      - name: Check out chess-tutor at the live version
+        id: checkout
+        if: steps.live.outcome == 'success'
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TARGET_REPO }}
+          ref: ${{ steps.live.outputs.version }}
+          path: chess-tutor
+          token: ${{ secrets.DASHBOARD_GH_TOKEN }}
+          persist-credentials: false
+
+      - name: Record the demo
+        id: record
+        if: steps.checkout.outcome == 'success'
+        continue-on-error: true
+        working-directory: chess-tutor
+        run: |
+          set -o pipefail
+          : "${DEMO_BASE_URL:?no confirmed app URL}"
+          pnpm install --frozen-lockfile
+          pnpm --filter @chess-tutor/web exec playwright install --with-deps chromium
+          pnpm demo 2>&1 | tee "$GITHUB_WORKSPACE/demo.log"
+        env:
+          DEMO_BASE_URL: ${{ steps.live.outputs.url }}
+          DEMO_TOKEN: ${{ secrets.DEMO_TOKEN }}
+
+      - name: Save the video
+        id: upload
+        if: steps.checkout.outcome == 'success' && hashFiles('chess-tutor/apps/web/demo-output/demo.webm') != ''
+        continue-on-error: true
+        run: |
+          set -e
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          asset="demo-${{ steps.day.outputs.date }}.mp4"
+          ffmpeg -loglevel error -y -i chess-tutor/apps/web/demo-output/demo.webm \
+            -c:v libx264 -pix_fmt yuv420p -movflags +faststart "$asset"
+          gh release view "$RELEASE_TAG" > /dev/null 2>&1 || \
+            gh release create "$RELEASE_TAG" --title "Daily demo videos" \
+              --notes "One video of the live chess-tutor app per day, recorded by the Demo workflow."
+          gh release upload "$RELEASE_TAG" "$asset" --clobber
+          echo "url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${asset}" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Write the demo result
+        if: ${{ !cancelled() }}
+        run: pnpm exec tsx scripts/demo-result.ts demo-result.json
+        env:
+          LIVE_OUTCOME: ${{ steps.live.outcome }}
+          DEMO_OUTCOME: ${{ steps.record.outcome }}
+          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+          DEMO_VERSION: ${{ steps.live.outputs.version }}
+          DEMO_VIDEO_URL: ${{ steps.upload.outputs.url }}
+          DEMO_LOG: demo.log
+
+      - name: Build snapshot with the demo
+        if: ${{ !cancelled() }}
+        run: pnpm snapshot
+        env:
+          DEMO_RESULT_FILE: demo-result.json
+          SNAPSHOT_DATE: ${{ steps.day.outputs.date }} # the asset's date, even if the run crosses midnight
+          GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          APP_URL: ${{ vars.APP_URL }}
+
+      - name: Commit snapshot
+        if: ${{ !cancelled() }}
+        run: |
+          # The push token only exists from here on, as the same header actions/checkout would set.
+          git config http.https://github.com/.extraheader \
+            "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
+          bash .github/scripts/commit-snapshot.sh " (demo)"
+        env:
+          PUSH_TOKEN: ${{ github.token }}
+          DEMO_RESULT_FILE: demo-result.json
+          SNAPSHOT_DATE: ${{ steps.day.outputs.date }}
+          GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          APP_URL: ${{ vars.APP_URL }}
+
+      - name: Fail the run when the demo failed
+        if: ${{ !cancelled() && (steps.live.outcome != 'success' || steps.checkout.outcome != 'success' || steps.record.outcome != 'success' || steps.upload.outcome != 'success') }}
+        run: |
+          echo "The demo did not finish: live=${{ steps.live.outcome }} checkout=${{ steps.checkout.outcome }} record=${{ steps.record.outcome }} upload=${{ steps.upload.outcome }}"
+          exit 1

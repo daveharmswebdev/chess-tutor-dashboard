@@ -36,10 +36,9 @@ jobs:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           APP_URL: ${{ vars.APP_URL }}
       - name: Commit snapshot
-        run: |
-          git config user.name "dashboard-bot"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add snapshots/
-          if git diff --cached --quiet; then echo "No change"; exit 0; fi
-          git commit -m "snapshot: $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push
+        # If main moved (a merge, or the Demo workflow's snapshot), rebuild on the latest main and retry.
+        run: bash .github/scripts/commit-snapshot.sh
+        env:
+          GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          APP_URL: ${{ vars.APP_URL }}
