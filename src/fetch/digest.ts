@@ -86,9 +86,21 @@ export interface OpenIssue extends BoardItem {
   requirements: string[];
 }
 
-/** Open issues on the project board for this repo, with their board fields. */
-export async function fetchBoard(repo: string, owner: string, projectNumber: number): Promise<{ url: string; open: OpenIssue[] }> {
-  const open: OpenIssue[] = [];
+/** Any issue on the board for this repo, open or closed, with its GitHub state ("OPEN", "CLOSED"). */
+export interface BoardIssue extends OpenIssue {
+  state: string;
+}
+
+/**
+ * Issues on the project board for this repo, with their board fields:
+ * `issues` holds every one (any state, for progress, #4), `open` only the open ones (for the digest).
+ */
+export async function fetchBoard(
+  repo: string,
+  owner: string,
+  projectNumber: number,
+): Promise<{ url: string; open: OpenIssue[]; issues: BoardIssue[] }> {
+  const issues: BoardIssue[] = [];
   let url = "";
   let after: string | null = null;
   do {
@@ -98,8 +110,8 @@ export async function fetchBoard(repo: string, owner: string, projectNumber: num
     url = proj.url;
     for (const n of proj.items.nodes) {
       const c = n.content;
-      if (!c?.number || c.state !== "OPEN" || c.repository?.nameWithOwner !== repo) continue;
-      open.push({
+      if (!c?.number || c.repository?.nameWithOwner !== repo) continue;
+      issues.push({
         number: c.number,
         title: c.title!,
         url: c.url!,
@@ -108,11 +120,13 @@ export async function fetchBoard(repo: string, owner: string, projectNumber: num
         kind: n.kind?.name ?? null,
         fromClient: (c.labels?.nodes ?? []).some((l) => l.name === "from-you"),
         requirements: requirementIds(`${c.title}\n${c.body ?? ""}`),
+        state: c.state ?? "",
       });
     }
     after = proj.items.pageInfo.hasNextPage ? proj.items.pageInfo.endCursor : null;
   } while (after);
-  return { url, open };
+  const open = issues.filter((i) => i.state === "OPEN").map(({ state: _s, ...item }): OpenIssue => item);
+  return { url, open, issues };
 }
 
 const PRIORITY_ORDER = ["P0", "P1", "P2", "P3"];

@@ -115,11 +115,16 @@ function progress(s: Snapshot): string {
   const pct = (n: number) => (p.total ? (100 * n) / p.total : 0);
   const groups = [...new Set(p.requirements.map((r) => r.group))];
   const repoUrl = `https://github.com/${s.repo}`;
+  const everyIssueDone = p.rule === "every-issue-done";
   const row = (r: RequirementProgress) => {
     const mark = r.state === "shipped" ? "●" : r.state === "in-progress" ? "◐" : "○";
+    // Evidence matches the rule that decided the state: done board issues under "every-issue-done",
+    // merged PRs for older snapshots (P-1, O-4).
+    const done = everyIssueDone ? (r.doneIssues ?? []) : r.prs;
+    const path = everyIssueDone ? "issues" : "pull";
     const refs = [
-      ...r.prs.slice(0, 3).map((n) => a(`${repoUrl}/pull/${n}`, `#${n}`)),
-      ...(r.prs.length > 3 ? [`<span class="mono-label">+${r.prs.length - 3}</span>`] : []),
+      ...done.slice(0, 3).map((n) => a(`${repoUrl}/${path}/${n}`, `#${n}`)),
+      ...(done.length > 3 ? [`<span class="mono-label">+${done.length - 3}</span>`] : []),
       ...r.openIssues.slice(0, 2).map((n) => a(`${repoUrl}/issues/${n}`, `#${n} open`)),
     ].join(" ");
     return `<li class="req ${r.state}"><span class="mark" aria-hidden="true">${mark}</span><span>${esc(r.label)} <span class="rid">${esc(r.id)}</span></span><span class="refs">${refs}</span></li>`;
@@ -138,7 +143,9 @@ function progress(s: Snapshot): string {
           <span class="bar-shipped" style="width:${pct(p.shipped)}%"></span><span class="bar-inprog" style="width:${pct(p.inProgress)}%"></span>
         </div>
         <p class="legend"><span class="key key-shipped"></span>${p.shipped} shipped <span class="key key-inprog"></span>${p.inProgress} in progress <span class="key"></span>${p.total - p.shipped - p.inProgress} not started</p>
-        <p class="fine">A feature counts once a released change names it. Some will still have more to come.</p>
+        <p class="fine">${everyIssueDone
+          ? "A feature counts as done once every issue for it is marked Done on the project board. If new work is added to a done feature, it goes back to in progress."
+          : "A feature counts once a released change names it. Some will still have more to come."}</p>
       </div>
     </div>
     <div class="groups">${groups.map(group).join("")}</div>

@@ -1,0 +1,19 @@
+{
+  "data": {
+    "user": {
+      "projectV2": {
+        "url": "https://github.com/users/o/projects/5",
+        "items": {
+          "pageInfo": { "hasNextPage": false, "endCursor": "c1" },
+          "nodes": [
+            { "status": { "name": "Done" }, "priority": null, "kind": null, "content": { "number": 1, "title": "Save games FR-1", "url": "https://github.com/o/r/issues/1", "state": "CLOSED", "body": "", "repository": { "nameWithOwner": "o/r" }, "labels": { "nodes": [] } } },
+            { "status": { "name": "Todo" }, "priority": { "name": "P1" }, "kind": null, "content": { "number": 2, "title": "Hints", "url": "https://github.com/o/r/issues/2", "state": "OPEN", "body": "Covers FR-2", "repository": { "nameWithOwner": "o/r" }, "labels": { "nodes": [{ "name": "from-you" }] } } },
+            { "status": { "name": "Done" }, "priority": null, "kind": null, "content": { "number": 3, "title": "Elsewhere FR-2", "url": "https://github.com/o/other/issues/3", "state": "CLOSED", "body": "", "repository": { "nameWithOwner": "o/other" }, "labels": { "nodes": [] } } },
+            { "status": null, "priority": null, "kind": null, "content": { "number": 4, "title": "Dropped FR-3", "url": "https://github.com/o/r/issues/4", "state": "CLOSED", "body": null, "repository": { "nameWithOwner": "o/r" }, "labels": { "nodes": [] } } },
+            { "status": { "name": "Done" }, "priority": null, "kind": null, "content": null }
+          ]
+        }
+      }
+    }
+  }
+}
