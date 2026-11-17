@@ -62,6 +62,11 @@
 .pane-foot { margin-top: var(--space-md); }
 .soon { border-style: dashed; }
 
+/* Today's demo video, at the end of Shipped (#6) */
+.demo { margin-top: var(--space-xl); min-width: 0; }
+.demo-video { display: block; width: 100%; max-width: 100%; height: auto; border-radius: var(--radius-md); background: var(--void); }
+.demo-failed { color: var(--bad); max-width: 62ch; overflow-wrap: anywhere; }
+
 /* Progress */
 .progress-head { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2xl); align-items: end; padding-bottom: var(--space-xl); border-bottom: 1px solid var(--border); }
 .progress-head .mono-label { display: block; margin-top: var(--space-sm); }
