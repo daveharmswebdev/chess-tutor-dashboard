@@ -6,7 +6,12 @@ const esc = (s: string | number | null | undefined) =>
 const a = (url: string | null | undefined, text: string, cls = "") =>
   url ? `<a href="${esc(url)}"${cls ? ` class="${cls}"` : ""} target="_blank" rel="noopener">${esc(text)}</a>` : esc(text);
 
-const fmt = (iso: string, tz: string, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-US", { timeZone: tz, ...opts }).format(new Date(iso));
+// An unparseable timestamp prints "unknown" rather than throwing, so every snapshot still renders (O-4).
+// Some ICU versions put a narrow no-break space before AM/PM; print a plain space.
+const fmt = (iso: string, tz: string, opts: Intl.DateTimeFormatOptions) => {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "unknown" : new Intl.DateTimeFormat("en-US", { timeZone: tz, ...opts }).format(d).replace(/[  ]/g, " ");
+};
 const time = (iso: string | null | undefined, tz: string) => (iso ? fmt(iso, tz, { hour: "numeric", minute: "2-digit", timeZoneName: "short" }) : "unknown");
 const day = (iso: string | null | undefined, tz: string) => (iso ? fmt(iso, tz, { weekday: "short", month: "short", day: "numeric" }) : "unknown");
 const when = (iso: string | null | undefined, tz: string) => (iso ? `${day(iso, tz)}, ${time(iso, tz)}` : "unknown");
@@ -21,7 +26,7 @@ function metric(label: string, value: string, tone: Tone, detail: string): strin
   </div>`;
 }
 
-function statusStrip(s: Snapshot): string {
+function statusStrip(s: Snapshot, stale: boolean): string {
   const { status, timezone: tz } = s;
   const h = status.health;
   const app = !h
@@ -41,7 +46,7 @@ function statusStrip(s: Snapshot): string {
         `${a(ci.url, "Latest run on main")} · ${esc(when(ci.finishedAt, tz))}`)
     : metric("Automated tests", "Unavailable", "muted", "");
 
-  const updated = metric("Last updated", time(s.generatedAt, tz).replace(/ [A-Z]{2,4}$/, ""), "star", esc(`${day(s.generatedAt, tz)} · ${time(s.generatedAt, tz).split(" ").pop()}`));
+  const updated = metric("Last updated", time(s.generatedAt, tz).replace(/ [A-Z]{2,4}$/, ""), stale ? "bad" : "star", esc(`${day(s.generatedAt, tz)} · ${time(s.generatedAt, tz).split(" ").pop()}`));
 
   return `<section class="strip gap-grid-segmented" aria-label="Status">${app}${live}${tests}${updated}</section>`;
 }
@@ -156,8 +161,31 @@ export interface RenderNotice {
   failedDate: string;
 }
 
-export function renderPage(s: Snapshot, history: string[], isLatest: boolean, notice?: RenderNotice): string {
+export interface RenderOptions {
+  /** The current time. Without it the page is never marked stale. */
+  now?: Date;
+  /** True when the request named a day (?date=): viewing history on purpose is never stale. */
+  requestedDate?: boolean;
+}
+
+/** Strictly more than 26 hours: two missed runs of the twice-daily Snapshot Action (#3). */
+const STALE_MS = 26 * 3600 * 1000;
+
+/** True when the default view shows a snapshot generated more than 26 hours before `now`. */
+function isStale(s: Snapshot, opts: RenderOptions): boolean {
+  if (!opts.now || opts.requestedDate) return false;
+  const generated = Date.parse(s.generatedAt);
+  if (Number.isNaN(generated)) return false;
+  return opts.now.getTime() - generated > STALE_MS;
+}
+
+export function renderPage(s: Snapshot, history: string[], isLatest: boolean, notice?: RenderNotice, opts: RenderOptions = {}): string {
   const tz = s.timezone;
+  const stale = isStale(s, opts);
+  // Approved wording (#3), word for word.
+  const staleBand = stale
+    ? `<p class="stale" role="alert">${esc(`This page hasn't updated since ${fmt(s.generatedAt, tz, { weekday: "long" })} ${fmt(s.generatedAt, tz, { hour: "numeric", minute: "2-digit", hour12: true })}. We're looking into it.`)}</p>`
+    : "";
   const longDate = fmt(s.generatedAt, tz, { weekday: "long", month: "long", day: "numeric" });
   const hist = history
     .slice(0, 14)
@@ -188,13 +216,14 @@ export function renderPage(s: Snapshot, history: string[], isLatest: boolean, no
 <main>
   <section class="hero glow">
     <div class="container">
+      ${staleBand}
       <span class="section-label">Chess Tutor · ${esc(longDate)}</span>
       <h1>The build, <em>today</em>.</h1>
       <p class="lede">What's live, what changed, and what needs you. Every line links to where it came from.</p>
       ${notice
         ? `<p class="old">The status saved for ${esc(notice.failedDate)} could not be opened, so this shows ${esc(s.date)}, the most recent healthy file. ${a(`https://github.com/${dashRepo}/blob/main/snapshots/${notice.failedDate}.json`, "damaged file")}</p>`
         : isLatest ? "" : `<p class="old">You're looking at ${esc(s.date)}. <a href="/">See today</a></p>`}
-      ${statusStrip(s)}
+      ${statusStrip(s, stale)}
     </div>
   </section>
   <div class="container">

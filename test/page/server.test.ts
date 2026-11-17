@@ -201,6 +201,63 @@ describe("server with a damaged snapshot (#10, P-2, P-7, P-4)", () => {
   });
 });
 
+describe("server stale warning (#3, P-2, P-7)", () => {
+  // Fixture generatedAt is 2026-11-16T21:53:18.953Z; the clock is fixed through AppOptions.now.
+  const generated = Date.parse("2026-11-16T21:53:18.953Z");
+  const H = 3600 * 1000;
+  const auth = { authorization: basic(PASSWORD) };
+  const SENTENCE = "This page hasn&#39;t updated since Monday 3:53 PM. We&#39;re looking into it.";
+  const appAt = (ms: number, dir: string) => buildApp({ password: PASSWORD, snapshotsDir: dir, now: () => new Date(generated + ms) });
+
+  it("/ with a snapshot older than 26h shows the warning", async () => {
+    const app = await appAt(26 * H + 60_000, snapshotsDir(["2026-11-16"]));
+    const res = await app.inject({ url: "/", headers: auth });
+    expect(res.body).toContain(SENTENCE);
+    await app.close();
+  });
+
+  it("/ with a fresh snapshot shows no warning", async () => {
+    const app = await appAt(2 * H, snapshotsDir(["2026-11-16"]));
+    const res = await app.inject({ url: "/", headers: auth });
+    expect(res.body).not.toContain('class="stale"');
+    await app.close();
+  });
+
+  it("/?date= of a known old day is never stale", async () => {
+    const app = await appAt(30 * 24 * H, snapshotsDir(["2026-11-15", "2026-11-16"]));
+    for (const url of ["/?date=2026-11-15", "/?date=2026-11-16"]) {
+      const res = await app.inject({ url, headers: auth });
+      expect(res.statusCode).toBe(200);
+      expect(res.body).not.toContain('class="stale"');
+    }
+    await app.close();
+  });
+
+  it("an unknown ?date= falls back to the newest day, which can be stale", async () => {
+    const app = await appAt(27 * H, snapshotsDir(["2026-11-16"]));
+    const res = await app.inject({ url: "/?date=2099-01-01", headers: auth });
+    expect(res.body).toContain(SENTENCE);
+    await app.close();
+  });
+
+  it("the damaged-file fallback with no date requested shows the notice and the warning", async () => {
+    const app = await appAt(27 * H, damagedDir(["2026-11-15"], { "2026-11-16": `{"schemaVersion":1,"da` }));
+    const res = await app.inject({ url: "/", headers: auth });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toContain("The status saved for 2026-11-16 could not be opened");
+    expect(res.body).toContain(SENTENCE);
+    await app.close();
+  });
+
+  it("the damaged-file fallback for a requested ?date= shows no warning", async () => {
+    const app = await appAt(27 * H, damagedDir(["2026-11-14", "2026-11-16"], { "2026-11-15": `{"schemaVersion":1,"da` }));
+    const res = await app.inject({ url: "/?date=2026-11-15", headers: auth });
+    expect(res.body).toContain("The status saved for 2026-11-15 could not be opened");
+    expect(res.body).not.toContain('class="stale"');
+    await app.close();
+  });
+});
+
 describe("server with no password (local dev)", () => {
   it("serves openly", async () => {
     const app = await buildApp({ password: undefined, snapshotsDir: snapshotsDir(["2026-11-16"]) });

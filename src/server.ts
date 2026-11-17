@@ -23,6 +23,8 @@ export interface AppOptions {
   /** Repo root; static assets are read from `<root>/public`. Defaults to this repo. */
   root?: string;
   logger?: boolean;
+  /** The clock used to decide whether the default view is stale (#3). Tests fix it. */
+  now?: () => Date;
 }
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
@@ -44,7 +46,7 @@ export function startupRefusal(env: Record<string, string | undefined>): string 
   return null;
 }
 
-export async function buildApp({ password, snapshotsDir, root = repoRoot, logger = false }: AppOptions): Promise<FastifyInstance> {
+export async function buildApp({ password, snapshotsDir, root = repoRoot, logger = false, now = () => new Date() }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
 
   await app.register(basicAuth, {
@@ -76,14 +78,17 @@ export async function buildApp({ password, snapshotsDir, root = repoRoot, logger
   app.get<{ Querystring: { date?: string } }>("/", async (req, reply) => {
     const dates = await snapshotDates();
     // Only a date found in the directory listing is ever used to build a path.
-    const date = req.query.date && dates.includes(req.query.date) ? req.query.date : dates[0];
+    const requestedDate = Boolean(req.query.date && dates.includes(req.query.date));
+    const date = requestedDate ? req.query.date : dates[0];
     if (!date) return reply.type("text/plain").code(503).send("No snapshot yet. Run `pnpm snapshot`.");
+    // A day named on purpose (?date= found in the listing) is history, never stale (#3).
+    const renderOpts = { now: now(), requestedDate };
 
     // Read, parse and render one day; a file that cannot be read, parsed or rendered counts as damaged (#10).
     const tryRender = async (d: string, notice?: { failedDate: string }): Promise<string | null> => {
       try {
         const snap = JSON.parse(await readFile(join(snapshotsDir, `${d}.json`), "utf8")) as Snapshot;
-        return renderPage(snap, dates, d === dates[0], notice);
+        return renderPage(snap, dates, d === dates[0], notice, renderOpts);
       } catch (err) {
         app.log.error({ err, date: d }, "snapshot could not be opened");
         return null;
