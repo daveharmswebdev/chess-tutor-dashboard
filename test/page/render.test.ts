@@ -50,3 +50,18 @@ describe("renderPage (D-1..D-4)", () => {
     expect(renderPage(fixture(), ["2026-11-17", "2026-11-16"], false)).toContain("See today");
   });
 });
+
+describe("renderPage notice for a damaged snapshot (#10, P-2, P-4)", () => {
+  it("prints the notice instead of the old-day line, with escaped dates and a link to the damaged file", () => {
+    const html = renderPage(fixture(), ["2026-11-17", "2026-11-16"], false, { failedDate: "2026-11-17<x>" });
+    expect(html).toContain("The status saved for 2026-11-17&lt;x&gt; could not be opened, so this shows 2026-11-16, the most recent healthy file. ");
+    expect(html).toContain("/blob/main/snapshots/2026-11-17&lt;x&gt;.json");
+    expect(html).not.toContain("2026-11-17<x>");
+    expect(html).not.toContain("You're looking at");
+    expect(html).not.toContain("See today");
+  });
+
+  it("without a notice the HTML is unchanged", () => {
+    expect(renderPage(fixture(), ["2026-11-16", "2026-11-15"], true, undefined)).toBe(renderPage(fixture(), ["2026-11-16", "2026-11-15"], true));
+  });
+});

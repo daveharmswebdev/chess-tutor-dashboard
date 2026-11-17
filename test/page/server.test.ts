@@ -20,6 +20,12 @@ function snapshotsDir(dates: string[]): string {
   for (const date of dates) writeFileSync(join(dir, `${date}.json`), JSON.stringify({ ...JSON.parse(fixture), date }));
   return dir;
 }
+/** Like snapshotsDir, but some dates get a raw (damaged) file body instead of the fixture. */
+function damagedDir(good: string[], damaged: Record<string, string>): string {
+  const dir = snapshotsDir(good);
+  for (const [date, body] of Object.entries(damaged)) writeFileSync(join(dir, `${date}.json`), body);
+  return dir;
+}
 afterAll(() => {
   for (const d of dirs) rmSync(d, { recursive: true, force: true });
 });
@@ -109,6 +115,88 @@ describe("server with no snapshots (P-2)", () => {
     const app = await buildApp({ password: PASSWORD, snapshotsDir: join(tmpdir(), "dashboard-no-such-dir-xyz") });
     const res = await app.inject({ url: "/", headers: { authorization: basic(PASSWORD) } });
     expect(res.statusCode).toBe(503);
+    await app.close();
+  });
+});
+
+describe("server with a damaged snapshot (#10, P-2, P-7, P-4)", () => {
+  const TRUNCATED = `{"schemaVersion":1,"da`;
+  const dashRepo = process.env.DASHBOARD_REPO ?? "daveharmswebdev/chess-tutor-dashboard";
+  const auth = { authorization: basic(PASSWORD) };
+  const notice = (failed: string, shown: string) =>
+    `<p class="old">The status saved for ${failed} could not be opened, so this shows ${shown}, the most recent healthy file. ` +
+    `<a href="https://github.com/${dashRepo}/blob/main/snapshots/${failed}.json" target="_blank" rel="noopener">damaged file</a></p>`;
+  const noLeak = (body: string) => {
+    expect(body).not.toContain("Internal Server Error");
+    expect(body).not.toContain("Unexpected end");
+    expect(body).not.toContain("SyntaxError");
+  };
+
+  it("a truncated newest file falls back to the newest readable older day, with a notice", async () => {
+    const app = await buildApp({ password: PASSWORD, snapshotsDir: damagedDir(["2026-11-14", "2026-11-15"], { "2026-11-16": TRUNCATED }) });
+    const res = await app.inject({ url: "/", headers: auth });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toContain("text/html");
+    expect(res.body).toContain(notice("2026-11-16", "2026-11-15"));
+    expect(res.body).toContain(`<span class="hist-current">2026-11-15</span>`);
+    expect(res.body).not.toContain("You're looking at");
+    expect(res.body).not.toContain(`<a href="/">See today</a>`);
+    // The history footer still lists every date, the damaged one included.
+    expect(res.body).toContain(`<a href="/?date=2026-11-16">2026-11-16</a>`);
+    expect(res.body).toContain(`<a href="/?date=2026-11-14">2026-11-14</a>`);
+    expect(res.body).toContain("What went");
+    noLeak(res.body);
+    await app.close();
+  });
+
+  it("?date= pointing at a damaged older day falls back to the next older readable day", async () => {
+    const app = await buildApp({ password: PASSWORD, snapshotsDir: damagedDir(["2026-11-13", "2026-11-16"], { "2026-11-15": TRUNCATED, "2026-11-14": "" }) });
+    const res = await app.inject({ url: "/?date=2026-11-15", headers: auth });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toContain(notice("2026-11-15", "2026-11-13"));
+    expect(res.body).toContain(`<span class="hist-current">2026-11-13</span>`);
+    noLeak(res.body);
+    // The newest, readable day is unaffected.
+    const newest = await app.inject({ url: "/", headers: auth });
+    expect(newest.body).toContain(`<span class="hist-current">2026-11-16</span>`);
+    expect(newest.body).not.toContain("could not be opened");
+    await app.close();
+  });
+
+  for (const [name, body] of [["{}", "{}"], ["null", "null"], ["an array", "[]"], ["a string", `"x"`]] as const) {
+    it(`valid JSON missing required fields (${name}) counts as damaged`, async () => {
+      const app = await buildApp({ password: PASSWORD, snapshotsDir: damagedDir(["2026-11-15"], { "2026-11-16": body }) });
+      const res = await app.inject({ url: "/", headers: auth });
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toContain(notice("2026-11-16", "2026-11-15"));
+      noLeak(res.body);
+      await app.close();
+    });
+  }
+
+  it("every file damaged gives a 503 with a plain-words reason", async () => {
+    const app = await buildApp({ password: PASSWORD, snapshotsDir: damagedDir([], { "2026-11-16": TRUNCATED, "2026-11-15": "{}" }) });
+    const res = await app.inject({ url: "/", headers: auth });
+    expect(res.statusCode).toBe(503);
+    expect(res.headers["content-type"]).toContain("text/plain");
+    expect(res.body).toBe("The status saved for 2026-11-16 could not be opened, and no earlier day could be opened either.");
+    noLeak(res.body);
+    await app.close();
+  });
+
+  it("a damaged ?date= with only newer readable days gives 503 naming that date", async () => {
+    const app = await buildApp({ password: PASSWORD, snapshotsDir: damagedDir(["2026-11-16"], { "2026-11-15": TRUNCATED }) });
+    const res = await app.inject({ url: "/?date=2026-11-15", headers: auth });
+    expect(res.statusCode).toBe(503);
+    expect(res.body).toBe("The status saved for 2026-11-15 could not be opened, and no earlier day could be opened either.");
+    await app.close();
+  });
+
+  it("the fallback page is still behind the password", async () => {
+    const app = await buildApp({ password: PASSWORD, snapshotsDir: damagedDir(["2026-11-15"], { "2026-11-16": TRUNCATED }) });
+    const res = await app.inject({ url: "/" });
+    expect(res.statusCode).toBe(401);
+    expect(res.body).not.toContain("could not be opened");
     await app.close();
   });
 });
