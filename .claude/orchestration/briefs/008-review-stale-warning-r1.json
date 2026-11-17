@@ -1,0 +1,30 @@
+{
+  "brief_id": "008-review-stale-warning-r1",
+  "agent": "reviewer",
+  "issue": 3,
+  "base_sha": "aac302d",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1f09a442-cc85-4d27-96de-d31452a59e8c/scratchpad/008/008-review-stale-warning-r1",
+  "objective": "Review `git diff e2ed7a4..aac302d` (branch worktree-agent-ae8d4bab65e2014dd, issue #3: the page warns when its information is out of date). Report correctness bugs and requirement gaps with severity blocking / major / minor. Done-when for #3: a snapshot older than 26 hours shows a prominent plain-words warning at the top of the page (P-2, P-7); the 'Last updated' cell is visibly marked stale (D-1); viewing an earlier day on purpose (?date=) is not treated as stale (P-5, D-5); tested with a past-dated fixture and a fixed server clock. Look specifically for: any default-view path (including the damaged-file fallback and an unknown ?date=) where an old snapshot shows no warning; any ?date= view that wrongly shows it; off-by-one at the 26h boundary; the sentence differing from the approved text or rendered in the wrong time zone; the fmt() change (returns 'unknown' for invalid timestamps, normalises U+202F/U+00A0 to a space) altering any other rendered output for valid committed snapshots (O-4); auth bypass from the new AppOptions.now (O-2, P-6); tests that would pass without the fix.",
+  "requirements": [
+    "P-2",
+    "P-7",
+    "P-5",
+    "D-1",
+    "D-5",
+    "O-2",
+    "O-4",
+    "P-6"
+  ],
+  "contract": "Coordinator verification at aac302d: pnpm test 97 passed, typecheck clean; diff touches public/style.css, src/page.ts, src/server.ts, test/page/render.test.ts, test/page/server.test.ts (matches the return). Ran buildApp over the branch's snapshots/ with now = real time + 30h: GET / shows `<p class=\"stale\" role=\"alert\">This page hasn&#39;t updated since Monday 3:53 PM. We&#39;re looking into it.</p>`; GET /?date=2026-11-16 shows no .stale element. In Chrome: desktop shows a red band above the section label and Last updated in red; in a 390px iframe the band wraps to 3 lines inside 16px gutters, documentElement.scrollWidth 375 <= 390. Approved wording (user, issue #3), do not propose rewording: \"This page hasn't updated since <Weekday> <h:mm AM/PM>. We're looking into it.\"; threshold strictly more than 26h. Known and accepted: a stale page more than a week old still names only a weekday (approved wording); renderPage without opts.now is never stale (server always passes it).",
+  "scope": [],
+  "negative": [
+    "Read-only: do not edit, commit, or run anything that writes to the repo."
+  ],
+  "rubric": [
+    "Every finding cites file:line and evidence (command output or code quote); no speculative findings without a concrete failure scenario.",
+    "Checks requirement coverage of P-2, P-7, P-5, D-1, D-5, O-4 against the Done-when list above.",
+    "Read-only: no file in the repo changes."
+  ],
+  "concurrency": "Issue #4 (data-agent, branch worktree-agent-a2b6df56cc62db6dc) is waiting to rebase onto main after #3 merges; not part of this review.",
+  "round": 1
+}

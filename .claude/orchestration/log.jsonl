@@ -21,3 +21,27 @@
 {"ts":"2026-11-17T01:40:44.366Z","event":"return_valid","agent_id":"a53a90134f08a7a92","agent_type":"reviewer","via":"handback"}
 {"ts":"2026-11-17T01:40:55.781Z","event":"coordinator_verdict","brief_id":"005-review-damaged-snapshot-r1","agent":"reviewer","verdict":"review","reason":"0 blocking, 0 major, 3 minor","tokens":31430,"duration_ms":92643}
 {"ts":"2026-11-17T02:26:57.463Z","event":"shipped","issue":10,"pr":12}
+{"ts":"2026-11-17T02:41:39.535Z","event":"dispatch","subagent_type":"page-agent","brief_id":"006-stale-warning-r1","base_sha":"e2ed7a4","spoke":true}
+{"ts":"2026-11-17T02:42:04.408Z","event":"dispatch","subagent_type":"data-agent","brief_id":"007-progress-every-issue-done-r1","base_sha":"e2ed7a4","spoke":true}
+{"ts":"2026-11-17T02:42:04.583Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"006-stale-warning-r1","agent_id":"ae8d4bab65e2014dd","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T02:42:04.631Z","event":"agent_complete","subagent_type":"data-agent","brief_id":"007-progress-every-issue-done-r1","agent_id":"a2b6df56cc62db6dc","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T02:44:10.566Z","event":"return_valid","agent_id":"a2b6df56cc62db6dc","agent_type":"data-agent","via":"handback"}
+{"ts":"2026-11-17T02:44:33.009Z","event":"return_valid","agent_id":"ae8d4bab65e2014dd","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-17T02:44:33.217Z","event":"coordinator_verdict","brief_id":"007-progress-every-issue-done-r1","agent":"data-agent","verdict":"accepted","reason":"files match, 93 passed, real snapshot 12/39 done 14 in progress; page round follows after #3","tokens":37200,"duration_ms":126255}
+{"ts":"2026-11-17T02:45:25.007Z","event":"coordinator_verdict","brief_id":"006-stale-warning-r1","agent":"page-agent","verdict":"accepted","reason":"files match, 97 passed, sentence exact on default view, absent with ?date=, 390px wraps 3 lines no h-scroll","tokens":48337,"duration_ms":148731}
+{"ts":"2026-11-17T02:45:53.425Z","event":"dispatch","subagent_type":"reviewer","brief_id":"008-review-stale-warning-r1","base_sha":"aac302d","spoke":true}
+{"ts":"2026-11-17T02:45:53.634Z","event":"agent_complete","subagent_type":"reviewer","brief_id":"008-review-stale-warning-r1","agent_id":"aa6409553b109557c","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T02:47:51.875Z","event":"return_valid","agent_id":"aa6409553b109557c","agent_type":"reviewer","via":"handback"}
+{"ts":"2026-11-17T02:48:13.561Z","event":"coordinator_verdict","brief_id":"008-review-stale-warning-r1","agent":"reviewer","verdict":"review","reason":"1 major (?date=<newest> suppresses warning), 1 minor (unparseable generatedAt lost damaged fallback; brief 006 defect) -> round 2","tokens":37491,"duration_ms":118545}
+{"ts":"2026-11-17T02:49:42.079Z","event":"return_valid","agent_id":"ae8d4bab65e2014dd","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-17T02:50:03.851Z","event":"coordinator_verdict","brief_id":"009-stale-warning-r2","agent":"page-agent","verdict":"accepted","reason":"100 passed; ?date=<newest> stale, older day not stale, unparseable generatedAt falls back with notice; narrow fixes to review findings, no re-review","tokens":62071,"duration_ms":60861}
+{"ts":"2026-11-17T02:51:18.634Z","event":"shipped","issue":3,"pr":13}
+{"ts":"2026-11-17T02:52:16.651Z","event":"dispatch","subagent_type":"page-agent","brief_id":"010-progress-fine-print-r1","base_sha":"41b7ef9","spoke":true}
+{"ts":"2026-11-17T02:52:16.854Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"010-progress-fine-print-r1","agent_id":"a0378f43cba8f7692","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T02:53:47.848Z","event":"return_valid","agent_id":"a0378f43cba8f7692","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-17T02:54:15.407Z","event":"coordinator_verdict","brief_id":"010-progress-fine-print-r1","agent":"page-agent","verdict":"accepted","reason":"115 passed; real snapshot renders approved line, 12/39, issue links, no /pull/ in progress rows","tokens":29944,"duration_ms":91294}
+{"ts":"2026-11-17T02:54:40.067Z","event":"dispatch","subagent_type":"reviewer","brief_id":"011-review-progress-rule-r1","base_sha":"1a6064d","spoke":true}
+{"ts":"2026-11-17T02:54:40.274Z","event":"agent_complete","subagent_type":"reviewer","brief_id":"011-review-progress-rule-r1","agent_id":"a16db66d6d755134e","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T02:56:28.744Z","event":"return_valid","agent_id":"a16db66d6d755134e","agent_type":"reviewer","via":"handback"}
+{"ts":"2026-11-17T02:57:24.429Z","event":"coordinator_verdict","brief_id":"011-review-progress-rule-r1","agent":"reviewer","verdict":"review","reason":"1 major (closed-not-Done labelled open; latent, 0 live cases; needs contract + user wording -> #14), 2 minor (+k on open list -> #14; pagination test not filed)","tokens":38387,"duration_ms":108776}
+{"ts":"2026-11-17T02:58:41.196Z","event":"shipped","issue":4,"pr":15}

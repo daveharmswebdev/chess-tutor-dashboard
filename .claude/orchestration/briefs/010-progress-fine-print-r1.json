@@ -1,0 +1,39 @@
+{
+  "brief_id": "010-progress-fine-print-r1",
+  "agent": "page-agent",
+  "issue": 4,
+  "base_sha": "41b7ef9",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1f09a442-cc85-4d27-96de-d31452a59e8c/scratchpad/010/010-progress-fine-print-r1",
+  "objective": "Issue #4, page half. The data half on this branch (commit 41b7ef9) now builds progress with Progress.rule = \"every-issue-done\" and fills RequirementProgress.doneIssues. Change the Progress panel (function progress() in src/page.ts) so that, ONLY when s.progress.rule === \"every-issue-done\":\n1. The fine-print line `<p class=\"fine\">` reads exactly, word for word: \"A feature counts as done once every issue for it is marked Done on the project board. If new work is added to a done feature, it goes back to in progress.\"\n2. Each requirement row's evidence links are its doneIssues (as `#n`, linking to https://github.com/<repo>/issues/<n>, first 3 then a `+k` count like today's PR links), followed by its openIssues (as today: `#n open`, first 2). PR links are not shown under this rule.\nWhen rule is absent (every snapshot committed before this change), the panel renders exactly as at base: the old line \"A feature counts once a released change names it. Some will still have more to come.\" and PR links, because that is the rule that produced those numbers (P-1, O-4).",
+  "requirements": [
+    "P-1",
+    "P-4",
+    "P-7",
+    "D-3",
+    "O-4",
+    "P-6"
+  ],
+  "contract": "Decided by the user (issue #4, 2026-11-16), word for word: \"A feature counts as done once every issue for it is marked Done on the project board. If new work is added to a done feature, it goes back to in progress.\" Do not reword. Current panel at base (src/page.ts progress()): row refs = r.prs.slice(0,3) as a(`${repoUrl}/pull/${n}`, `#${n}`), a `<span class=\"mono-label\">+k</span>` when more than 3, then r.openIssues.slice(0,2) as a(`${repoUrl}/issues/${n}`, `#${n} open`); fine line `<p class=\"fine\">A feature counts once a released change names it. Some will still have more to come.</p>`. Real data built on this branch from the live board (coordinator ran pnpm snapshot): 12 of 39 shipped, 14 in progress; e.g. FR-1 shipped doneIssues [5,6,23] openIssues []; FR-8 in-progress doneIssues [7,28,51,52,53] openIssues [41,45,50,75]; FR-9 not-started doneIssues [] openIssues [] prs [27]. test/fixtures/snapshot.json has no rule (old style); build new-style snapshots in test code by spreading it. test/page/snapshots.test.ts renders every committed snapshot. Gate at 41b7ef9: 110 passed, typecheck clean.",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6).",
+    "Do not change the headline label, legend words, bar, or any other text in the panel: only the fine-print line and the row links, and only under the new rule.",
+    "Do not touch the stale warning (#3, just merged) or anything outside progress() except tests."
+  ],
+  "rubric": [
+    "Tests first (red then green): with rule set, the exact approved sentence and no old line; doneIssues links to /issues/n with +k after 3; openIssues as '#n open'; no /pull/ links in progress rows; a not-started row with prs but no issues shows no PR link. Without rule: progress() output byte-identical to base for the fixture (compare against a renderPage of the fixture at base, or assert the old line and PR links). Every committed snapshot still renders.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 41b7ef9..your head. Commit message references the requirement IDs and #4."
+  ],
+  "concurrency": "Nothing else running. This is a new commit on the #4 branch, which already holds data-agent's change (41b7ef9).",
+  "round": 1
+}

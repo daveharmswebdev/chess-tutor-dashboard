@@ -1,0 +1,39 @@
+{
+  "brief_id": "007-progress-every-issue-done-r1",
+  "agent": "data-agent",
+  "issue": 4,
+  "base_sha": "e2ed7a4",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1f09a442-cc85-4d27-96de-d31452a59e8c/scratchpad/007/007-progress-every-issue-done-r1",
+  "objective": "Issue #4: change how 'Progress against the plan' decides each requirement's state. A requirement (glossary ID) is 'shipped' only when EVERY chess-tutor board issue naming it has board Status \"Done\" (and there is at least one); 'in-progress' when some but not all do; 'not-started' when none do or no issue names it. Fill the new optional contract fields: RequirementProgress.doneIssues (numbers of board issues naming the ID with Status Done) and openIssues (board issues naming the ID whose Status is not Done, including null status and closed-but-not-Done), and set Progress.rule = \"every-issue-done\" on every snapshot built from now on. Keep filling `prs` exactly as today (merged PRs naming the ID) so older evidence links remain. The digest (needsYou/inProgress/upNext) must behave exactly as before, open issues only.",
+  "requirements": [
+    "P-1",
+    "P-2",
+    "P-4",
+    "P-6",
+    "P-7",
+    "D-3",
+    "O-4"
+  ],
+  "contract": "Decided by the user (issue #4, 2026-11-16): 'a feature counts as done only when every chess-tutor issue naming it is marked Done on the board. Done: all issues naming the feature are Done. In progress: some are Done, not all. Not started: none are Done, or there are no issues yet. If a new issue is opened for a done feature, the feature goes back to in progress and the headline number can drop. That's intended (P-7).' An issue 'names' an ID exactly as today: requirementIds(`${title}\\n${body}`) from src/fetch/digest.ts. Status \"Done\" is the board's Status single-select value, compared exactly.\nCurrent code at base e2ed7a4: src/fetch/digest.ts fetchBoard(repo, owner, projectNumber) pages BOARD_QUERY (projectV2 items with status/priority/kind and Issue content incl. state, body, repository) and keeps only items with `c.state === \"OPEN\"` and repository === repo, returning {url, open: OpenIssue[]}; OpenIssue = BoardItem & {requirements}. The query already returns closed issues with their Status, so no new API call or source is needed. src/fetch/progress.ts buildProgress(glossary, merged: ShippedPr[], open: OpenIssue[]) currently marks shipped if any merged PR names the ID. scripts/snapshot.ts calls buildDigest(merged, board, now) and buildProgress(glossary, merged, board.open). Shape the change as you see fit (e.g. fetchBoard also returns `all` board issues for the repo, and buildProgress takes those), but buildDigest's output must be unchanged. How a board fetch failure is handled today stays as it is (out of scope). Tests: test/data/digest.test.ts has a buildProgress (D-3) test at line ~74 using helpers pr() and issue(n, status, extra); update it to the new rule. Gate green at e2ed7a4: 83 tests passed, typecheck clean.",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "src/fetch/**",
+    "scripts/**",
+    "test/data/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6).",
+    "Do not edit src/page.ts: the page's fine-print line and done-issue links are a separate page-agent round on your branch after you return; page-agent's issue #3 is editing src/page.ts in parallel.",
+    "Do not edit glossary.json or src/types.ts (the contract fields you need, doneIssues and rule, are already committed)."
+  ],
+  "rubric": [
+    "Tests first (red then green): all issues naming an ID Done -> shipped with doneIssues listed; one Done + one Todo -> in-progress; only open/Todo issues -> not-started; no issues but a merged PR names it -> not-started (a PR mention alone no longer counts; prs still lists it); null status and closed-but-not-Done issues count as not Done; an issue from another repo on the board is ignored; Progress.rule is \"every-issue-done\" and shipped/inProgress/total counts match; buildDigest output unchanged for a board that now includes closed items.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in e2ed7a4..your head. Commit message references the requirement IDs and #4."
+  ],
+  "concurrency": "page-agent is working issue #3 (brief 006) in parallel on src/page.ts, src/server.ts, public/**, test/page/**. No overlap with your scope.",
+  "round": 1
+}

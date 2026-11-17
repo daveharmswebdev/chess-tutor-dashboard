@@ -1,0 +1,28 @@
+{
+  "brief_id": "011-review-progress-rule-r1",
+  "agent": "reviewer",
+  "issue": 4,
+  "base_sha": "1a6064d",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1f09a442-cc85-4d27-96de-d31452a59e8c/scratchpad/011/011-review-progress-rule-r1",
+  "objective": "Review `git diff d9bc7c8..1a6064d` (issue #4: progress counted features a change only mentioned). Two commits: 41b7ef9 (data-agent: src/fetch/digest.ts, src/fetch/progress.ts, scripts/snapshot.ts, test/data/**) and 1a6064d (page-agent: progress() in src/page.ts, test/page/render.test.ts). The contract fields Progress.rule and RequirementProgress.doneIssues were added by the coordinator in e2ed7a4 (already on main). Report correctness bugs and requirement gaps with severity blocking / major / minor. Done-when for #4: a feature counts as shipped only when every chess-tutor board issue naming it has Status Done (in progress: some Done; not started: none Done or no issues) (D-3, P-1, P-7); the page's one-line explanation matches the new rule; tests cover a PR that only mentions an ID. Look specifically for: the digest (needsYou/inProgress/upNext) changing now that fetchBoard returns closed issues; an issue from another repo or a non-issue board item counted; pagination dropping closed items; the new fine-print line or issue links shown for an older snapshot without rule (O-4: they must keep the old line and PR links, byte-identical); evidence links pointing at the wrong URL (P-4); counts (shipped/inProgress/total) disagreeing with the per-row states; tests that would pass without the change; any token in fixtures (P-6).",
+  "requirements": [
+    "D-3",
+    "P-1",
+    "P-4",
+    "P-7",
+    "O-4",
+    "P-6"
+  ],
+  "contract": "Coordinator verification at 1a6064d: pnpm test 115 passed, typecheck clean; diffs match each spoke's files_changed. pnpm snapshot against the live board (then discarded): Progress.rule every-issue-done, 12 shipped / 14 in progress / 39 total (29 shipped under the old rule); rendered page shows the approved line `A feature counts as done once every issue for it is marked Done on the project board. If new work is added to a done feature, it goes back to in progress.`, headline 12/39, FR-7 row links #3 #7 #16 (Done) then #45 open #75 open, no /pull/ link in any progress row. page-agent reports renderPage of the old-style fixture is byte-identical to base. Decided by the user, do not re-report: the counting rule (every issue naming the ID, by title/body mention, must be Done; a new issue on a done feature moves it back); the fine-print wording; issues not on the board are not seen. Coordinator's choice (no new wording approved, so do not report as a defect): the headline label 'Planned features with shipped work' and legend words stay unchanged in this PR. Known minors already reported, not this PR's scope: src/fetch/github.ts has no request timeout; GraphQL error message includes raw errors JSON.",
+  "scope": [],
+  "negative": [
+    "Read-only: do not edit, commit, or run anything that writes to the repo."
+  ],
+  "rubric": [
+    "Every finding cites file:line and evidence (command output or code quote); no speculative findings without a concrete failure scenario.",
+    "Checks requirement coverage of D-3, P-1, P-4, P-7, O-4 against the Done-when list above.",
+    "Read-only: no file in the repo changes."
+  ],
+  "concurrency": "Sole pick in flight.",
+  "round": 1
+}

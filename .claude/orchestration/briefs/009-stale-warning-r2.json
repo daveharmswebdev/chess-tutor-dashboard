@@ -1,0 +1,40 @@
+{
+  "brief_id": "009-stale-warning-r2",
+  "agent": "page-agent",
+  "issue": 3,
+  "base_sha": "aac302d",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1f09a442-cc85-4d27-96de-d31452a59e8c/scratchpad/009/009-stale-warning-r2",
+  "objective": "Round 2 for issue #3 on your existing branch (head aac302d). Fix the two review findings:\n1 (major): requestedDate must be true only when ?date= names a day in the listing that is NOT the newest (dates[0]). /?date=<newest day> (what the history strip links to) is the default view and must show the stale warning when the newest snapshot is more than 26h old. Update the server.test.ts case that currently asserts /?date=2026-11-16 is never stale, and add one that /?date=<newest> with the clock 30h ahead shows the warning; a ?date= of an older day stays never-stale.\n2 (minor, coordinator's brief defect in round 1): a snapshot whose generatedAt is not a valid timestamp must count as damaged again, as it did at base: renderPage throws a plain Error for an unparseable generatedAt, so the server's existing damaged-file fallback (walk older days, show the #10 notice) applies. Keep fmt() returning 'unknown' for other unparseable timestamps (e.g. deploy finishedAt). Replace the render test that asserts no warning for 'not a date' with: renderPage throws for it, and a server test where the newest file has generatedAt 'not a date' falls back to the older day with the damaged-file notice.",
+  "requirements": [
+    "P-2",
+    "P-5",
+    "P-7",
+    "D-1",
+    "D-5",
+    "O-4",
+    "P-6"
+  ],
+  "contract": "Reviewer findings (brief 008, at aac302d): server.ts:81 `const requestedDate = Boolean(req.query.date && dates.includes(req.query.date));` and page.ts:192 links every non-current history day as `/?date=${d}`, so returning to the newest day from history hides the warning. page.ts:13 fmt returns 'unknown' and isStale returns false for an unparseable generatedAt, so such a file renders as current instead of falling back. Everything else from round 1 was verified and stays: the approved sentence, >26h threshold, 'bad' tone on Last updated, the CSS, the fallback paths. Every committed snapshot in snapshots/ has a valid generatedAt, so throwing on an unparseable one keeps O-4 (test/page/snapshots.test.ts must still pass). Gate at aac302d: 97 passed, typecheck clean.",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6).",
+    "Do not touch the Progress panel (function progress() in src/page.ts): issue #4 changes it next.",
+    "No new client-facing text."
+  ],
+  "rubric": [
+    "Tests first (red then green) for both findings as described in the objective; all round-1 tests still pass except the two you deliberately replace.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in aac302d..your head. Commit message references the requirement IDs and #3."
+  ],
+  "concurrency": "Nothing else is editing your scope. Issue #4's data branch waits to rebase after #3 merges.",
+  "round": 2
+}

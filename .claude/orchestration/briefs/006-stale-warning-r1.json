@@ -1,0 +1,42 @@
+{
+  "brief_id": "006-stale-warning-r1",
+  "agent": "page-agent",
+  "issue": 3,
+  "base_sha": "e2ed7a4",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1f09a442-cc85-4d27-96de-d31452a59e8c/scratchpad/006/006-stale-warning-r1",
+  "objective": "Issue #3: when the default page (no ?date= in the request) shows a snapshot whose generatedAt is more than 26 hours before now, render a prominent warning band at the top of the hero (above the status strip) with exactly this text, word for word: \"This page hasn't updated since <Weekday> <h:mm AM/PM>. We're looking into it.\" e.g. \"This page hasn't updated since Monday 5:00 PM. We're looking into it.\" Weekday is the long English weekday and the time is 12-hour with no time-zone abbreviation, both from the shown snapshot's generatedAt in snapshot.timezone. Also mark the 'Last updated' metric cell visibly stale (use the existing 'bad' tone instead of 'star'; no new words). A page requested with ?date= (viewing history on purpose) is never stale, even if it is old. Staleness must be testable: renderPage takes the current time as an input (e.g. an options object with now: Date) and server.ts passes new Date() plus whether the request named a date; tests fix the clock.",
+  "requirements": [
+    "P-1",
+    "P-2",
+    "P-4",
+    "P-5",
+    "P-6",
+    "P-7",
+    "D-1",
+    "D-5",
+    "O-4"
+  ],
+  "contract": "Decided by the user (issue #3, 2026-11-16), do not reword: warning text above; 'We're looking into it.' stays; threshold strictly more than 26 hours (two missed runs; the Snapshot Action runs twice a day). Exactly 26h is not stale.\nCurrent code at base: src/server.ts GET / picks `date = req.query.date && dates.includes(req.query.date) ? req.query.date : dates[0]` and calls `renderPage(snap, dates, d === dates[0], notice)` inside tryRender; when the chosen file is damaged it walks older files and renders one with notice {failedDate} (#10). src/page.ts: `export function renderPage(s: Snapshot, history: string[], isLatest: boolean, notice?: RenderNotice)`; helpers fmt/time/day/esc/a exist; the hero renders `<p class=\"old\">` for the notice or for a non-latest day, then `${statusStrip(s)}`. The 'Last updated' cell is `metric(\"Last updated\", ..., \"star\", ...)` in statusStrip.\nStaleness rule: stale = the request did not name a date AND (now - Date.parse(s.generatedAt)) > 26*3600*1000. This includes the damaged-file fallback when no date was requested (the fallback notice and the stale warning can both show; both are true). An unparseable generatedAt: do not show the stale warning, do not throw (every committed snapshot must still render, O-4; test/page/snapshots.test.ts renders them all).\nTests run with `pnpm test` (Vitest); existing page tests are in test/page/render.test.ts (uses test/fixtures/snapshot.json) and test/page/server.test.ts (Fastify inject). Gate green at e2ed7a4: 83 tests passed, typecheck clean.",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6).",
+    "Do not touch the Progress panel (src/page.ts function progress() and its fine-print line): another spoke's issue #4 will change it next, keep your diff out of it so the branches merge cleanly.",
+    "No other new client-facing text beyond the approved warning sentence."
+  ],
+  "rubric": [
+    "Tests first (red then green): stale latest view at 26h+1m shows the exact sentence and the stale tone on Last updated; fresh view (e.g. 2h) shows neither; exactly 26h is not stale; ?date= of an old day is not stale; damaged-file fallback with no date and an old snapshot shows the warning; unparseable generatedAt renders without warning; every committed snapshot still renders; 390px: the band wraps without horizontal scroll (CSS check by eye, describe it in your return).",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in e2ed7a4..your head. Commit message references the requirement IDs and #3."
+  ],
+  "concurrency": "data-agent is working issue #4 (brief 007) in parallel on src/fetch/digest.ts, src/fetch/progress.ts, scripts/snapshot.ts, test/data/**. No overlap with your scope.",
+  "round": 1
+}
