@@ -18,6 +18,26 @@ export interface Snapshot {
   status: Status;
   digest: Digest;
   progress: Progress;
+  // The evening demo video (#6, D-6). Absent: the snapshot predates the feature (no panel).
+  // null: no demo has been recorded for this date yet (today: "not run yet"; earlier day: "none ran").
+  demo?: Demo | null;
+}
+
+/**
+ * One run of chess-tutor's guided demo against the live app, recorded by the Demo Action (#6).
+ * Every field is copied from the run: its outcome, the version the live app reported, the
+ * uploaded video's address and chess-tutor's own failure step.
+ */
+export interface Demo {
+  outcome: "success" | "failure";
+  recordedAt: string; // ISO timestamp, when the run finished
+  version: string | null; // full chess-tutor commit sha the live app reported; null if never confirmed
+  versionUrl: string | null; // https://github.com/<repo>/commit/<version>
+  // Failure only: <step> from chess-tutor's "demo stopped at <step>: <reason>", word for word.
+  // null when the run succeeded or the failure named no step (the dashboard's own steps never set it).
+  step: string | null;
+  videoUrl: string | null; // the GitHub Release asset (full or partial video); null when none was saved
+  run: Link; // the Actions run that recorded it ({ label: "Run <id>", url })
 }
 
 export interface Status {
