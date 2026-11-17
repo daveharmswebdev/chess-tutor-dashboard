@@ -1,0 +1,29 @@
+{
+  "brief_id": "005-review-damaged-snapshot-r1",
+  "agent": "reviewer",
+  "issue": 10,
+  "base_sha": "fe1248d",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/e336a91a-6f26-4caf-932e-7831b585ea3f/scratchpad/005-review-damaged-snapshot-r1",
+  "objective": "Review `git diff 972c3f2..fe1248d` (branch worktree-agent-a460237d11a3c5e60, issue #10: a damaged snapshot file must give a plain-words message, not a raw 500). Report correctness bugs and requirement gaps with severity blocking / major / minor. Done-when for #10: a damaged newest snapshot gives a plain-words message instead of a raw error (P-2, P-7); the client can still reach earlier days that open fine (P-5); a test covers a damaged snapshot file. Look specifically for: any path that still yields a 500 or leaks an error message/stack to the client; a path built from anything other than the directory listing (the #5 guarantee); auth bypass on the fallback path (O-2, P-6); renderPage output without notice differing from base (O-4); the notice's link pointing at the wrong file (P-4); tests that would pass without the fix.",
+  "requirements": [
+    "P-2",
+    "P-7",
+    "P-5",
+    "P-4",
+    "O-2",
+    "O-4",
+    "P-6"
+  ],
+  "contract": "Coordinator verification at fe1248d: pnpm test 83 passed, typecheck clean; diff touches src/page.ts, src/server.ts, test/page/render.test.ts, test/page/server.test.ts. Ran buildApp over a scratch dir with snapshots/2026-11-16.json plus a 200-byte truncated 2099-01-01.json: GET / \u2192 200 text/html, notice `The status saved for 2099-01-01 could not be opened, so this shows 2026-11-16, the most recent earlier day that could.` with a link to snapshots/2099-01-01.json, no 'Internal Server Error' text. Known and accepted by design (do not re-report unless you find a concrete harm beyond this): a damaged ?date= falls back only to older days, so 503 when only newer days are readable; only throws count as damaged (no schema validation). Client wording was fixed by the coordinator; do not propose rewording.",
+  "scope": [],
+  "negative": [
+    "Read-only: do not edit, commit, or run anything that writes to the repo."
+  ],
+  "rubric": [
+    "Every finding cites file:line and evidence (command output or code quote); no speculative findings without a concrete failure scenario.",
+    "Checks requirement coverage of P-2, P-7, P-5, P-4, O-2, O-4 against the Done-when list above.",
+    "Read-only: no file in the repo changes."
+  ],
+  "concurrency": "Sole pick this round.",
+  "round": 1
+}

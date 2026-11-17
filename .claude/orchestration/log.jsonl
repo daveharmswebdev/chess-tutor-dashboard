@@ -12,3 +12,12 @@
 {"ts":"2026-11-17T01:28:23.110Z","event":"return_valid","agent_id":"ac2455cbbc74fda02","agent_type":"reviewer","via":"handback"}
 {"ts":"2026-11-17T01:28:49.045Z","event":"coordinator_verdict","brief_id":"003-review-server-auth-r1","agent":"reviewer","verdict":"review","reason":"0 blocking, 3 minor + leftover process (killed); corrupt-snapshot 500 filed","tokens":29915,"duration_ms":100856}
 {"ts":"2026-11-17T01:29:55.975Z","event":"shipped","issue":5,"pr":11}
+{"ts":"2026-11-17T01:36:07.801Z","event":"dispatch","subagent_type":"page-agent","brief_id":"004-damaged-snapshot-r1","base_sha":"972c3f2","spoke":true}
+{"ts":"2026-11-17T01:36:08.043Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"004-damaged-snapshot-r1","agent_id":"a460237d11a3c5e60","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T01:38:09.635Z","event":"return_valid","agent_id":"a460237d11a3c5e60","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-17T01:39:11.806Z","event":"dispatch","subagent_type":"reviewer","brief_id":"005-review-damaged-snapshot-r1","base_sha":"fe1248d","spoke":true}
+{"ts":"2026-11-17T01:39:12.005Z","event":"agent_complete","subagent_type":"reviewer","brief_id":"005-review-damaged-snapshot-r1","agent_id":"a53a90134f08a7a92","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-17T01:39:16.325Z","event":"coordinator_verdict","brief_id":"004-damaged-snapshot-r1","agent":"page-agent","verdict":"accepted","reason":"83 passed, typecheck clean, diff matches files_changed, live render over truncated snapshot shows notice","tokens":39267,"duration_ms":121905}
+{"ts":"2026-11-17T01:40:44.366Z","event":"return_valid","agent_id":"a53a90134f08a7a92","agent_type":"reviewer","via":"handback"}
+{"ts":"2026-11-17T01:40:55.781Z","event":"coordinator_verdict","brief_id":"005-review-damaged-snapshot-r1","agent":"reviewer","verdict":"review","reason":"0 blocking, 0 major, 3 minor","tokens":31430,"duration_ms":92643}
+{"ts":"2026-11-17T02:26:57.463Z","event":"shipped","issue":10,"pr":12}

@@ -1,0 +1,42 @@
+{
+  "brief_id": "004-damaged-snapshot-r1",
+  "agent": "page-agent",
+  "issue": 10,
+  "base_sha": "972c3f2",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/e336a91a-6f26-4caf-932e-7831b585ea3f/scratchpad/004-damaged-snapshot-r1",
+  "objective": "Make the `/` handler in src/server.ts survive a snapshot file that cannot be read, parsed or rendered (#10). For the requested date (?date= or newest): try readFile + JSON.parse + renderPage inside try/catch. On failure, walk the older dates in the listing (newest first) and render the first one that succeeds, passing a new optional 4th argument to renderPage, `notice?: { failedDate: string }`. When notice is given, renderPage prints, in the hero where the `old` line goes (and instead of the 'You're looking at \u2026 See today' line, since / would loop back), exactly: `<p class=\"old\">The status saved for {failedDate} could not be opened, so this shows {s.date}, the most recent earlier day that could. <a href=\"https://github.com/{dashRepo}/blob/main/snapshots/{failedDate}.json\">The file that could not be opened</a></p>` (dates escaped, link built with the existing `a()` helper if it fits). The history footer still lists every date. If no date can be rendered at all, reply text/plain 503: `The saved status for {date} could not be opened, and no earlier day could be opened either.` Never send a raw 500 or the parse error message to the client; log the error with app.log.error.",
+  "requirements": [
+    "P-2",
+    "P-7",
+    "P-5",
+    "P-4",
+    "P-1",
+    "P-6",
+    "O-4"
+  ],
+  "contract": "Measured at 972c3f2: pnpm test \u2192 72 passed. Today `/` does `JSON.parse(await readFile(...))` with no catch (src/server.ts, inlined), so a truncated newest file gives `500 application/json {\"statusCode\":500,\"error\":\"Internal Server Error\",\"message\":\"Unexpected end of JSON input\"}` (reviewer of #5, brief 003). Decisions: fall back to the next readable older day with a plain-words notice and a link to the damaged file (P-4); keep the client wording exactly as given in the objective \u2014 do not reword it (the user signs off on it at PR time). A file that parses but lacks fields renderPage needs counts as damaged too (catch render errors, not just parse errors). Keep `date` only ever chosen from the directory listing (existing #5 guarantee). test/page/server.test.ts already builds scratch snapshot dirs with writeFileSync via `snapshotsDir(dates)`; add damaged cases there (or a sibling helper) writing e.g. `{\"schemaVersion\":1,\"da` as the file body. isLatest stays true-for-newest semantics for the normal path; on the fallback path the notice replaces the old-line.",
+  "contract_files": [
+    "src/server.ts",
+    "src/page.ts",
+    "test/page/server.test.ts"
+  ],
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green): (a) truncated newest file + readable older day \u2192 200 text/html, contains the notice with both dates and the GitHub link to the damaged file, renders the older day's content, no 'Internal Server Error'/'Unexpected end' text; (b) ?date= pointing at a damaged older day \u2192 same fallback to the next older readable day; (c) valid JSON missing required fields (e.g. `{}`) \u2192 treated as damaged; (d) every file damaged \u2192 503 text/plain with the exact sentence; (e) normal path unchanged (existing tests still pass); (f) behind a password the fallback still requires auth (401 without it).",
+    "renderPage called without notice produces byte-identical HTML to before (existing render tests pass unchanged; every committed snapshot still renders, O-4).",
+    "Client wording matches the objective character for character.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 972c3f2..your head. Commit message references the requirement IDs and #10."
+  ],
+  "concurrency": "Sole pick this round; no other branches in flight.",
+  "round": 1
+}
