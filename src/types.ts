@@ -80,7 +80,11 @@ export interface RequirementProgress {
   group: string;
   state: "shipped" | "in-progress" | "not-started";
   prs: number[];
+  // Old snapshots: open issues naming the ID. With Progress.rule "every-issue-done":
+  // board issues naming the ID whose Status is not "Done".
   openIssues: number[];
+  // Board issues naming the ID whose Status is "Done" (present when Progress.rule is set).
+  doneIssues?: number[];
 }
 
 export interface Progress {
@@ -88,4 +92,8 @@ export interface Progress {
   shipped: number;
   inProgress: number;
   total: number;
+  // How `state` was decided. Absent (older snapshots): "shipped" once a merged PR names the ID.
+  // "every-issue-done": "shipped" only when every chess-tutor board issue naming the ID has
+  // Status "Done"; "in-progress" when some do; "not-started" when none do or there are none (#4).
+  rule?: "every-issue-done";
 }
