@@ -29,7 +29,8 @@ permissions:
 # Its own group: sharing Snapshot's group would let a queued Snapshot cancel a pending Demo.
 # The whole run (plan job included) takes turns, so a tick queued behind a recording sees that
 # recording's snapshot before deciding. GitHub keeps one pending run per group and cancels older
-# pending ticks; those show as cancelled and record nothing.
+# pending ticks; those show as cancelled and record nothing. A manual run started while a
+# recording is in progress can be cancelled the same way by the next tick: start it again after.
 # The two workflows never overwrite each other: commit-snapshot.sh rebuilds on the latest main when it moved.
 concurrency:
   group: demo
@@ -60,7 +61,7 @@ jobs:
           set -euo pipefail
           started=$(date -u +%FT%TZ)
           [[ "$DEMO_TIME" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]] || { echo "DEMO_TIME must be HH:MM (24-hour), got '$DEMO_TIME'" >&2; exit 1; }
-          [ -e "/usr/share/zoneinfo/$DEMO_TZ" ] || { echo "DEMO_TZ is not a known time zone: '$DEMO_TZ'" >&2; exit 1; }
+          [ -f "/usr/share/zoneinfo/$DEMO_TZ" ] || { echo "DEMO_TZ is not a known time zone: '$DEMO_TZ'" >&2; exit 1; }
           today=$(TZ="$DEMO_TZ" date +%F)
           planned=$(date -u -d "TZ=\"$DEMO_TZ\" $today $DEMO_TIME" +%FT%TZ)
           { echo "date=$today"; echo "started_at=$started"; } >> "$GITHUB_OUTPUT"
@@ -74,10 +75,21 @@ jobs:
             echo "go=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          existing=$(gh api "repos/$GITHUB_REPOSITORY/contents/snapshots/$today.json?ref=main" \
-            -H "Accept: application/vnd.github.raw" 2>/dev/null | jq -r '.demo.planned.at // empty' || true)
+          # Today's video exists when the snapshot has a scheduled one (demo.planned) or any demo
+          # recorded after the planned time (a manual re-run then, which has no planned field).
+          # Only a 404 (no snapshot for today yet) means "none yet"; other API errors fail the tick.
+          if snap=$(gh api "repos/$GITHUB_REPOSITORY/contents/snapshots/$today.json?ref=main" \
+              -H "Accept: application/vnd.github.raw" 2> gh-error.txt); then
+            existing=$(jq -r --arg p "$planned" \
+              'if (.demo.planned.at // null) != null then "scheduled, planned \(.demo.planned.at)"
+               elif (.demo.recordedAt // "") >= $p then "by hand at \(.demo.recordedAt)" else empty end' <<< "$snap")
+          elif grep -q "HTTP 404" gh-error.txt; then
+            existing=""
+          else
+            echo "Could not read today's snapshot to check for a video:" >&2; cat gh-error.txt >&2; exit 1
+          fi
           if [ -n "$existing" ]; then
-            echo "Today's scheduled video was already recorded (planned $existing)."
+            echo "Today's video was already recorded ($existing)."
             echo "go=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
