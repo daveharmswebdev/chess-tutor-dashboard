@@ -390,3 +390,51 @@ describe("when a failed demo's saved video is from (#28, D-6, P-1, P-7)", () => 
     expect(card).toContain(`<p class="quiet">The video above is from Wed, Nov 18 at 6:34 AM CST.</p>`);
   });
 });
+
+describe("demo null today with demoPlannedAt: the scheduled time (#29, D-6, P-1, P-2, O-4)", () => {
+  const planned = (demoPlannedAt: string | undefined): Snapshot => {
+    const s: Snapshot = withDemo(null);
+    if (demoPlannedAt !== undefined) s.demoPlannedAt = demoPlannedAt;
+    return s;
+  };
+
+  it("prints the approved sentence word for word with the time in s.timezone (CST)", () => {
+    const card = demoCard(render(planned("2026-11-18T22:00:00.000Z")));
+    expect(card).toContain(`<p class="quiet">Demos are scheduled to run every day at 4:00 PM CST.</p>`);
+    expect(card).not.toContain("hasn&#39;t run yet");
+    expect(card).not.toContain("No demo ran this day.");
+  });
+
+  it("a July instant prints daylight time (CDT)", () => {
+    expect(demoCard(render(planned("2026-07-14T21:00:00.000Z")))).toContain(
+      `<p class="quiet">Demos are scheduled to run every day at 4:00 PM CDT.</p>`,
+    );
+  });
+
+  it("without demoPlannedAt (before #29) keeps the old sentence exactly", () => {
+    const s = planned(undefined);
+    expect("demoPlannedAt" in s).toBe(false);
+    const card = demoCard(render(s));
+    expect(card).toContain(`<p class="quiet">Today&#39;s demo hasn&#39;t run yet. It runs each evening.</p>`);
+    expect(card).not.toContain("Demos are scheduled");
+  });
+
+  it("an earlier day says no demo ran, whatever demoPlannedAt says", () => {
+    for (const v of ["2026-11-18T22:00:00.000Z", "garbage", undefined]) {
+      const card = demoCard(render(planned(v), { now: NEXT_DAY }));
+      expect(card).toContain(`<p class="quiet">No demo ran this day.</p>`);
+      expect(card).not.toContain("Demos are scheduled");
+    }
+  });
+
+  it("an unparseable demoPlannedAt prints 'unknown' without throwing (O-4)", () => {
+    const card = demoCard(render(planned("garbage")));
+    expect(card).toContain(`<p class="quiet">Demos are scheduled to run every day at unknown.</p>`);
+  });
+
+  it("a snapshot with a demo ignores demoPlannedAt", () => {
+    const card = demoCard(render({ ...withDemo(SUCCESS), demoPlannedAt: "2026-11-18T22:00:00.000Z" }));
+    expect(card).not.toContain("Demos are scheduled");
+    expect(card).toContain("Recorded ");
+  });
+});
