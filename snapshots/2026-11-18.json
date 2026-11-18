@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-18",
-  "generatedAt": "2026-11-18T07:54:03.210Z",
+  "generatedAt": "2026-11-18T12:06:12.594Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44262115393",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44262115393"
+    "label": "Run 44300670626",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44300670626"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-18T07:54:03.478Z",
+      "checkedAt": "2026-11-18T12:06:13.410Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 112,
+      "ms": 248,
       "error": null
     },
     "deploy": {
@@ -33,7 +33,7 @@
     }
   },
   "digest": {
-    "windowStart": "2026-11-17T07:54:03.210Z",
+    "windowStart": "2026-11-17T12:06:12.594Z",
     "shippedToday": [
       {
         "number": 79,
@@ -277,8 +277,36 @@
         ]
       }
     ],
-    "needsYou": [],
+    "needsYou": [
+      {
+        "number": 87,
+        "title": "We haven't timed the bot's replies on the live site",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/87",
+        "status": "Needs you",
+        "priority": "P3",
+        "kind": "Engineering",
+        "fromClient": false
+      }
+    ],
     "inProgress": [
+      {
+        "number": 44,
+        "title": "Tutor tool that counts attackers and defenders and works out the exchange on a square",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/44",
+        "status": "In Progress",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": true
+      },
+      {
+        "number": 84,
+        "title": "Choose how strong the bot is, from beginner (500) to master (2500)",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/84",
+        "status": "In Progress",
+        "priority": "P2",
+        "kind": "Feature",
+        "fromClient": false
+      },
       {
         "number": 1,
         "title": "Epic: Play a coached game against a realistic sparring bot",
@@ -318,15 +346,6 @@
         "fromClient": false
       },
       {
-        "number": 44,
-        "title": "Tutor tool that counts attackers and defenders and works out the exchange on a square",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/44",
-        "status": "Todo",
-        "priority": "P2",
-        "kind": "Engineering",
-        "fromClient": true
-      },
-      {
         "number": 45,
         "title": "Tutor asks you to count attackers and defenders at capture moments, and checks your answer",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/45",
@@ -334,6 +353,15 @@
         "priority": "P2",
         "kind": "Feature",
         "fromClient": true
+      },
+      {
+        "number": 81,
+        "title": "Search the live app's logs in Grafana Cloud",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/81",
+        "status": "Todo",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": false
       }
     ],
     "boardUrl": "https://github.com/users/daveharmswebdev/projects/5"
@@ -351,6 +379,7 @@
           19
         ],
         "openIssues": [
+          62,
           83,
           84
         ],
@@ -371,6 +400,7 @@
           14
         ],
         "openIssues": [
+          62,
           84
         ],
         "doneIssues": [
@@ -491,6 +521,7 @@
         "openIssues": [
           45,
           50,
+          62,
           75,
           80
         ],
@@ -513,6 +544,7 @@
           27
         ],
         "openIssues": [
+          62,
           84
         ],
         "doneIssues": []
@@ -563,18 +595,22 @@
           31,
           27
         ],
-        "openIssues": [],
+        "openIssues": [
+          62
+        ],
         "doneIssues": []
       },
       {
         "id": "FR-12",
         "group": "Coaching during the game",
         "label": "A Hint button you can press at any time",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           27
         ],
-        "openIssues": [],
+        "openIssues": [
+          62
+        ],
         "doneIssues": [
           7
         ]
@@ -589,6 +625,7 @@
           55
         ],
         "openIssues": [
+          62,
           75
         ],
         "doneIssues": [
@@ -606,6 +643,7 @@
           56
         ],
         "openIssues": [
+          62,
           83
         ],
         "doneIssues": [
@@ -620,7 +658,8 @@
         "state": "not-started",
         "prs": [],
         "openIssues": [
-          8
+          8,
+          62
         ],
         "doneIssues": []
       },
@@ -687,11 +726,13 @@
         "id": "FR-19",
         "group": "Tutor's tools",
         "label": "Tutor knows your London and King's Indian repertoire",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           27
         ],
-        "openIssues": [],
+        "openIssues": [
+          62
+        ],
         "doneIssues": [
           7
         ]
@@ -708,7 +749,8 @@
           43,
           44,
           45,
-          46
+          46,
+          62
         ],
         "doneIssues": []
       },
@@ -720,7 +762,8 @@
         "prs": [],
         "openIssues": [
           43,
-          45
+          45,
+          62
         ],
         "doneIssues": []
       },
@@ -785,7 +828,8 @@
           14
         ],
         "openIssues": [
-          84
+          84,
+          87
         ],
         "doneIssues": [
           6,
@@ -971,6 +1015,7 @@
         ],
         "openIssues": [
           50,
+          62,
           83,
           84
         ],
@@ -982,8 +1027,8 @@
         ]
       }
     ],
-    "shipped": 10,
-    "inProgress": 16,
+    "shipped": 8,
+    "inProgress": 18,
     "total": 39,
     "rule": "every-issue-done"
   },
