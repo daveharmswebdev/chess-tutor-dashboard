@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-18",
-  "generatedAt": "2026-11-18T13:06:30.428Z",
+  "generatedAt": "2026-11-18T21:06:48.940Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44310288487",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44310288487"
+    "label": "Run 44398000338",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44398000338"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-18T13:06:31.443Z",
+      "checkedAt": "2026-11-18T21:06:49.269Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 295,
+      "ms": 160,
       "error": null
     },
     "deploy": {
@@ -33,7 +33,7 @@
     }
   },
   "digest": {
-    "windowStart": "2026-11-17T13:06:30.428Z",
+    "windowStart": "2026-11-17T21:06:48.940Z",
     "shippedToday": [
       {
         "number": 88,
@@ -84,7 +84,9 @@
           "NFR-2",
           "NFR-3"
         ]
-      },
+      }
+    ],
+    "shippedThisWeek": [
       {
         "number": 78,
         "title": "Show the tutor's notes in the move list",
@@ -96,9 +98,7 @@
           "FR-10",
           "NFR-14"
         ]
-      }
-    ],
-    "shippedThisWeek": [
+      },
       {
         "number": 77,
         "title": "An automatic daily demo video of the live app",
@@ -323,6 +323,15 @@
     ],
     "upNext": [
       {
+        "number": 83,
+        "title": "One list of client wording for every requirement, kept in chess-tutor",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/83",
+        "status": "Todo",
+        "priority": "P1",
+        "kind": "Engineering",
+        "fromClient": false
+      },
+      {
         "number": 8,
         "title": "Ask-anything chat about the position",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/8",
@@ -357,15 +366,6 @@
         "priority": "P2",
         "kind": "Feature",
         "fromClient": true
-      },
-      {
-        "number": 81,
-        "title": "Search the live app's logs in Grafana Cloud",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/81",
-        "status": "Todo",
-        "priority": "P2",
-        "kind": "Engineering",
-        "fromClient": false
       }
     ],
     "boardUrl": "https://github.com/users/daveharmswebdev/projects/5"
