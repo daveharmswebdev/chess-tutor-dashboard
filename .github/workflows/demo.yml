@@ -1,8 +1,18 @@
-# The evening demo video (#6, D-6): waits for the live app to settle on its newest version, runs
+# The daily demo video (#6, D-6): waits for the live app to settle on its newest version, runs
 # chess-tutor's guided demo against it with video on, stores the video as a public GitHub Release
 # asset (one per day, all kept) and records the result in today's snapshot. It doubles as a smoke
 # test of the live app, so a failed demo fails this run. Start it by hand with the Run workflow
 # button or `pnpm demo`; a manual run replaces today's video under the same asset name.
+#
+# When it records (#22): at a planned local time, set by the repo variables DEMO_TIME (HH:MM,
+# default 16:00) and DEMO_TZ (default America/Chicago), so changing the time is a settings change.
+# GitHub's schedule can start runs hours late or drop them, so the schedule ticks every 20 minutes
+# and the `plan` job decides: a scheduled tick records only once the planned local time has passed
+# and only if today's snapshot has no scheduled video yet (demo.planned). The date is the planned
+# day in DEMO_TZ, so a run delayed past local midnight can't file the video under the next day: on
+# the new day it is before the planned time, so it skips. A day with no tick that records shows
+# "No demo ran this day." on the page. A run that starts more than 30 minutes after the planned
+# time is marked late, and the page says so (P-7).
 #
 # Every failure path still records a result: each step that can fail has continue-on-error, and
 # the result, snapshot and commit steps run unless the run was cancelled (P-2, P-7).
@@ -10,14 +20,17 @@ name: Demo
 
 on:
   schedule:
-    - cron: "30 0 * * *" # 6:30-7:30 PM US Central, same calendar day as the evening snapshot
+    - cron: "4,24,44 * * * *" # every 20 min; the plan job records once per day after DEMO_TIME
   workflow_dispatch:
 
 permissions:
   contents: write # commit the snapshot, upload the release asset
 
 # Its own group: sharing Snapshot's group would let a queued Snapshot cancel a pending Demo.
-# The two never overwrite each other: commit-snapshot.sh rebuilds on the latest main when it moved.
+# The whole run (plan job included) takes turns, so a tick queued behind a recording sees that
+# recording's snapshot before deciding. GitHub keeps one pending run per group and cancels older
+# pending ticks; those show as cancelled and record nothing.
+# The two workflows never overwrite each other: commit-snapshot.sh rebuilds on the latest main when it moved.
 concurrency:
   group: demo
   cancel-in-progress: false
@@ -27,7 +40,53 @@ env:
   RELEASE_TAG: demos
 
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      go: ${{ steps.plan.outputs.go }}
+      date: ${{ steps.plan.outputs.date }}
+      planned_at: ${{ steps.plan.outputs.planned_at }}
+      started_at: ${{ steps.plan.outputs.started_at }}
+    steps:
+      - name: Decide whether to record now
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          DEMO_TIME: ${{ vars.DEMO_TIME || '16:00' }}
+          DEMO_TZ: ${{ vars.DEMO_TZ || 'America/Chicago' }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          started=$(date -u +%FT%TZ)
+          [[ "$DEMO_TIME" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]] || { echo "DEMO_TIME must be HH:MM (24-hour), got '$DEMO_TIME'" >&2; exit 1; }
+          [ -e "/usr/share/zoneinfo/$DEMO_TZ" ] || { echo "DEMO_TZ is not a known time zone: '$DEMO_TZ'" >&2; exit 1; }
+          today=$(TZ="$DEMO_TZ" date +%F)
+          planned=$(date -u -d "TZ=\"$DEMO_TZ\" $today $DEMO_TIME" +%FT%TZ)
+          { echo "date=$today"; echo "started_at=$started"; } >> "$GITHUB_OUTPUT"
+          if [ "$EVENT" != "schedule" ]; then
+            echo "Manual run: recording now for $today (no planned time)."
+            { echo "go=true"; echo "planned_at="; } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ "$started" < "$planned" ]]; then
+            echo "Not yet: today's recording is planned for $DEMO_TIME $DEMO_TZ ($planned)."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          existing=$(gh api "repos/$GITHUB_REPOSITORY/contents/snapshots/$today.json?ref=main" \
+            -H "Accept: application/vnd.github.raw" 2>/dev/null | jq -r '.demo.planned.at // empty' || true)
+          if [ -n "$existing" ]; then
+            echo "Today's scheduled video was already recorded (planned $existing)."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Recording today's video for $today (planned $planned, started $started)."
+          { echo "go=true"; echo "planned_at=$planned"; } >> "$GITHUB_OUTPUT"
+
   demo:
+    needs: plan
+    if: needs.plan.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -40,10 +99,6 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-
-      - name: Today's date
-        id: day
-        run: echo "date=$(TZ="${DASHBOARD_TZ:-America/Chicago}" date +%F)" >> "$GITHUB_OUTPUT"
 
       - name: Wait for the live version
         id: live
@@ -87,7 +142,7 @@ jobs:
         run: |
           set -e
           sudo apt-get install -y -qq ffmpeg > /dev/null
-          asset="demo-${{ steps.day.outputs.date }}.mp4"
+          asset="demo-${{ needs.plan.outputs.date }}.mp4"
           ffmpeg -loglevel error -y -i chess-tutor/apps/web/demo-output/demo.webm \
             -c:v libx264 -pix_fmt yuv420p -movflags +faststart "$asset"
           gh release view "$RELEASE_TAG" > /dev/null 2>&1 || \
@@ -108,13 +163,15 @@ jobs:
           DEMO_VERSION: ${{ steps.live.outputs.version }}
           DEMO_VIDEO_URL: ${{ steps.upload.outputs.url }}
           DEMO_LOG: demo.log
+          DEMO_PLANNED_AT: ${{ needs.plan.outputs.planned_at }} # empty on manual runs
+          DEMO_STARTED_AT: ${{ needs.plan.outputs.started_at }}
 
       - name: Build snapshot with the demo
         if: ${{ !cancelled() }}
         run: pnpm snapshot
         env:
           DEMO_RESULT_FILE: demo-result.json
-          SNAPSHOT_DATE: ${{ steps.day.outputs.date }} # the asset's date, even if the run crosses midnight
+          SNAPSHOT_DATE: ${{ needs.plan.outputs.date }} # the planned day, even if the run crosses midnight
           GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           APP_URL: ${{ vars.APP_URL }}
@@ -129,7 +186,7 @@ jobs:
         env:
           PUSH_TOKEN: ${{ github.token }}
           DEMO_RESULT_FILE: demo-result.json
-          SNAPSHOT_DATE: ${{ steps.day.outputs.date }}
+          SNAPSHOT_DATE: ${{ needs.plan.outputs.date }}
           GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           APP_URL: ${{ vars.APP_URL }}
