@@ -330,3 +330,63 @@ describe("one rule for a playable demo video, shared with the server (#18, P-6)"
     expect(card).toContain("A short video of the live app each day, with the tutor catching a planned mistake.");
   });
 });
+
+describe("when a failed demo's saved video is from (#28, D-6, P-1, P-7)", () => {
+  // FAILURE.recordedAt 2026-11-18T00:41:07Z is Tue, Nov 17 at 6:41 PM CST in America/Chicago.
+  const SENTENCE = `<p class="quiet">The video above is from Tue, Nov 17 at 6:41 PM CST.</p>`;
+
+  it("failure with a playable video adds the sentence right after the failed line", () => {
+    const card = demoCard(render(withDemo(FAILURE)));
+    expect(card).toContain(SENTENCE);
+    const failedEnd = card.indexOf("</p>", card.indexOf('<p class="demo-failed">')) + 4;
+    expect(card.slice(failedEnd).trimStart().startsWith(SENTENCE)).toBe(true);
+  });
+
+  it("failure with no video: no sentence", () => {
+    const card = demoCard(render(withDemo({ ...FAILURE, videoUrl: null })));
+    expect(card).not.toContain("The video above");
+  });
+
+  it("failure with a video URL the page won't play (not a github.com release asset): no sentence", () => {
+    for (const videoUrl of ["https://example.com/demo.mp4", "http://github.com/o/r/releases/download/t/demo.mp4", "javascript:alert(1)"]) {
+      expect(demoVideoSource(videoUrl)).toBe(false);
+      const card = demoCard(render(withDemo({ ...FAILURE, videoUrl })));
+      expect(card).not.toContain("<video");
+      expect(card).not.toContain("The video above");
+    }
+  });
+
+  it("failure with video and planned.late: failed line, then video sentence, then late note", () => {
+    const NOTE = `<p class="quiet">Recorded later than planned (planned 4:00 PM CST).</p>`;
+    const card = demoCard(render(withDemo({ ...FAILURE, planned: { at: "2026-11-18T22:00:00Z", late: true } })));
+    const failed = card.indexOf('<p class="demo-failed">');
+    const sentence = card.indexOf(SENTENCE);
+    const note = card.indexOf(NOTE);
+    expect(failed).toBeGreaterThan(-1);
+    expect(sentence).toBeGreaterThan(failed);
+    expect(note).toBeGreaterThan(sentence);
+  });
+
+  it("success is unchanged: no video sentence", () => {
+    const card = demoCard(render(withDemo(SUCCESS)));
+    expect(card).not.toContain("The video above");
+    expect(card).toContain("Recorded Tue, Nov 17 at 6:41 PM CST on the live app, version ");
+  });
+
+  it("uses the snapshot's timezone", () => {
+    const card = demoCard(render({ ...withDemo(FAILURE), timezone: "America/New_York" }));
+    expect(card).toContain("The video above is from Tue, Nov 17 at 7:41 PM EST.");
+  });
+
+  it("an unparseable recordedAt prints 'unknown' without throwing (O-4)", () => {
+    const card = demoCard(render(withDemo({ ...FAILURE, recordedAt: "garbage" })));
+    expect(card).toContain(`<p class="quiet">The video above is from unknown at unknown.</p>`);
+  });
+
+  it("the real 2026-11-18 snapshot renders the exact approved sentence", () => {
+    const s = JSON.parse(readFileSync(new URL("../../snapshots/2026-11-18.json", import.meta.url), "utf8")) as Snapshot;
+    const card = demoCard(render(s));
+    expect(card).toContain("<video");
+    expect(card).toContain(`<p class="quiet">The video above is from Wed, Nov 18 at 6:34 AM CST.</p>`);
+  });
+});

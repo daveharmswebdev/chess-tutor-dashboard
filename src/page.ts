@@ -99,7 +99,7 @@ const calendarDate = (d: Date, tz: string) => {
   return `${get("year")}-${get("month")}-${get("day")}`;
 };
 
-// Approved wording (#6, #23, #22), word for word.
+// Approved wording (#6, #23, #22, #28), word for word.
 function demoText(d: Demo, tz: string): string {
   // Scheduled runs only; absent on manual runs and older snapshots (O-4).
   const late = d.planned?.late === true ? `\n    <p class="quiet">${esc(`Recorded later than planned (planned ${time(d.planned.at, tz)}).`)}</p>` : "";
@@ -110,7 +110,9 @@ function demoText(d: Demo, tz: string): string {
   }
   const step = d.step === null ? null : d.step.startsWith("the ") ? d.step.slice(4) : d.step;
   const sentence = step === null ? "Today's demo failed." : `Today's demo failed at the ${step} step.`;
-  return `<p class="demo-failed">${esc(sentence)} ${a(httpUrl(d.run.url), d.run.label)}</p>${late}`;
+  // Only when demoCard draws the player (#28): same check, so the sentence never points at nothing.
+  const from = demoVideoSource(d.videoUrl) ? `\n    <p class="quiet">${esc(`The video above is from ${day(d.recordedAt, tz)} at ${time(d.recordedAt, tz)}.`)}</p>` : "";
+  return `<p class="demo-failed">${esc(sentence)} ${a(httpUrl(d.run.url), d.run.label)}</p>${from}${late}`;
 }
 
 /** The evening demo card (#6, D-6). Only rendered when the snapshot carries the demo field (O-4). */
