@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-17",
-  "generatedAt": "2026-11-18T02:45:15.729Z",
+  "generatedAt": "2026-11-18T03:15:29.806Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44225501415",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44225501415"
+    "label": "Run 44229068057",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44229068057"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-18T02:45:16.152Z",
+      "checkedAt": "2026-11-18T03:15:30.837Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 248,
+      "ms": 235,
       "error": null
     },
     "deploy": {
@@ -27,14 +27,27 @@
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44225123201",
-      "finishedAt": "2026-11-18T02:42:47Z",
-      "commit": "196e7a9716c5ee33ea548427e45f39a2d75ca962"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44225489546",
+      "finishedAt": "2026-11-18T02:45:58Z",
+      "commit": "4d8aba16a4d98d5c313471436931ee54bb561065"
     }
   },
   "digest": {
-    "windowStart": "2026-11-17T02:45:15.729Z",
+    "windowStart": "2026-11-17T03:15:29.806Z",
     "shippedToday": [
+      {
+        "number": 79,
+        "title": "Tutor sometimes can't answer after the opponent leaves the book",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/79",
+        "mergedAt": "2026-11-18T03:14:56Z",
+        "clientNote": "When your opponent leaves your opening, the tutor can now explain your usual plan instead of saying it couldn't answer.",
+        "requirements": [
+          "FR-9",
+          "FR-10",
+          "FR-8",
+          "NFR-6"
+        ]
+      },
       {
         "number": 86,
         "title": "chess-core: work out the exchange on a square (part of #44)",
@@ -82,7 +95,9 @@
           "FR-10",
           "FR-28"
         ]
-      },
+      }
+    ],
+    "shippedThisWeek": [
       {
         "number": 76,
         "title": "The dashboard updates as soon as a change is merged",
@@ -90,9 +105,7 @@
         "mergedAt": "2026-11-17T02:59:58Z",
         "clientNote": "The progress dashboard now refreshes within minutes of each finished change instead of once or twice a day.",
         "requirements": []
-      }
-    ],
-    "shippedThisWeek": [
+      },
       {
         "number": 74,
         "title": "Yesterday's usage numbers, safe to show a client",
@@ -264,17 +277,7 @@
         ]
       }
     ],
-    "needsYou": [
-      {
-        "number": 41,
-        "title": "Tutor sometimes can't answer after the opponent leaves the book: it names plan moves it wasn't given",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/41",
-        "status": "Needs you",
-        "priority": "P3",
-        "kind": "Bug",
-        "fromClient": false
-      }
-    ],
+    "needsYou": [],
     "inProgress": [
       {
         "number": 1,
@@ -479,13 +482,13 @@
         "label": "The tutor asks you a question before giving the answer",
         "state": "in-progress",
         "prs": [
+          79,
           56,
           55,
           33,
           27
         ],
         "openIssues": [
-          41,
           45,
           50,
           75,
@@ -494,6 +497,7 @@
         "doneIssues": [
           7,
           28,
+          41,
           51,
           52,
           53
@@ -505,6 +509,7 @@
         "label": "When the opponent leaves the book, the tutor explains the plan",
         "state": "not-started",
         "prs": [
+          79,
           27
         ],
         "openIssues": [
@@ -518,6 +523,7 @@
         "label": "Every move or score the tutor quotes comes from the chess engine",
         "state": "in-progress",
         "prs": [
+          79,
           86,
           78,
           77,
@@ -531,7 +537,6 @@
           15
         ],
         "openIssues": [
-          41,
           44,
           45,
           46,
@@ -542,6 +547,7 @@
           7,
           17,
           26,
+          41,
           42,
           52,
           53,
@@ -819,6 +825,7 @@
         "label": "Tutor never mentions an illegal move or a made-up score",
         "state": "in-progress",
         "prs": [
+          79,
           40,
           35,
           33,
