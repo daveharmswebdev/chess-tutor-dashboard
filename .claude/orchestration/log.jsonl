@@ -88,3 +88,17 @@
 {"ts":"2026-11-18T12:16:55.411Z","event":"coordinator_verdict","brief_id":"021-demo-planned-review-r1","agent":"reviewer","verdict":"review","reason":"1 major (manual re-run re-arms gate) fixed inline; 3 minors fixed; 3 minors noted in PR","tokens":42556,"duration_ms":152641}
 {"ts":"2026-11-18T12:36:07.158Z","event":"shipped","issue":22,"pr":26}
 {"ts":"2026-11-18T12:36:07.159Z","event":"shipped","issue":23,"pr":26}
+{"ts":"2026-11-18T12:52:24.971Z","event":"dispatch","subagent_type":"page-agent","brief_id":"022-demo-failed-when-r1","base_sha":"6286525","spoke":true}
+{"ts":"2026-11-18T12:52:25.224Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"022-demo-failed-when-r1","agent_id":"a35db06702c45711b","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-18T12:54:16.024Z","event":"dispatch","subagent_type":"data-agent","brief_id":"023-demo-planned-at-r1","base_sha":"155fbd1","spoke":true}
+{"ts":"2026-11-18T12:54:16.227Z","event":"agent_complete","subagent_type":"data-agent","brief_id":"023-demo-planned-at-r1","agent_id":"aff2f58f6634b0f24","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-18T12:54:32.615Z","event":"return_valid","agent_id":"a35db06702c45711b","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-18T12:54:52.407Z","event":"coordinator_verdict","brief_id":"022-demo-failed-when-r1","agent":"page-agent","verdict":"accepted","reason":"diff = files_changed, 317 passed on rebased branch, real 2026-11-18 card renders the approved sentence; no reviewer (one-sentence template change)","tokens":42350,"duration_ms":127702}
+{"ts":"2026-11-18T12:55:43.507Z","event":"shipped","issue":28,"pr":30}
+{"ts":"2026-11-18T12:55:47.118Z","event":"return_valid","agent_id":"aff2f58f6634b0f24","agent_type":"data-agent","via":"handback"}
+{"ts":"2026-11-18T13:01:00.118Z","event":"coordinator_verdict","brief_id":"023-demo-planned-at-r1","agent":"data-agent","verdict":"accepted","reason":"diff = files_changed, 322 passed; spoke ran pnpm snapshot: demoPlannedAt 22:00Z matches plan job","tokens":29277,"duration_ms":91168}
+{"ts":"2026-11-18T13:01:30.050Z","event":"dispatch","subagent_type":"page-agent","brief_id":"024-demo-not-run-time-r1","base_sha":"24370f5","spoke":true}
+{"ts":"2026-11-18T13:01:30.323Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"024-demo-not-run-time-r1","agent_id":"af6423e77747fb93e","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-18T13:04:55.864Z","event":"return_valid","agent_id":"af6423e77747fb93e","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-18T13:05:18.138Z","event":"coordinator_verdict","brief_id":"024-demo-not-run-time-r1","agent":"page-agent","verdict":"accepted","reason":"diff = files_changed, 336 passed combined; text-only change, spoke could not screenshot","tokens":58801,"duration_ms":205944}
+{"ts":"2026-11-18T13:06:01.214Z","event":"shipped","issue":29,"pr":31}
