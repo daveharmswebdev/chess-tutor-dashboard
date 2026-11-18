@@ -73,3 +73,18 @@
 {"ts":"2026-11-17T14:06:33.669Z","event":"return_valid","agent_id":"a5f2022d777998d27","agent_type":"page-agent","via":"handback"}
 {"ts":"2026-11-17T14:06:43.197Z","event":"coordinator_verdict","brief_id":"018-demo-video-proxy-r2","agent":"page-agent","verdict":"accepted","reason":"all 4 review items fixed; files match, gate 271 passed, diff read; body outlives header timeout at 40k/s","tokens":93579,"duration_ms":259097}
 {"ts":"2026-11-17T14:07:52.208Z","event":"shipped","issue":18,"pr":19}
+{"ts":"2026-11-18T12:10:07.515Z","event":"dispatch","subagent_type":"data-agent","brief_id":"019-demo-planned-r1","base_sha":"2940cd3","spoke":true}
+{"ts":"2026-11-18T12:10:37.569Z","event":"dispatch","subagent_type":"page-agent","brief_id":"020-demo-card-when-r1","base_sha":"2940cd3","spoke":true}
+{"ts":"2026-11-18T12:10:37.730Z","event":"agent_complete","subagent_type":"data-agent","brief_id":"019-demo-planned-r1","agent_id":"a29cb9add70b97d13","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-18T12:10:37.812Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"020-demo-card-when-r1","agent_id":"a3e55d51f18bbecfc","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-18T12:12:22.631Z","event":"return_valid","agent_id":"a29cb9add70b97d13","agent_type":"data-agent","via":"handback"}
+{"ts":"2026-11-18T12:12:53.687Z","event":"coordinator_verdict","brief_id":"019-demo-planned-r1","agent":"data-agent","verdict":"accepted","reason":"diff = files_changed, 294 passed, demo-result checked for late/on-time/manual/bad input","tokens":38877,"duration_ms":105376}
+{"ts":"2026-11-18T12:13:25.770Z","event":"return_valid","agent_id":"a3e55d51f18bbecfc","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-18T12:13:44.014Z","event":"dispatch","subagent_type":"reviewer","brief_id":"021-demo-planned-review-r1","base_sha":"2c6dfd0","spoke":true}
+{"ts":"2026-11-18T12:13:44.250Z","event":"agent_complete","subagent_type":"reviewer","brief_id":"021-demo-planned-review-r1","agent_id":"a2951757281930319","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-18T12:14:11.028Z","event":"coordinator_verdict","brief_id":"020-demo-card-when-r1","agent":"page-agent","verdict":"accepted","reason":"diff = files_changed, 287 passed, rendered Nov 18 card with and without planned.late; no reviewer (small template change, exact-text tests)","tokens":49570,"duration_ms":168277}
+{"ts":"2026-11-18T12:15:52.463Z","event":"return_invalid","agent_id":"a2951757281930319","agent_type":"reviewer","attempt":1,"errors":["/brief_defects/0: must be string"]}
+{"ts":"2026-11-18T12:16:16.561Z","event":"return_valid","agent_id":"a2951757281930319","agent_type":"reviewer","via":"handback"}
+{"ts":"2026-11-18T12:16:55.411Z","event":"coordinator_verdict","brief_id":"021-demo-planned-review-r1","agent":"reviewer","verdict":"review","reason":"1 major (manual re-run re-arms gate) fixed inline; 3 minors fixed; 3 minors noted in PR","tokens":42556,"duration_ms":152641}
+{"ts":"2026-11-18T12:36:07.158Z","event":"shipped","issue":22,"pr":26}
+{"ts":"2026-11-18T12:36:07.159Z","event":"shipped","issue":23,"pr":26}

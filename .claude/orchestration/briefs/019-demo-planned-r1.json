@@ -1,0 +1,36 @@
+{
+  "brief_id": "019-demo-planned-r1",
+  "agent": "data-agent",
+  "issue": 22,
+  "base_sha": "2940cd3",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1b17bec7-ca06-4c04-aa2a-9d1d71bb1efa/scratchpad/019-demo-planned-r1",
+  "objective": "Issue #22 (data side): the Demo workflow will start a scheduled recording once a configured local time has passed, and the snapshot must record when it was planned and whether it started late, so the page can say so (P-7). Extend src/fetch/demo.ts:\n1. buildDemoResult reads two new env vars, set by the workflow (coordinator writes the workflow): DEMO_PLANNED_AT (ISO UTC timestamp, the planned start of today's scheduled recording) and DEMO_STARTED_AT (ISO UTC timestamp, when this workflow run started).\n   - Both empty or unset (a manual run, or a run from before #22): the result has NO `planned` key at all (not null, not undefined-valued: the key is absent from the written JSON).\n   - DEMO_PLANNED_AT set and a valid timestamp, DEMO_STARTED_AT valid: planned = { at: <DEMO_PLANNED_AT normalized with new Date(x).toISOString()>, late: started - planned > 30 minutes } (exactly 30 min is NOT late; 30 min + 1 ms is late; a start before the planned time is not late).\n   - DEMO_PLANNED_AT set but not a valid timestamp, or set while DEMO_STARTED_AT is missing/invalid: throw an Error with a plain message naming the variable (the workflow then fails loudly, P-2). DEMO_STARTED_AT set alone (no DEMO_PLANNED_AT) is ignored (manual run).\n2. parseDemo keeps `planned` when present and valid ({ at: timestamp string, late: boolean }), omits the key when absent, and throws `Invalid <source>: planned must be { at, late }` when present but malformed (including null). This matters because loadSnapshotDemo carries the day's demo over into later Snapshot runs; a carried-over demo must keep `planned`, since the workflow's gate reads snapshots/<date>.json `.demo.planned` to know a scheduled video already exists today.\n3. scripts/demo-result.ts: its console line adds `, planned <at> (late)` or `, planned <at>` when planned is present. No other behaviour change.\nNothing client-facing: no page text (P-1).",
+  "requirements": [
+    "D-6",
+    "P-1",
+    "P-2",
+    "P-6",
+    "P-7",
+    "O-4"
+  ],
+  "contract": "src/types.ts at base (2940cd3) adds to interface Demo: `planned?: { at: string; late: boolean };` (scheduled runs only; at = planned start ISO; late = run started > 30 min after it; absent on manual runs and older snapshots).\nCurrent src/fetch/demo.ts: buildDemoResult(deps: ResultDeps { env, readLog, now }) returns { outcome, recordedAt, version, versionUrl, step, videoUrl, run }; parseDemo(value, source) validates an untrusted Demo and rebuilds the object field by field (so today it would DROP planned); loadSnapshotDemo reads DEMO_RESULT_FILE or carries over the same date's snapshot demo through parseDemo. Tests: test/data/demo.test.ts (env objects injected, no network).\nHow the workflow will use it (coordinator's change, not yours): a `plan` job computes started_at = run start (date -u +%FT%TZ) and, for scheduled runs, planned_at = DEMO_TIME in DEMO_TZ on today's local date, e.g. 2026-11-18T22:00:00Z for 16:00 America/Chicago; manual runs pass DEMO_STARTED_AT only and DEMO_PLANNED_AT as \"\" (an unset Actions output arrives as an empty string). The gate skips a scheduled tick when snapshots/<today>.json already has demo.planned.\nGate at base 2940cd3: 272 tests passed, typecheck clean.",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "src/fetch/**",
+    "scripts/**",
+    "test/data/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green) in test/data/demo.test.ts: no planned env -> key absent (check with 'planned' in result and JSON.stringify); planned 22:00Z + started 22:10Z -> late false; started 22:30:00.000Z -> late false; 22:30:00.001Z -> late true; started before planned -> late false; DEMO_PLANNED_AT='' + DEMO_STARTED_AT set -> absent; DEMO_PLANNED_AT 'garbage' -> throws naming DEMO_PLANNED_AT; planned set, started missing -> throws naming DEMO_STARTED_AT; parseDemo round-trips planned, omits it when absent, throws on planned null / {at:'x',late:true} / {at:valid,late:'yes'}; loadSnapshotDemo carry-over keeps planned. Every committed snapshot under snapshots/ still parses via parseDemo where it has a demo.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 2940cd3..your head. Commit message references the requirement IDs and #22."
+  ],
+  "concurrency": "page-agent runs in parallel on brief 020 (#23 + #22's card note) touching only src/page.ts and test/page/**. No file overlap with you. The coordinator edits .github/workflows/demo.yml separately and will add it to your branch before shipping.",
+  "round": 1
+}

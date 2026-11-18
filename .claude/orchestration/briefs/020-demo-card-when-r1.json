@@ -1,0 +1,37 @@
+{
+  "brief_id": "020-demo-card-when-r1",
+  "agent": "page-agent",
+  "issue": 23,
+  "base_sha": "2940cd3",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1b17bec7-ca06-4c04-aa2a-9d1d71bb1efa/scratchpad/020-demo-card-when-r1",
+  "objective": "Issues #23 and #22 (page side), one change to the demo card in src/page.ts (demoText):\n1. #23: the success sentence today is `Recorded on the live app at <h:mm AM>, version <sha link>.` Replace it with the approved wording, word for word: `Recorded <day> at <time> on the live app, version <sha link>.` where <day> = day(d.recordedAt, tz) (e.g. \"Tue, Nov 18\") and <time> = time(d.recordedAt, tz) (e.g. \"4:02 PM CST\"), both the existing helpers at the top of page.ts, tz = the snapshot's timezone. The version stays a link to versionUrl exactly as now (P-4), and \"unknown\" stays the fallback for a missing version. Example: \"Recorded Tue, Nov 18 at 4:02 PM CST on the live app, version 03f355b.\"\n2. #22: when d.planned?.late === true, the card adds this sentence, word for word: `Recorded later than planned (planned <planned time>).` where <planned time> = time(d.planned.at, tz), e.g. \"Recorded later than planned (planned 4:00 PM CST).\" Show it for both outcomes (success and failure), as its own <p class=\"quiet\"> after the existing text. No note when planned is absent or late is false. An unparseable planned.at prints via time() as \"unknown\" (never throw, O-4).\nEverything else on the card (intro sentence, failure sentence, not-run texts, video element) stays exactly as is.",
+  "requirements": [
+    "D-6",
+    "P-1",
+    "P-2",
+    "P-4",
+    "P-7",
+    "O-4"
+  ],
+  "contract": "Approved client wording (issue #23, 2026-11-18): \"Recorded Tue, Nov 18 at 4:02 PM CST on the live app, version 03f355b.\" (date, time, zone and version from the snapshot). Note: the issue body's example lower down (\"Recorded on the live app Tue, Nov 18 at ...\") is NOT the approved wording; the approved line above is.\nApproved client wording (issue #22, 2026-11-18): when the recording started more than 30 minutes after the planned time, the card adds \"Recorded later than planned (planned 4:00 PM CST).\" with the planned time and zone.\nsrc/types.ts at base 2940cd3 adds to Demo: `planned?: { at: string; late: boolean };` (scheduled runs only; absent on manual runs and older snapshots). data-agent fills it in parallel; you get it only from the type and your own test snapshots.\nCurrent code (src/page.ts at base):\n  const time = (iso, tz) => iso ? fmt(iso, tz, { hour: \"numeric\", minute: \"2-digit\", timeZoneName: \"short\" }) : \"unknown\";\n  const day = (iso, tz) => iso ? fmt(iso, tz, { weekday: \"short\", month: \"short\", day: \"numeric\" }) : \"unknown\";\n  function demoText(d: Demo, tz: string): string {\n    if (d.outcome === \"success\") {\n      const at = fmt(d.recordedAt, tz, { hour: \"numeric\", minute: \"2-digit\" });\n      const sha = d.version ? d.version.slice(0, 7) : \"unknown\";\n      return `<p class=\"quiet\">${esc(\"A short video of the live app each day, with the tutor catching a planned mistake.\")}</p>\n      <p class=\"quiet\">${esc(`Recorded on the live app at ${at}, version `)}${a(httpUrl(d.versionUrl), sha)}.</p>`;\n    }\n    ... failure sentence + run link ...\n  }\nReal snapshot value: snapshots/2026-11-18.json demo.recordedAt \"2026-11-18T07:54:02.938Z\", timezone America/Chicago -> today renders \"Recorded Wed, Nov 18 at 1:54 AM CST on the live app, version 03f355b.\" (Nov 18 2026 is a Wednesday; the issue's \"Tue\" is just an example).\nGate at base 2940cd3: 272 tests passed, typecheck clean. Existing demo card tests: test/page/demo.test.ts.",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green) in test/page/demo.test.ts: success sentence exact text for a known recordedAt in America/Chicago (CST in Nov, CDT in e.g. July); version link href preserved; missing version -> 'unknown'; late note exact text for success and for failure when planned.late true; no note when planned absent or late false; unparseable planned.at -> 'planned unknown' without throwing; every committed snapshot in snapshots/ still renders. Run pnpm dev against a scratch copy of the snapshots with one demo given planned {late:true} and look at the card at desktop and 390 px; report what you saw.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 2940cd3..your head. Commit message references the requirement IDs and #23."
+  ],
+  "concurrency": "data-agent runs in parallel on brief 019 (#22 data side) touching only src/fetch/demo.ts, scripts/demo-result.ts and test/data/**. No file overlap with you.",
+  "round": 1
+}
