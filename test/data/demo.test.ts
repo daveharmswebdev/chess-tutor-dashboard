@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
+import { mkdtemp, rm, writeFile, mkdir, readdir, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -410,5 +410,88 @@ describe("round 2 (review 014): url output, non-empty step", () => {
   it.each(["demo stopped at : x", "demo stopped at    : x", "demo stopped at \u001b[1m\u001b[22m: x"])("a log line %j yields no step", async (log) => {
     expect(findStep(log)).toBeNull();
     expect((await result({ ...allSuccess, DEMO_OUTCOME: "failure" }, log)).step).toBeNull();
+  });
+});
+
+describe("planned start of a scheduled recording (#22, D-6, P-7)", () => {
+  const PLANNED = "2026-11-18T22:00:00Z";
+  const run = (env: Record<string, string | undefined>) => result({ ...allSuccess, ...env });
+
+  it("has no planned key on a run without the planned env (manual run, or before #22)", async () => {
+    const d = await run({});
+    expect("planned" in d).toBe(false);
+    expect(JSON.stringify(d)).not.toContain("planned");
+  });
+
+  it("has no planned key when DEMO_PLANNED_AT is empty and only DEMO_STARTED_AT is set", async () => {
+    const d = await run({ DEMO_PLANNED_AT: "", DEMO_STARTED_AT: "2026-11-18T22:10:00Z" });
+    expect("planned" in d).toBe(false);
+    expect(JSON.stringify(d)).not.toContain("planned");
+  });
+
+  it("has no planned key when both are empty strings", async () => {
+    expect("planned" in (await run({ DEMO_PLANNED_AT: "", DEMO_STARTED_AT: "" }))).toBe(false);
+  });
+
+  it.each([
+    ["10 minutes after", "2026-11-18T22:10:00Z", false],
+    ["exactly 30 minutes after", "2026-11-18T22:30:00.000Z", false],
+    ["30 minutes and 1 ms after", "2026-11-18T22:30:00.001Z", true],
+    ["two hours after", "2026-11-19T00:00:00Z", true],
+    ["before", "2026-11-18T21:55:00Z", false],
+  ])("a run started %s the planned time (%s) has late %s", async (_n, started, late) => {
+    const d = await run({ DEMO_PLANNED_AT: PLANNED, DEMO_STARTED_AT: started as string });
+    expect(d.planned).toEqual({ at: "2026-11-18T22:00:00.000Z", late });
+  });
+
+  it.each(["garbage", "2026-13-45T99:00:00Z"])("throws naming DEMO_PLANNED_AT when it is %j", async (bad) => {
+    await expect(run({ DEMO_PLANNED_AT: bad, DEMO_STARTED_AT: "2026-11-18T22:10:00Z" })).rejects.toThrow(/DEMO_PLANNED_AT/);
+  });
+
+  it.each([undefined, "", "soon"])("throws naming DEMO_STARTED_AT when planned is set and started is %j", async (started) => {
+    await expect(run({ DEMO_PLANNED_AT: PLANNED, DEMO_STARTED_AT: started })).rejects.toThrow(/DEMO_STARTED_AT/);
+  });
+
+  it("produces a planned result parseDemo accepts", async () => {
+    const d = await run({ DEMO_PLANNED_AT: PLANNED, DEMO_STARTED_AT: "2026-11-18T22:45:00Z" });
+    expect(parseDemo(JSON.parse(JSON.stringify(d)))).toEqual(d);
+  });
+
+  it("parseDemo keeps planned and omits it when absent", () => {
+    const withPlanned = { ...sample, planned: { at: "2026-11-18T22:00:00.000Z", late: true } };
+    expect(parseDemo(JSON.parse(JSON.stringify(withPlanned)))).toEqual(withPlanned);
+    const without = parseDemo(JSON.parse(JSON.stringify(sample)));
+    expect("planned" in without).toBe(false);
+  });
+
+  it.each([
+    ["null", null],
+    ["a bad at", { at: "x", late: true }],
+    ["a non-boolean late", { at: "2026-11-18T22:00:00.000Z", late: "yes" }],
+    ["a missing late", { at: "2026-11-18T22:00:00.000Z" }],
+    ["a string", "2026-11-18T22:00:00.000Z"],
+  ])("parseDemo throws on planned with %s", (_n, planned) => {
+    expect(() => parseDemo({ ...sample, planned }, "demo result")).toThrow("Invalid demo result: planned must be { at, late }");
+  });
+
+  it("loadSnapshotDemo carries planned over from the same date's snapshot", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "demo-test-"));
+    try {
+      const withPlanned = { ...sample, planned: { at: "2026-11-18T22:00:00.000Z", late: false } };
+      await writeFile(join(dir, "2026-11-18.json"), JSON.stringify({ schemaVersion: 1, date: "2026-11-18", demo: withPlanned }));
+      expect(await loadSnapshotDemo({ resultFile: undefined, snapshotsDir: dir, date: "2026-11-18" })).toEqual(withPlanned);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("every committed snapshot with a demo still parses", async () => {
+    const dir = join(import.meta.dirname, "../../snapshots");
+    const files = (await readdir(dir)).filter((f) => f.endsWith(".json"));
+    expect(files.length).toBeGreaterThan(0);
+    for (const f of files) {
+      const snap = JSON.parse(await readFile(join(dir, f), "utf8")) as { demo?: unknown };
+      if (snap.demo !== undefined && snap.demo !== null) expect(() => parseDemo(snap.demo, f)).not.toThrow();
+    }
   });
 });

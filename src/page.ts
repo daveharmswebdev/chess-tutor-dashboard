@@ -99,17 +99,18 @@ const calendarDate = (d: Date, tz: string) => {
   return `${get("year")}-${get("month")}-${get("day")}`;
 };
 
-// Approved wording (#6), word for word.
+// Approved wording (#6, #23, #22), word for word.
 function demoText(d: Demo, tz: string): string {
+  // Scheduled runs only; absent on manual runs and older snapshots (O-4).
+  const late = d.planned?.late === true ? `\n    <p class="quiet">${esc(`Recorded later than planned (planned ${time(d.planned.at, tz)}).`)}</p>` : "";
   if (d.outcome === "success") {
-    const at = fmt(d.recordedAt, tz, { hour: "numeric", minute: "2-digit" });
     const sha = d.version ? d.version.slice(0, 7) : "unknown";
     return `<p class="quiet">${esc("A short video of the live app each day, with the tutor catching a planned mistake.")}</p>
-    <p class="quiet">${esc(`Recorded on the live app at ${at}, version `)}${a(httpUrl(d.versionUrl), sha)}.</p>`;
+    <p class="quiet">${esc(`Recorded ${day(d.recordedAt, tz)} at ${time(d.recordedAt, tz)} on the live app, version `)}${a(httpUrl(d.versionUrl), sha)}.</p>${late}`;
   }
   const step = d.step === null ? null : d.step.startsWith("the ") ? d.step.slice(4) : d.step;
   const sentence = step === null ? "Today's demo failed." : `Today's demo failed at the ${step} step.`;
-  return `<p class="demo-failed">${esc(sentence)} ${a(httpUrl(d.run.url), d.run.label)}</p>`;
+  return `<p class="demo-failed">${esc(sentence)} ${a(httpUrl(d.run.url), d.run.label)}</p>${late}`;
 }
 
 /** The evening demo card (#6, D-6). Only rendered when the snapshot carries the demo field (O-4). */

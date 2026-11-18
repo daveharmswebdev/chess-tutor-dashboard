@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { demoVideoSource, renderPage } from "../../src/page.ts";
 import type { Demo, Snapshot } from "../../src/types.ts";
@@ -95,15 +95,108 @@ describe("demo success (D-6, P-4)", () => {
     expect(video).toContain('class="demo-video"');
     expect(card).toContain("A short video of the live app each day, with the tutor catching a planned mistake.");
     expect(card).toContain(
-      `Recorded on the live app at 6:41 PM, version <a href="${SUCCESS.versionUrl}" target="_blank" rel="noopener">621270d</a>.`,
+      `Recorded Tue, Nov 17 at 6:41 PM CST on the live app, version <a href="${SUCCESS.versionUrl}" target="_blank" rel="noopener">621270d</a>.`,
     );
-    expect(card).not.toContain("CST");
     expect(card).not.toContain("failed");
   });
 
   it("the video comes before the text", () => {
     const card = demoCard(render(withDemo(SUCCESS)));
     expect(card.indexOf("<video")).toBeLessThan(card.indexOf("A short video"));
+  });
+});
+
+describe("when the demo was recorded (#23, D-6, P-1, P-4)", () => {
+  it("prints the approved sentence with day, time and zone in s.timezone (CST in November)", () => {
+    const card = demoCard(render(withDemo({ ...SUCCESS, recordedAt: "2026-11-18T22:02:00Z" })));
+    expect(card).toContain(
+      `<p class="quiet">Recorded Wed, Nov 18 at 4:02 PM CST on the live app, version <a href="${SUCCESS.versionUrl}" target="_blank" rel="noopener">621270d</a>.</p>`,
+    );
+    expect(card).not.toContain("Recorded on the live app at");
+  });
+
+  it("uses daylight time in summer (CDT)", () => {
+    const card = demoCard(render(withDemo({ ...SUCCESS, recordedAt: "2026-07-14T21:02:00Z" })));
+    expect(card).toContain("Recorded Tue, Jul 14 at 4:02 PM CDT on the live app, version ");
+  });
+
+  it("follows the snapshot's timezone, not a fixed one", () => {
+    const card = demoCard(render({ ...withDemo({ ...SUCCESS, recordedAt: "2026-11-18T22:02:00Z" }), timezone: "America/New_York" }));
+    expect(card).toContain("Recorded Wed, Nov 18 at 5:02 PM EST on the live app, version ");
+  });
+
+  it("a missing version prints 'unknown' with no link", () => {
+    const card = demoCard(render(withDemo({ ...SUCCESS, recordedAt: "2026-11-18T22:02:00Z", version: null, versionUrl: null })));
+    expect(card).toContain("Recorded Wed, Nov 18 at 4:02 PM CST on the live app, version unknown.");
+  });
+
+  it("an unparseable recordedAt prints 'unknown' rather than throwing (O-4)", () => {
+    const card = demoCard(render(withDemo({ ...SUCCESS, recordedAt: "not a date" })));
+    expect(card).toContain("Recorded unknown at unknown on the live app, version ");
+  });
+});
+
+describe("recorded later than planned (#22, D-6, P-7)", () => {
+  const PLANNED_AT = "2026-11-18T22:00:00Z"; // 4:00 PM CST
+  const NOTE = `<p class="quiet">Recorded later than planned (planned 4:00 PM CST).</p>`;
+
+  it("success with planned.late true adds the note after the recorded sentence", () => {
+    const card = demoCard(render(withDemo({ ...SUCCESS, recordedAt: "2026-11-18T22:45:00Z", planned: { at: PLANNED_AT, late: true } })));
+    expect(card).toContain(NOTE);
+    expect(card.indexOf(NOTE)).toBeGreaterThan(card.indexOf("Recorded Wed, Nov 18 at 4:45 PM CST on the live app"));
+  });
+
+  it("failure with planned.late true adds the note after the failure sentence", () => {
+    const card = demoCard(render(withDemo({ ...FAILURE, planned: { at: PLANNED_AT, late: true } })));
+    expect(card).toContain(NOTE);
+    expect(card).toContain("Today&#39;s demo failed at the tutor&#39;s question step.");
+    expect(card.indexOf(NOTE)).toBeGreaterThan(card.indexOf("demo-failed"));
+  });
+
+  it.each([
+    ["absent", undefined],
+    ["late false", { at: PLANNED_AT, late: false }],
+  ] as const)("planned %s: no note", (_name, planned) => {
+    for (const base of [SUCCESS, FAILURE]) {
+      const card = demoCard(render(withDemo({ ...base, ...(planned ? { planned } : {}) })));
+      expect(card).not.toContain("later than planned");
+      expect(card).not.toContain("planned 4:00");
+    }
+  });
+
+  it("uses the snapshot's timezone for the planned time", () => {
+    const card = demoCard(render({ ...withDemo({ ...SUCCESS, planned: { at: PLANNED_AT, late: true } }), timezone: "America/New_York" }));
+    expect(card).toContain("Recorded later than planned (planned 5:00 PM EST).");
+  });
+
+  it("an unparseable planned.at prints 'planned unknown' without throwing (O-4)", () => {
+    const card = demoCard(render(withDemo({ ...SUCCESS, planned: { at: "garbage", late: true } })));
+    expect(card).toContain("Recorded later than planned (planned unknown).");
+  });
+
+  it("never prints the raw planned value", () => {
+    const html = render(withDemo({ ...SUCCESS, planned: { at: "<script>x</script>", late: true } }));
+    expect(html).not.toContain("<script>x</script>");
+    expect(demoCard(html)).toContain("Recorded later than planned (planned unknown).");
+  });
+});
+
+describe("every committed snapshot's demo card renders (O-4, #23)", () => {
+  const dir = new URL("../../snapshots/", import.meta.url);
+  const files = readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f));
+  it.each(files)("%s", (f) => {
+    const s = JSON.parse(readFileSync(new URL(f, dir), "utf8")) as Snapshot;
+    const html = render(s);
+    if (s.demo === undefined) {
+      expect(section(html, "01")).not.toContain("Today&#39;s demo video");
+      return;
+    }
+    const card = demoCard(html);
+    expect(card).toContain("<h3>Today&#39;s demo video</h3>");
+    expect(card).not.toMatch(/undefined|NaN|\[object Object\]/);
+    if (s.demo?.outcome === "success") {
+      expect(card).toMatch(/Recorded [A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2} at \d{1,2}:\d{2} [AP]M [A-Z]{3,4} on the live app, version /);
+    }
   });
 });
 
@@ -165,7 +258,7 @@ describe("demo strings are untrusted (P-6, P-4)", () => {
     const card = demoCard(html);
     expect(card).not.toContain("<video");
     expect(card).toContain("A short video of the live app each day, with the tutor catching a planned mistake.");
-    expect(card).toContain("Recorded on the live app at 6:41 PM, version 621270d.");
+    expect(card).toContain("Recorded Tue, Nov 17 at 6:41 PM CST on the live app, version 621270d.");
     const f = demoCard(render(withDemo({ ...FAILURE, run: { label: "Run 1", url: "javascript:alert(3)" } })));
     expect(f).not.toContain("javascript:");
     expect(f).toContain("Run 1");

@@ -10,4 +10,4 @@ if (!out) throw new Error("usage: demo-result.ts <out.json>");
 
 const demo = await buildDemoResult({ env: process.env, readLog: (path) => readFile(path, "utf8"), now: () => new Date() });
 await writeFile(out, JSON.stringify(demo, null, 2) + "\n");
-console.log(`Wrote ${out}: demo ${demo.outcome}${demo.step ? ` (stopped at ${demo.step})` : ""}, video ${demo.videoUrl ? "saved" : "none"}`);
+console.log(`Wrote ${out}: demo ${demo.outcome}${demo.step ? ` (stopped at ${demo.step})` : ""}, video ${demo.videoUrl ? "saved" : "none"}${demo.planned ? `, planned ${demo.planned.at}${demo.planned.late ? " (late)" : ""}` : ""}`);
