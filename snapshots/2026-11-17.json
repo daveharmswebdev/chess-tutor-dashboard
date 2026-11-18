@@ -1,39 +1,39 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-17",
-  "generatedAt": "2026-11-18T03:15:29.806Z",
+  "generatedAt": "2026-11-18T03:21:21.608Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44229068057",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44229068057"
+    "label": "Run 44229797013",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44229797013"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-18T03:15:30.837Z",
+      "checkedAt": "2026-11-18T03:21:21.976Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 235,
+      "ms": 236,
       "error": null
     },
     "deploy": {
       "status": "live",
-      "commit": "196e7a9716c5ee33ea548427e45f39a2d75ca962",
-      "commitMessage": "chess-core: work out the exchange on a square (part of #44) (#86)",
-      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/196e7a9716c5ee33ea548427e45f39a2d75ca962",
-      "finishedAt": "2026-11-18T02:44:10.653337Z"
+      "commit": "31add541d20fc6900435ae90d140359804abae6e",
+      "commitMessage": "Tutor sometimes can't answer after the opponent leaves the book (#79)",
+      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/31add541d20fc6900435ae90d140359804abae6e",
+      "finishedAt": "2026-11-18T03:17:22.481794Z"
     },
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44225489546",
-      "finishedAt": "2026-11-18T02:45:58Z",
-      "commit": "4d8aba16a4d98d5c313471436931ee54bb561065"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44229057757",
+      "finishedAt": "2026-11-18T03:16:03Z",
+      "commit": "31add541d20fc6900435ae90d140359804abae6e"
     }
   },
   "digest": {
-    "windowStart": "2026-11-17T03:15:29.806Z",
+    "windowStart": "2026-11-17T03:21:21.608Z",
     "shippedToday": [
       {
         "number": 79,
@@ -83,7 +83,9 @@
           "FR-10",
           "NFR-14"
         ]
-      },
+      }
+    ],
+    "shippedThisWeek": [
       {
         "number": 77,
         "title": "An automatic daily demo video of the live app",
@@ -95,9 +97,7 @@
           "FR-10",
           "FR-28"
         ]
-      }
-    ],
-    "shippedThisWeek": [
+      },
       {
         "number": 76,
         "title": "The dashboard updates as soon as a change is merged",
