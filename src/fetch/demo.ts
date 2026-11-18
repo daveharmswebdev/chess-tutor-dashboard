@@ -181,10 +181,28 @@ function runLink(env: Env): Demo["run"] {
   return { label: `Run ${id}`, url: `${env.GITHUB_SERVER_URL || "https://github.com"}/${repository}/actions/runs/${id}` };
 }
 
+const LATE_AFTER_MS = 30 * 60_000;
+
+/**
+ * The planned start of a scheduled recording (#22, P-7), from DEMO_PLANNED_AT and DEMO_STARTED_AT
+ * (ISO timestamps set by the workflow). Null when DEMO_PLANNED_AT is empty or unset (a manual run).
+ * A bad DEMO_PLANNED_AT, or a planned time without a valid DEMO_STARTED_AT, throws (P-2).
+ */
+function plannedStart(env: Env): Demo["planned"] | null {
+  const plannedAt = env.DEMO_PLANNED_AT ?? "";
+  if (plannedAt === "") return null;
+  const planned = Date.parse(plannedAt);
+  if (Number.isNaN(planned)) throw new Error("DEMO_PLANNED_AT must be an ISO timestamp");
+  const started = Date.parse(env.DEMO_STARTED_AT ?? "");
+  if (Number.isNaN(started)) throw new Error("DEMO_STARTED_AT must be an ISO timestamp when DEMO_PLANNED_AT is set");
+  return { at: new Date(planned).toISOString(), late: started - planned > LATE_AFTER_MS };
+}
+
 /** Builds one Demo from the Demo workflow's step outcomes (rule in brief 012 / issue #6). */
 export async function buildDemoResult(deps: ResultDeps): Promise<Demo> {
   const { env } = deps;
   const run = runLink(env);
+  const planned = plannedStart(env);
   const repo = env.TARGET_REPO || "daveharmswebdev/chess-tutor";
   const videoUrlEnv = env.DEMO_VIDEO_URL ?? "";
   const allSucceeded = env.LIVE_OUTCOME === "success" && env.DEMO_OUTCOME === "success" && env.UPLOAD_OUTCOME === "success";
@@ -207,6 +225,7 @@ export async function buildDemoResult(deps: ResultDeps): Promise<Demo> {
     step,
     videoUrl: env.UPLOAD_OUTCOME === "success" && videoUrlEnv !== "" ? videoUrlEnv : null,
     run,
+    ...(planned ? { planned } : {}), // absent, not null, on a manual run
   };
 }
 
@@ -229,6 +248,14 @@ export function parseDemo(value: unknown, source = "demo result"): Demo {
   if (!nullableString(v.videoUrl)) bad("videoUrl must be a string or null");
   const r = v.run as Record<string, unknown> | null | undefined;
   if (typeof r !== "object" || r === null || typeof r.label !== "string" || typeof r.url !== "string") bad("run must be { label, url }");
+  let planned: Demo["planned"];
+  if ("planned" in v) {
+    const p = v.planned as Record<string, unknown> | null;
+    if (typeof p !== "object" || p === null || Array.isArray(p) || typeof p.at !== "string" || Number.isNaN(Date.parse(p.at)) || typeof p.late !== "boolean") {
+      bad("planned must be { at, late }");
+    }
+    planned = { at: p!.at as string, late: p!.late as boolean };
+  }
   return {
     outcome: v.outcome as Demo["outcome"],
     recordedAt: v.recordedAt as string,
@@ -237,6 +264,7 @@ export function parseDemo(value: unknown, source = "demo result"): Demo {
     step: v.step as string | null,
     videoUrl: v.videoUrl as string | null,
     run: { label: r!.label as string, url: r!.url as string },
+    ...(planned ? { planned } : {}),
   };
 }
 
