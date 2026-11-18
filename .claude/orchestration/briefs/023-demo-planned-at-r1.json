@@ -1,0 +1,32 @@
+{
+  "brief_id": "023-demo-planned-at-r1",
+  "agent": "data-agent",
+  "issue": 29,
+  "base_sha": "155fbd1",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1b17bec7-ca06-4c04-aa2a-9d1d71bb1efa/scratchpad/023-demo-planned-at-r1",
+  "objective": "Issue #29 (data side): every snapshot carries `demoPlannedAt`, the ISO UTC timestamp of today's planned demo recording start: DEMO_TIME (HH:MM, 24-hour) in DEMO_TZ (IANA zone) on the snapshot's `date`. The page will print it as \"Demos are scheduled to run every day at 4:00 PM CST.\" while no demo has run.\n1. In src/fetch/demo.ts add an exported pure function `plannedAt(date: string, env: Env): string | null`: time = env.DEMO_TIME || \"16:00\", zone = env.DEMO_TZ || \"America/Chicago\" (an empty string means the default, because an unset Actions variable arrives as \"\"). It returns the UTC instant whose wall-clock time in `zone` on `date` is `time`, e.g. (\"2026-11-18\", defaults) -> \"2026-11-18T22:00:00.000Z\" (CST) and (\"2026-07-15\", defaults) -> \"2026-07-15T21:00:00.000Z\" (CDT). Use Intl only (no new dependency). It returns null when DEMO_TIME doesn't match /^([01]\\d|2[0-3]):[0-5]\\d$/, when the zone is not a valid IANA zone (Intl throws RangeError), or when the wall-clock time doesn't exist that day (spring-forward gap, e.g. 2027-03-14 02:30 America/Chicago). In the fall-back hour (ambiguous), pick the earlier instant.\n2. scripts/snapshot.ts sets `demoPlannedAt` from plannedAt(date, process.env). When it returns null, omit the field and print one warning line naming the bad variable or the gap (the Demo workflow's plan job already fails loudly on bad config; a snapshot must still be written, P-2).\nNothing else changes; no page text (P-1).",
+  "requirements": [
+    "D-6",
+    "P-1",
+    "P-2",
+    "P-6",
+    "O-4"
+  ],
+  "contract": "src/types.ts at base 155fbd1 adds to Snapshot: `demoPlannedAt?: string;` (\"Today's planned demo recording start (#29, D-6): ISO timestamp of DEMO_TIME in DEMO_TZ on this snapshot's date (repo variables, default 16:00 America/Chicago). Shown while no demo has run yet. Absent on snapshots from before #29.\")\nBoth workflows already pass DEMO_TIME: ${{ vars.DEMO_TIME }} and DEMO_TZ: ${{ vars.DEMO_TZ }} to every `pnpm snapshot` (the snapshot steps and commit-snapshot.sh's rebuild). The repo variables are set to 16:00 and America/Chicago.\nThe Demo workflow's plan job computes the same instant with GNU `date -u -d 'TZ=\"$DEMO_TZ\" $today $DEMO_TIME'`; your result must match it for valid inputs (2026-11-18 16:00 America/Chicago -> 2026-11-18T22:00:00Z).\nscripts/snapshot.ts at base: `const timezone = process.env.DASHBOARD_TZ ?? \"America/Chicago\"; const date = snapshotDate(process.env, now, timezone);` then builds `const snapshot: Snapshot = { schemaVersion: 1, date, generatedAt, timezone, run, repo, status, digest, progress, demo }`. src/fetch/demo.ts has `type Env = Record<string, string | undefined>`.\nGate at base 155fbd1: 309 tests passed, typecheck clean.",
+  "scope": [
+    "src/fetch/**",
+    "scripts/**",
+    "test/data/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green) in test/data/: defaults give CST 22:00Z on 2026-11-18 and CDT 21:00Z on 2026-07-15; empty-string env equals defaults; DEMO_TIME 09:05 with Europe/Berlin and Asia/Kolkata (+05:30); DST change days (2026-03-08 and 2026-11-01 in America/Chicago, at 16:00 and at 01:30 in the fall-back hour -> earlier instant); 2027-03-14 02:30 America/Chicago -> null; '4pm', '24:00', '9:05' -> null; 'America' and 'Mars/Base' -> null. Run `pnpm snapshot` locally if your gh login allows it, read demoPlannedAt in the JSON, then discard it (git checkout -- snapshots/); otherwise say so.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 155fbd1..your head. Commit message references the requirement IDs and #29."
+  ],
+  "concurrency": "page-agent is changing src/page.ts and test/page/** for #28 in another worktree. No file overlap with you.",
+  "round": 1
+}

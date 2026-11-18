@@ -1,0 +1,33 @@
+{
+  "brief_id": "022-demo-failed-when-r1",
+  "agent": "page-agent",
+  "issue": 28,
+  "base_sha": "6286525",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1b17bec7-ca06-4c04-aa2a-9d1d71bb1efa/scratchpad/022-demo-failed-when-r1",
+  "objective": "Issue #28: in src/page.ts demoText, the failure branch must add one sentence when a video was saved: `The video above is from <day> at <time>.` with <day> = day(d.recordedAt, tz) (e.g. \"Wed, Nov 18\") and <time> = time(d.recordedAt, tz) (e.g. \"6:34 AM CST\"), in its own <p class=\"quiet\"> placed right after the <p class=\"demo-failed\"> line and before the late note (#22) when that applies. \"A video was saved\" means exactly demoVideoSource(d.videoUrl) is true, the same check demoCard uses to render the <video> element. Without a video there is no sentence. The success branch is unchanged.",
+  "requirements": [
+    "D-6",
+    "P-1",
+    "P-2",
+    "P-7",
+    "O-4"
+  ],
+  "contract": "Approved client wording (user, 2026-11-18), word for word: \"The video above is from Wed, Nov 18 at 6:34 AM CST.\" (day and time with zone from recordedAt, snapshot timezone).\nCurrent failure branch at base (src/page.ts demoText):\n  const step = ...; const sentence = step === null ? \"Today's demo failed.\" : `Today's demo failed at the ${step} step.`;\n  return `<p class=\"demo-failed\">${esc(sentence)} ${a(httpUrl(d.run.url), d.run.label)}</p>${late}`;\nwhere late is the #22 note ('\\n    <p class=\"quiet\">Recorded later than planned (planned \u2026).</p>' or \"\"). demoVideoSource(url) is exported from src/page.ts. day()/time() are the helpers at the top of page.ts; the success sentence already uses them.\nReal snapshot: snapshots/2026-11-18.json demo = { outcome:\"failure\", recordedAt:\"2026-11-18T12:34:26.124Z\", videoUrl:\"https://github.com/daveharmswebdev/chess-tutor-dashboard/releases/download/demos/demo-2026-11-18.mp4\", step:null, run:{label:\"Run 44302683948\",...} }, timezone America/Chicago, which must render \"The video above is from Wed, Nov 18 at 6:34 AM CST.\"\nGate at base: 309 tests passed, typecheck clean.",
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green) in test/page/demo.test.ts: failure + valid video -> exact sentence after the failed line; failure + videoUrl null -> no sentence; failure + non-github videoUrl (demoVideoSource false) -> no sentence; failure + video + planned.late -> order failed line, video sentence, late note; success unchanged; unparseable recordedAt -> 'unknown' without throwing; the real 2026-11-18 snapshot renders the exact sentence; every committed snapshot renders. Look at the card at desktop and 390 px and report what you saw.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 6286525..your head. Commit message references the requirement IDs and #28."
+  ],
+  "concurrency": "No other spoke is running.",
+  "round": 1
+}

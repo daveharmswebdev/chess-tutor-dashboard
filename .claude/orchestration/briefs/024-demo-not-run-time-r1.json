@@ -1,0 +1,32 @@
+{
+  "brief_id": "024-demo-not-run-time-r1",
+  "agent": "page-agent",
+  "issue": 29,
+  "base_sha": "24370f5",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1b17bec7-ca06-4c04-aa2a-9d1d71bb1efa/scratchpad/024-demo-not-run-time-r1",
+  "objective": "Issue #29 (page side): in src/page.ts demoCard, when there is no demo yet (d is null) and isToday is true, replace \"Today's demo hasn't run yet. It runs each evening.\" with the approved sentence, word for word: `Demos are scheduled to run every day at <time>.` where <time> = time(s.demoPlannedAt, s.timezone) (e.g. \"4:00 PM CST\"), in the same <p class=\"quiet\">. When s.demoPlannedAt is absent (snapshots from before #29), keep the old sentence exactly as it is. An unparseable demoPlannedAt prints via time() as \"unknown\" (never throw). Earlier days (\"No demo ran this day.\") and everything else on the card are unchanged.",
+  "requirements": [
+    "D-6",
+    "P-1",
+    "P-2",
+    "O-4"
+  ],
+  "contract": "Approved client wording (user, 2026-11-18), word for word: \"Demos are scheduled to run every day at 4:00 PM CST.\" with the time and zone from the configured recording time. Note the spelling \"Demos\" (no apostrophe).\nsrc/types.ts at base 24370f5: Snapshot has `demoPlannedAt?: string;` (ISO instant of DEMO_TIME in DEMO_TZ on the snapshot's date; absent on snapshots from before #29). data-agent's change at base fills it: for 2026-11-18 with the defaults it is \"2026-11-18T22:00:00.000Z\"; for a July date it is 21:00Z (CDT), which must print \"4:00 PM CDT\".\nCurrent code at base (src/page.ts demoCard): `if (!d) { body = `<p class=\"quiet\">${esc(isToday ? \"Today's demo hasn't run yet. It runs each evening.\" : \"No demo ran this day.\")}</p>`; }`. time() is the helper at the top of page.ts (hour, minute, timeZoneName short).\nGate at base 24370f5: 330 tests passed, typecheck clean.",
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green) in test/page/demo.test.ts: today + demo null + demoPlannedAt 2026-11-18T22:00:00.000Z in America/Chicago -> exact 'Demos are scheduled to run every day at 4:00 PM CST.'; a July instant -> '4:00 PM CDT'; today + demo null + no demoPlannedAt -> old sentence unchanged; earlier day + demo null -> 'No demo ran this day.' whatever demoPlannedAt says; unparseable demoPlannedAt -> '... at unknown.' without throwing; a snapshot with a demo ignores demoPlannedAt; every committed snapshot renders. Look at the card at desktop and 390 px and report what you saw.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 24370f5..your head. Commit message references the requirement IDs and #29."
+  ],
+  "concurrency": "No other spoke is running.",
+  "round": 1
+}
