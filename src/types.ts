@@ -38,6 +38,10 @@ export interface Demo {
   step: string | null;
   videoUrl: string | null; // the GitHub Release asset (full or partial video); null when none was saved
   run: Link; // the Actions run that recorded it ({ label: "Run <id>", url })
+  // Scheduled runs only (#22, D-6, P-7). at: when today's recording was planned to start (ISO,
+  // from the DEMO_TIME/DEMO_TZ repo variables). late: the run started more than 30 minutes after
+  // that. Absent on manual runs and on snapshots from before #22.
+  planned?: { at: string; late: boolean };
 }
 
 export interface Status {
