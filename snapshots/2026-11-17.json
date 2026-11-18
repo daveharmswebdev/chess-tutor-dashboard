@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-17",
-  "generatedAt": "2026-11-17T21:30:32.749Z",
+  "generatedAt": "2026-11-18T02:22:36.187Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44180482690",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44180482690"
+    "label": "Run 44222755618",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44222755618"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-17T21:30:33.181Z",
+      "checkedAt": "2026-11-18T02:22:36.589Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 129,
+      "ms": 401,
       "error": null
     },
     "deploy": {
@@ -33,7 +33,7 @@
     }
   },
   "digest": {
-    "windowStart": "2026-11-16T21:30:32.749Z",
+    "windowStart": "2026-11-17T02:22:36.187Z",
     "shippedToday": [
       {
         "number": 78,
@@ -79,7 +79,9 @@
           "NFR-15",
           "NFR-5"
         ]
-      },
+      }
+    ],
+    "shippedThisWeek": [
       {
         "number": 73,
         "title": "A short pop-up shows how your retry went",
@@ -154,9 +156,7 @@
         "requirements": [
           "NFR-16"
         ]
-      }
-    ],
-    "shippedThisWeek": [
+      },
       {
         "number": 56,
         "title": "Keep the tutor's notes with each move, saved with the game",
@@ -253,6 +253,24 @@
     ],
     "inProgress": [
       {
+        "number": 44,
+        "title": "Tutor tool that counts attackers and defenders and works out the exchange on a square",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/44",
+        "status": "In Progress",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": true
+      },
+      {
+        "number": 36,
+        "title": "After a redeploy, old tabs break, and the game may be slow on Render's small instance",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/36",
+        "status": "In Progress",
+        "priority": "P3",
+        "kind": "Bug",
+        "fromClient": false
+      },
+      {
         "number": 1,
         "title": "Epic: Play a coached game against a realistic sparring bot",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/1",
@@ -291,15 +309,6 @@
         "fromClient": false
       },
       {
-        "number": 44,
-        "title": "Tutor tool that counts attackers and defenders and works out the exchange on a square",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/44",
-        "status": "Todo",
-        "priority": "P2",
-        "kind": "Engineering",
-        "fromClient": true
-      },
-      {
         "number": 45,
         "title": "Tutor asks you to count attackers and defenders at capture moments, and checks your answer",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/45",
@@ -307,6 +316,15 @@
         "priority": "P2",
         "kind": "Feature",
         "fromClient": true
+      },
+      {
+        "number": 81,
+        "title": "Search the live app's logs in Grafana Cloud",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/81",
+        "status": "Todo",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": false
       }
     ],
     "boardUrl": "https://github.com/users/daveharmswebdev/projects/5"
@@ -324,7 +342,8 @@
           19
         ],
         "openIssues": [
-          83
+          83,
+          84
         ],
         "doneIssues": [
           5,
@@ -336,13 +355,15 @@
         "id": "FR-2",
         "group": "Playing games",
         "label": "The bot opens like real human players at your level",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           22,
           19,
           14
         ],
-        "openIssues": [],
+        "openIssues": [
+          84
+        ],
         "doneIssues": [
           4,
           5,
@@ -353,11 +374,13 @@
         "id": "FR-3",
         "group": "Playing games",
         "label": "After the opening, the bot plays at a strength set for you",
-        "state": "shipped",
+        "state": "in-progress",
         "prs": [
           19
         ],
-        "openIssues": [],
+        "openIssues": [
+          84
+        ],
         "doneIssues": [
           5
         ]
@@ -478,7 +501,9 @@
         "prs": [
           27
         ],
-        "openIssues": [],
+        "openIssues": [
+          84
+        ],
         "doneIssues": []
       },
       {
@@ -503,7 +528,8 @@
           44,
           45,
           46,
-          80
+          80,
+          84
         ],
         "doneIssues": [
           7,
@@ -741,7 +767,8 @@
           14
         ],
         "openIssues": [
-          36
+          36,
+          84
         ],
         "doneIssues": [
           6
@@ -924,7 +951,8 @@
         ],
         "openIssues": [
           50,
-          83
+          83,
+          84
         ],
         "doneIssues": [
           47,
@@ -934,8 +962,8 @@
         ]
       }
     ],
-    "shipped": 11,
-    "inProgress": 15,
+    "shipped": 9,
+    "inProgress": 17,
     "total": 39,
     "rule": "every-issue-done"
   },
