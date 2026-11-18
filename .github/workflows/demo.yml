@@ -187,6 +187,8 @@ jobs:
           GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           APP_URL: ${{ vars.APP_URL }}
+          DEMO_TIME: ${{ vars.DEMO_TIME }} # demoPlannedAt (#29); empty means the default
+          DEMO_TZ: ${{ vars.DEMO_TZ }}
 
       - name: Commit snapshot
         if: ${{ !cancelled() }}
@@ -202,6 +204,8 @@ jobs:
           GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           APP_URL: ${{ vars.APP_URL }}
+          DEMO_TIME: ${{ vars.DEMO_TIME }} # demoPlannedAt (#29); empty means the default
+          DEMO_TZ: ${{ vars.DEMO_TZ }}
 
       - name: Fail the run when the demo failed
         if: ${{ !cancelled() && (steps.live.outcome != 'success' || steps.checkout.outcome != 'success' || steps.record.outcome != 'success' || steps.upload.outcome != 'success') }}

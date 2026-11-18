@@ -21,6 +21,10 @@ export interface Snapshot {
   // The evening demo video (#6, D-6). Absent: the snapshot predates the feature (no panel).
   // null: no demo has been recorded for this date yet (today: "not run yet"; earlier day: "none ran").
   demo?: Demo | null;
+  // Today's planned demo recording start (#29, D-6): ISO timestamp of DEMO_TIME in DEMO_TZ on this
+  // snapshot's date (repo variables, default 16:00 America/Chicago). Shown while no demo has run yet.
+  // Absent on snapshots from before #29.
+  demoPlannedAt?: string;
 }
 
 /**

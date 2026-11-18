@@ -35,6 +35,8 @@ jobs:
           GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }} # reads chess-tutor + Project 5
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           APP_URL: ${{ vars.APP_URL }}
+          DEMO_TIME: ${{ vars.DEMO_TIME }} # demoPlannedAt (#29); empty means the default
+          DEMO_TZ: ${{ vars.DEMO_TZ }}
       - name: Commit snapshot
         # If main moved (a merge, or the Demo workflow's snapshot), rebuild on the latest main and retry.
         run: bash .github/scripts/commit-snapshot.sh
@@ -42,3 +44,5 @@ jobs:
           GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           APP_URL: ${{ vars.APP_URL }}
+          DEMO_TIME: ${{ vars.DEMO_TIME }} # demoPlannedAt (#29); empty means the default
+          DEMO_TZ: ${{ vars.DEMO_TZ }}
