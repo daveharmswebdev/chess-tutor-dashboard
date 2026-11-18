@@ -1,40 +1,52 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-17",
-  "generatedAt": "2026-11-18T02:30:45.196Z",
+  "generatedAt": "2026-11-18T02:42:03.815Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44223768896",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44223768896"
+    "label": "Run 44225139678",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44225139678"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-18T02:30:45.583Z",
+      "checkedAt": "2026-11-18T02:42:04.490Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 150,
+      "ms": 352,
       "error": null
     },
     "deploy": {
       "status": "live",
-      "commit": "316ca50d3e80a3a21dca62fcbd79d7d8fff61808",
-      "commitMessage": "Contracts and amendments for #82 and #84 (A9: FR-31, NFR-15; A11: FR-1, FR-2, FR-3)",
-      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/316ca50d3e80a3a21dca62fcbd79d7d8fff61808",
-      "finishedAt": "2026-11-18T02:24:51.61092Z"
+      "commit": "076f303746c8a4e72315bf1d5a19f9dcf892f08e",
+      "commitMessage": "chess-core contract: x-rays behind a capturing piece of either colour count (FR-21; #44)",
+      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/076f303746c8a4e72315bf1d5a19f9dcf892f08e",
+      "finishedAt": "2026-11-18T02:33:18.470769Z"
     },
     "deployUnavailable": null,
     "ci": {
-      "conclusion": "cancelled",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44223627265",
-      "finishedAt": "2026-11-18T02:30:31Z",
-      "commit": "f62a94ceb18d464cd8188c7b6095785c2cd322e0"
+      "conclusion": "success",
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44223752913",
+      "finishedAt": "2026-11-18T02:31:36Z",
+      "commit": "076f303746c8a4e72315bf1d5a19f9dcf892f08e"
     }
   },
   "digest": {
-    "windowStart": "2026-11-17T02:30:45.196Z",
+    "windowStart": "2026-11-17T02:42:03.815Z",
     "shippedToday": [
+      {
+        "number": 86,
+        "title": "chess-core: work out the exchange on a square (part of #44)",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/86",
+        "mergedAt": "2026-11-18T02:41:37Z",
+        "clientNote": "The app can now work out exactly who wins material when pieces trade on a square, the groundwork for the tutor checking its \"attacked twice, defended once\" explanations.",
+        "requirements": [
+          "FR-21",
+          "FR-23",
+          "FR-10"
+        ]
+      },
       {
         "number": 85,
         "title": "After a redeploy, old tabs break, and the game may be slow on Render's small instance",
@@ -78,7 +90,9 @@
         "mergedAt": "2026-11-17T02:59:58Z",
         "clientNote": "The progress dashboard now refreshes within minutes of each finished change instead of once or twice a day.",
         "requirements": []
-      },
+      }
+    ],
+    "shippedThisWeek": [
       {
         "number": 74,
         "title": "Yesterday's usage numbers, safe to show a client",
@@ -91,9 +105,7 @@
           "NFR-15",
           "NFR-5"
         ]
-      }
-    ],
-    "shippedThisWeek": [
+      },
       {
         "number": 73,
         "title": "A short pop-up shows how your retry went",
@@ -265,15 +277,6 @@
     ],
     "inProgress": [
       {
-        "number": 44,
-        "title": "Tutor tool that counts attackers and defenders and works out the exchange on a square",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/44",
-        "status": "In Progress",
-        "priority": "P2",
-        "kind": "Engineering",
-        "fromClient": true
-      },
-      {
         "number": 1,
         "title": "Epic: Play a coached game against a realistic sparring bot",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/1",
@@ -312,6 +315,15 @@
         "fromClient": false
       },
       {
+        "number": 44,
+        "title": "Tutor tool that counts attackers and defenders and works out the exchange on a square",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/44",
+        "status": "Todo",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": true
+      },
+      {
         "number": 45,
         "title": "Tutor asks you to count attackers and defenders at capture moments, and checks your answer",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/45",
@@ -319,15 +331,6 @@
         "priority": "P2",
         "kind": "Feature",
         "fromClient": true
-      },
-      {
-        "number": 81,
-        "title": "Search the live app's logs in Grafana Cloud",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/81",
-        "status": "Todo",
-        "priority": "P2",
-        "kind": "Engineering",
-        "fromClient": false
       }
     ],
     "boardUrl": "https://github.com/users/daveharmswebdev/projects/5"
@@ -515,6 +518,7 @@
         "label": "Every move or score the tutor quotes comes from the chess engine",
         "state": "in-progress",
         "prs": [
+          86,
           78,
           77,
           73,
@@ -691,7 +695,9 @@
         "group": "Tutor's tools",
         "label": "Tutor can count attackers and defenders on a square",
         "state": "not-started",
-        "prs": [],
+        "prs": [
+          86
+        ],
         "openIssues": [
           43,
           44,
@@ -717,7 +723,9 @@
         "group": "Calculation training",
         "label": "Rank competing captures, and see when counting misleads",
         "state": "not-started",
-        "prs": [],
+        "prs": [
+          86
+        ],
         "openIssues": [
           43,
           44,
