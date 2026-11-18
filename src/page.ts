@@ -120,7 +120,11 @@ function demoCard(s: Snapshot, isToday: boolean): string {
   const d = s.demo;
   let body: string;
   if (!d) {
-    body = `<p class="quiet">${esc(isToday ? "Today's demo hasn't run yet. It runs each evening." : "No demo ran this day.")}</p>`;
+    // Snapshots from before #29 carry no demoPlannedAt and keep the old sentence (O-4).
+    const notYet = s.demoPlannedAt == null
+      ? "Today's demo hasn't run yet. It runs each evening."
+      : `Demos are scheduled to run every day at ${time(s.demoPlannedAt, s.timezone)}.`;
+    body = `<p class="quiet">${esc(isToday ? notYet : "No demo ran this day.")}</p>`;
   } else {
     // The server serves the file itself with headers iOS will play (#18); the GitHub URL stays server-side.
     const video = demoVideoSource(d.videoUrl)

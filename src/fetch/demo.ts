@@ -308,3 +308,59 @@ export async function loadSnapshotDemo(opts: LoadDemoOptions): Promise<Demo | nu
   if (existing.date !== opts.date || existing.demo === undefined || existing.demo === null) return null;
   return parseDemo(existing.demo, `demo in ${path}`);
 }
+
+// ---------------------------------------------------------------- the planned recording time (#29)
+
+const DEMO_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+const HOUR_MS = 3_600_000;
+const DAY_MS = 24 * HOUR_MS;
+
+export type DemoPlan = { at: string } | { at: null; reason: string };
+
+/** The wall-clock fields of `ms` in `zone`, as if they were UTC (ms since epoch). */
+function wallClock(format: Intl.DateTimeFormat, ms: number): number {
+  const parts = Object.fromEntries(format.formatToParts(new Date(ms)).map((p) => [p.type, p.value]));
+  return Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day), Number(parts.hour), Number(parts.minute), Number(parts.second));
+}
+
+/**
+ * Today's planned demo start: DEMO_TIME (HH:MM, default 16:00) in DEMO_TZ (IANA, default
+ * America/Chicago) on `date` (YYYY-MM-DD), as an ISO UTC instant. An empty variable means the
+ * default (an unset Actions variable arrives as ""). In the fall-back hour the earlier instant wins;
+ * a time skipped by spring forward has no instant. Matches GNU `date -u -d 'TZ="zone" date time'`.
+ */
+export function planDemo(date: string, env: Env): DemoPlan {
+  const time = env.DEMO_TIME || "16:00";
+  const zone = env.DEMO_TZ || "America/Chicago";
+  if (!DEMO_TIME.test(time)) return { at: null, reason: `DEMO_TIME "${time}" is not HH:MM (24-hour)` };
+  let format: Intl.DateTimeFormat;
+  try {
+    format = new Intl.DateTimeFormat("en-US", {
+      timeZone: zone,
+      hourCycle: "h23",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  } catch {
+    return { at: null, reason: `DEMO_TZ "${zone}" is not a known time zone` };
+  }
+  const d = DATE.exec(date);
+  const [hh, mm] = time.split(":").map(Number) as [number, number];
+  const target = d ? Date.UTC(Number(d[1]), Number(d[2]) - 1, Number(d[3]), hh, mm) : NaN;
+  if (!d || new Date(target).toISOString().slice(0, 10) !== date) return { at: null, reason: `snapshot date "${date}" is not YYYY-MM-DD` };
+  // Offsets in force around the target: an instant is a candidate when its wall clock equals the target.
+  const offsets = new Set([-DAY_MS, -HOUR_MS * 3, 0, HOUR_MS * 3, DAY_MS].map((delta) => wallClock(format, target + delta) - (target + delta)));
+  const hits = [...offsets].map((offset) => target - offset).filter((ms) => wallClock(format, ms) === target);
+  if (hits.length === 0) return { at: null, reason: `${time} does not exist in ${zone} on ${date} (clocks skip it)` };
+  return { at: new Date(Math.min(...hits)).toISOString() };
+}
+
+/** planDemo without the reason: the ISO instant, or null when the config or the day has none. */
+export function plannedAt(date: string, env: Env): string | null {
+  return planDemo(date, env).at;
+}

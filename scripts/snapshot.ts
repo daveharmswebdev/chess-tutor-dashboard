@@ -4,7 +4,7 @@
  */
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { loadSnapshotDemo } from "../src/fetch/demo.ts";
+import { loadSnapshotDemo, planDemo } from "../src/fetch/demo.ts";
 import { buildDigest, fetchBoard, fetchMergedPrs } from "../src/fetch/digest.ts";
 import { buildProgress, type Glossary } from "../src/fetch/progress.ts";
 import { snapshotDate } from "../src/fetch/snapshot-date.ts";
@@ -24,6 +24,10 @@ const date = snapshotDate(process.env, now, timezone);
 const glossary = JSON.parse(await readFile(`${root}glossary.json`, "utf8")) as Glossary;
 // The evening demo (#6): from the Demo workflow's result file, else kept from today's earlier snapshot.
 const demo = await loadSnapshotDemo({ resultFile: process.env.DEMO_RESULT_FILE, snapshotsDir: `${root}snapshots`, date });
+// Today's planned demo start (#29): omitted with a warning when DEMO_TIME/DEMO_TZ are bad or the time
+// doesn't exist today; the snapshot is still written (P-2).
+const plan = planDemo(date, process.env);
+if (plan.at === null) console.warn(`Warning: demoPlannedAt omitted: ${plan.reason}`);
 const [merged, board, status] = await Promise.all([fetchMergedPrs(repo), fetchBoard(repo, owner, projectNumber), fetchStatus(repo)]);
 
 const run =
@@ -42,6 +46,7 @@ const snapshot: Snapshot = {
   digest: buildDigest(merged, board, now),
   progress: buildProgress(glossary, merged, board.issues),
   demo,
+  ...(plan.at === null ? {} : { demoPlannedAt: plan.at }),
 };
 
 await mkdir(`${root}snapshots`, { recursive: true });
