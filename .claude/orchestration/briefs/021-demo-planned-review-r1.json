@@ -1,0 +1,29 @@
+{
+  "brief_id": "021-demo-planned-review-r1",
+  "agent": "reviewer",
+  "issue": 22,
+  "base_sha": "2c6dfd0",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/1b17bec7-ca06-4c04-aa2a-9d1d71bb1efa/scratchpad/021-demo-planned-review-r1",
+  "objective": "Review git diff 2940cd3..2c6dfd0 (issue #22): (a) src/fetch/demo.ts, scripts/demo-result.ts and test/data/demo.test.ts record Demo.planned { at, late } from DEMO_PLANNED_AT / DEMO_STARTED_AT (late = started more than 30 min after planned; absent on manual runs; parseDemo keeps it on carry-over); (b) .github/workflows/demo.yml now ticks every 20 minutes (\"4,24,44 * * * *\") and a new `plan` job decides whether to record. Done when: (1) a scheduled tick records only once the DEMO_TIME (HH:MM, default 16:00) in DEMO_TZ (default America/Chicago) has passed, and at most once per day (it skips when snapshots/<today>.json on main already has demo.planned); (2) a run delayed past local midnight cannot file the video under the next day; (3) a manual run still records immediately and replaces that day's video, with no planned field; (4) the date used for the asset name and SNAPSHOT_DATE is the plan job's date; (5) a late start (> 30 min) is recorded as late:true; (6) bad DEMO_TIME/DEMO_TZ fail the run loudly (P-2); (7) a carried-over demo keeps planned, so later Snapshot runs the same day don't make the gate record again; (8) no secret or token is printed or committed (P-6); (9) every committed snapshot still parses. Specifically assess: (i) the concurrency group `demo` with cancel-in-progress false now covers the plan job too. Can two scheduled ticks both record on one day (a race between a recording run's commit and the next tick's gate)? Consider GitHub keeping only one pending run per group. (ii) The gate reads the snapshot through `gh api .../contents/...?ref=main` with `|| true`, so an API error is treated as 'no video yet'. Is that the right failure direction? (iii) Is `date -u -d 'TZ=\"America/Chicago\" 2026-11-18 16:00'` correct GNU date syntax on ubuntu-latest, including across DST? (iv) 72 scheduled runs a day: any cost or quota issue for a public repo? Give severities blocking / major / minor.",
+  "requirements": [
+    "D-6",
+    "O-1",
+    "O-4",
+    "P-2",
+    "P-6",
+    "P-7"
+  ],
+  "contract": "Coordinator checks so far: gate at 2c6dfd0 is 294 tests passed, typecheck clean. demo-result.ts was run with env: planned 22:00Z + started 22:44:01Z gives planned {at:'2026-11-18T22:00:00.000Z', late:true}; started 22:04Z gives late:false; DEMO_PLANNED_AT='' gives no planned key; planned set with an empty start throws. The plan step's bash was run locally with a Python shim for GNU date (macOS has none, Docker is down), so the logic was tested but the GNU date syntax wasn't. Outcomes: CST 21:44Z skips (not yet); 22:04Z records with planned 22:00Z; a snapshot with demo.planned skips; 07:51Z next day skips (date rolls to the 19th, planned 22:00Z on the 19th); CDT 2026-07-15 21:04Z records with planned 21:00Z; manual records with planned_at empty; DEMO_TIME '4pm' and DEMO_TZ 'Mars/Base' exit 1. Background: the 2026-11-18 scheduled run started 7 h 20 min late (run 44262115393 created 07:51Z for a 00:30Z cron). commit-snapshot.sh (.github/scripts) rebuilds the snapshot on the latest main and retries when main moved. loadSnapshotDemo in src/fetch/demo.ts carries the same date's demo into later Snapshot runs. The repo is public. Read the files at 2c6dfd0.",
+  "scope": [],
+  "negative": [
+    "Read-only: do not edit, commit, or run anything that writes to the repo.",
+    "No network calls to the live dashboard and no workflow runs."
+  ],
+  "rubric": [
+    "Every finding cites file:line and evidence (command output or code quote); no speculative findings without a concrete failure scenario.",
+    "Checks the nine Done-when items and the four specific questions.",
+    "Read-only: no file in the repo changes."
+  ],
+  "concurrency": "page-agent is changing src/page.ts and test/page/** in another worktree (#23 + #22's card note); not part of this review.",
+  "round": 1
+}
