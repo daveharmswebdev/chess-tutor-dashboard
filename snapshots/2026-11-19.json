@@ -1,40 +1,53 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-19",
-  "generatedAt": "2026-11-19T16:03:21.241Z",
+  "generatedAt": "2026-11-19T16:09:39.995Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44561663066",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44561663066"
+    "label": "Run 44562854029",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44562854029"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-19T16:03:21.663Z",
+      "checkedAt": "2026-11-19T16:09:40.413Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 221,
+      "ms": 219,
       "error": null
     },
     "deploy": {
       "status": "live",
-      "commit": "8ec5429db65588635ed73b0b628060aa4152fdb8",
-      "commitMessage": "docs: one glossary of client wording in chess-tutor, checked by CI (NFR-18, IR-10 as amended by A10; #83) (#91)",
-      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/8ec5429db65588635ed73b0b628060aa4152fdb8",
-      "finishedAt": "2026-11-19T15:13:58.365286Z"
+      "commit": "142f51039e0e2995a889dfacd7190207e3207749",
+      "commitMessage": "config: dashboard event codes and their client wording for #82 (FR-31, NFR-15, NFR-18)",
+      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/142f51039e0e2995a889dfacd7190207e3207749",
+      "finishedAt": "2026-11-19T16:05:20.884448Z"
     },
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44551980444",
-      "finishedAt": "2026-11-19T15:12:38Z",
-      "commit": "8ec5429db65588635ed73b0b628060aa4152fdb8"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44561625298",
+      "finishedAt": "2026-11-19T16:04:01Z",
+      "commit": "142f51039e0e2995a889dfacd7190207e3207749"
     }
   },
   "digest": {
-    "windowStart": "2026-11-18T16:03:21.241Z",
+    "windowStart": "2026-11-18T16:09:39.995Z",
     "shippedToday": [
+      {
+        "number": 93,
+        "title": "Each game saves its own bot strength, and the bot plays at it (#84, server)",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/93",
+        "mergedAt": "2026-11-19T16:09:03Z",
+        "clientNote": "Each game now remembers how strong the bot should play, and the bot plays every move of that game at that strength.",
+        "requirements": [
+          "FR-1",
+          "FR-2",
+          "FR-3",
+          "NFR-14"
+        ]
+      },
       {
         "number": 91,
         "title": "One list of client wording for every requirement, kept in chess-tutor",
@@ -317,6 +330,15 @@
         "fromClient": true
       },
       {
+        "number": 90,
+        "title": "The eval check passes even when no case could reach Claude",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/90",
+        "status": "Needs you",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": false
+      },
+      {
         "number": 87,
         "title": "We haven't timed the bot's replies on the live site",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/87",
@@ -327,24 +349,6 @@
       }
     ],
     "inProgress": [
-      {
-        "number": 84,
-        "title": "Choose how strong the bot is, from beginner (500) to master (2500)",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/84",
-        "status": "In Progress",
-        "priority": "P2",
-        "kind": "Feature",
-        "fromClient": false
-      },
-      {
-        "number": 90,
-        "title": "The eval check passes even when no case could reach Claude",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/90",
-        "status": "In Progress",
-        "priority": "P2",
-        "kind": "Engineering",
-        "fromClient": false
-      },
       {
         "number": 1,
         "title": "Epic: Play a coached game against a realistic sparring bot",
@@ -412,6 +416,7 @@
         "label": "Start a game against the bot as White or Black",
         "state": "in-progress",
         "prs": [
+          93,
           88,
           25,
           24,
@@ -435,6 +440,7 @@
         "label": "The bot opens like real human players at your level",
         "state": "in-progress",
         "prs": [
+          93,
           88,
           22,
           19,
@@ -457,6 +463,7 @@
         "label": "After the opening, the bot plays at a strength set for you",
         "state": "in-progress",
         "prs": [
+          93,
           88,
           19
         ],
@@ -1087,6 +1094,7 @@
         "label": "A game survives a refresh, restart or update",
         "state": "in-progress",
         "prs": [
+          93,
           78,
           72,
           70,
