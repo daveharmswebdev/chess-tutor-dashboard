@@ -113,6 +113,9 @@ export interface RequirementProgress {
   openIssues: number[];
   // Board issues naming the ID whose Status is "Done" (present when Progress.rule is set).
   doneIssues?: number[];
+  // Of openIssues, those whose GitHub state is CLOSED (closed but never marked Done, #14).
+  // Absent (older snapshots): unknown, so every openIssues entry is labelled open.
+  closedIssues?: number[];
 }
 
 export interface Progress {
