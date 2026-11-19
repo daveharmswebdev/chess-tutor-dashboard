@@ -1,10 +1,17 @@
 # Builds today's snapshot from GitHub + Render and commits it; Render redeploys on the commit.
+#
+# When it builds (#33, D-1, O-1): the page refreshes in a morning and an evening slot (07:00 and
+# 17:00 America/Chicago). GitHub starts top-of-hour schedules hours late or drops them, so the
+# schedule ticks every 20 minutes, off the hour, and the `plan` job decides: a scheduled tick builds
+# only once a slot has started today and today's snapshot hasn't been generated since that slot
+# started. Any newer build counts (a chess-tutor merge, the Demo's snapshot, a manual run), because
+# what matters is that the page is fresh. Manual and dispatched runs always build. If every tick is
+# skipped, the page still prints when it was updated and warns past 26 hours (#3, P-2, P-7).
 name: Snapshot
 
 on:
   schedule:
-    - cron: "0 13 * * *" # 7-8 AM US Central
-    - cron: "0 23 * * *" # 5-6 PM US Central (end of day)
+    - cron: "7,27,47 * * * *" # every 20 min; the plan job builds once per slot
   workflow_dispatch:
   repository_dispatch:
     types: [chess-tutor-merged] # sent by chess-tutor on each merge to main
@@ -12,14 +19,67 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: snapshot
-  cancel-in-progress: false
+env:
+  SLOT_TIMES: "07:00 17:00" # local times of the morning and evening refresh
+  # One zone for both "today"s: the plan's slot day and the snapshot's file name (scripts/snapshot.ts).
+  DASHBOARD_TZ: America/Chicago
 
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read # only reads today's snapshot; the 72 daily ticks get a read-only token
+    outputs:
+      go: ${{ steps.plan.outputs.go }}
+    steps:
+      - name: Decide whether to build now
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" != "schedule" ]; then
+            echo "Run by $EVENT: building now."; echo "go=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          now=$(date -u +%FT%TZ)
+          today=$(TZ="$DASHBOARD_TZ" date +%F)
+          slot=""
+          for t in $SLOT_TIMES; do
+            at=$(date -u -d "TZ=\"$DASHBOARD_TZ\" $today $t" +%FT%TZ)
+            if [[ ! "$now" < "$at" ]]; then slot="$at"; fi
+          done
+          if [ -z "$slot" ]; then
+            echo "Not yet: today's first refresh is at ${SLOT_TIMES%% *} $DASHBOARD_TZ."
+            echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          # Only a 404 (no snapshot for today yet) means "never built"; other API errors fail the tick.
+          if snap=$(gh api "repos/$GITHUB_REPOSITORY/contents/snapshots/$today.json?ref=main" \
+              -H "Accept: application/vnd.github.raw" 2> gh-error.txt); then
+            generated=$(jq -r '.generatedAt // ""' <<< "$snap")
+          elif grep -q "HTTP 404" gh-error.txt; then
+            generated=""
+          else
+            echo "Could not read today's snapshot:" >&2; cat gh-error.txt >&2; exit 1
+          fi
+          # generatedAt is a JS ISO string (milliseconds), so compare instants, not strings.
+          if [ -n "$generated" ] && [ "$(date -u -d "$generated" +%s)" -ge "$(date -u -d "$slot" +%s)" ]; then
+            echo "Already fresh: built at $generated, after the slot that started at $slot."
+            echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "Building: the slot started at $slot, last build ${generated:-none today}."
+          echo "go=true" >> "$GITHUB_OUTPUT"
+
   snapshot:
+    needs: plan
+    if: needs.plan.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # On the job, not the workflow, so ticks that skip never queue behind (or cancel) a real build.
+    concurrency:
+      group: snapshot
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

@@ -102,3 +102,15 @@
 {"ts":"2026-11-18T13:04:55.864Z","event":"return_valid","agent_id":"af6423e77747fb93e","agent_type":"page-agent","via":"handback"}
 {"ts":"2026-11-18T13:05:18.138Z","event":"coordinator_verdict","brief_id":"024-demo-not-run-time-r1","agent":"page-agent","verdict":"accepted","reason":"diff = files_changed, 336 passed combined; text-only change, spoke could not screenshot","tokens":58801,"duration_ms":205944}
 {"ts":"2026-11-18T13:06:01.214Z","event":"shipped","issue":29,"pr":31}
+{"ts":"2026-11-19T15:07:51.476Z","event":"dispatch","subagent_type":"data-agent","brief_id":"025-closed-issues-r1","base_sha":"6c46fac","spoke":true}
+{"ts":"2026-11-19T15:08:20.221Z","event":"dispatch","subagent_type":"page-agent","brief_id":"026-closed-issue-label-r1","base_sha":"6c46fac","spoke":true}
+{"ts":"2026-11-19T15:08:20.357Z","event":"agent_complete","subagent_type":"data-agent","brief_id":"025-closed-issues-r1","agent_id":"a39803047d05a0129","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-19T15:08:20.452Z","event":"agent_complete","subagent_type":"page-agent","brief_id":"026-closed-issue-label-r1","agent_id":"a5a0e9d388178a018","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-19T15:09:34.876Z","event":"return_valid","agent_id":"a39803047d05a0129","agent_type":"data-agent","via":"handback"}
+{"ts":"2026-11-19T15:10:23.311Z","event":"return_invalid","agent_id":"a5a0e9d388178a018","agent_type":"page-agent","attempt":1,"errors":["/brief_defects/0: must be string"]}
+{"ts":"2026-11-19T15:10:30.843Z","event":"coordinator_verdict","brief_id":"025-closed-issues-r1","agent":"data-agent","verdict":"accepted","reason":"diff = files_changed; 342 passed; live snapshot has closedIssues on all 39 rows (all empty, matches board); counts unchanged 8/18/39","tokens":27957,"duration_ms":74899}
+{"ts":"2026-11-19T15:10:35.263Z","event":"return_valid","agent_id":"a5a0e9d388178a018","agent_type":"page-agent","via":"handback"}
+{"ts":"2026-11-19T15:11:09.016Z","event":"coordinator_verdict","brief_id":"026-closed-issue-label-r1","agent":"page-agent","verdict":"accepted","reason":"diff = files_changed; 343 passed; one-line change matches objective; visual check done via scratch render (brief defect: pnpm dev reads only snapshots/)","tokens":43580,"duration_ms":135153}
+{"ts":"2026-11-19T15:12:13.258Z","event":"dispatch","subagent_type":"reviewer","brief_id":"027-review-closed-issues-r1","base_sha":"e6fc110","spoke":true}
+{"ts":"2026-11-19T15:12:13.559Z","event":"agent_complete","subagent_type":"reviewer","brief_id":"027-review-closed-issues-r1","agent_id":"a6f38c324144ba121","status":"async_launched","contract":"pending"}
+{"ts":"2026-11-19T15:15:09.615Z","event":"return_valid","agent_id":"a6f38c324144ba121","agent_type":"reviewer","via":"handback"}
