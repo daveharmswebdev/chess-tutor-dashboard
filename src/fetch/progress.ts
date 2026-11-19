@@ -4,10 +4,14 @@ export interface Glossary {
   requirements: Array<{ id: string; group: string; label: string }>;
 }
 
-/** A board issue for the reported repo (any state) and the requirement IDs it names. */
-type NamedIssue = Pick<BoardItem, "number" | "status"> & { requirements: string[] };
+/**
+ * A board issue for the reported repo (any state) and the requirement IDs it names.
+ * `state` is the issue's GitHub state ("OPEN" / "CLOSED"), as fetchBoard returns it.
+ */
+type NamedIssue = Pick<BoardItem, "number" | "status"> & { requirements: string[]; state: string };
 
 const DONE = "Done";
+const CLOSED = "CLOSED";
 
 /**
  * Rule "every-issue-done" (#4): a requirement is "shipped" only when every board issue
@@ -21,9 +25,12 @@ export function buildProgress(glossary: Glossary, merged: ShippedPr[], issues: N
     const prs = merged.filter((p) => p.requirements.includes(r.id)).map((p) => p.number);
     const naming = issues.filter((i) => i.requirements.includes(r.id));
     const doneIssues = naming.filter((i) => i.status === DONE).map((i) => i.number);
-    const openIssues = naming.filter((i) => i.status !== DONE).map((i) => i.number);
+    const notDone = naming.filter((i) => i.status !== DONE);
+    const openIssues = notDone.map((i) => i.number);
+    // Closed on GitHub but never marked Done (#14): still counted as not Done, labelled closed.
+    const closedIssues = notDone.filter((i) => i.state === CLOSED).map((i) => i.number);
     const state = !doneIssues.length ? "not-started" : openIssues.length ? "in-progress" : "shipped";
-    return { ...r, state, prs, openIssues, doneIssues };
+    return { ...r, state, prs, openIssues, doneIssues, closedIssues };
   });
   return {
     requirements,

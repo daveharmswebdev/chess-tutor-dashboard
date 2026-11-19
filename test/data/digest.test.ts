@@ -144,6 +144,55 @@ describe("buildProgress (D-3, #4: every issue naming the ID is Done)", () => {
   });
 });
 
+describe("buildProgress closedIssues (D-3, P-7, #14: closed on GitHub but not Done)", () => {
+  const glossary = {
+    requirements: [
+      { id: "FR-1", group: "G", label: "One" },
+      { id: "FR-2", group: "G", label: "Two" },
+      { id: "FR-3", group: "G", label: "Three" },
+      { id: "FR-4", group: "G", label: "Four" },
+    ],
+  };
+  const issues = [
+    boardIssue(10, "Todo", ["FR-1"], "CLOSED"),
+    boardIssue(11, "Todo", ["FR-1"]),
+    boardIssue(12, null, ["FR-1"], "CLOSED"),
+    boardIssue(13, "Done", ["FR-1", "FR-2"], "CLOSED"),
+    boardIssue(14, "Done", ["FR-2"], "CLOSED"),
+    boardIssue(15, "In Progress", ["FR-3"]),
+  ];
+  const p = buildProgress(glossary, [], issues);
+  const by = (id: string) => p.requirements.find((r) => r.id === id)!;
+
+  it("lists a CLOSED not-Done issue in both openIssues and closedIssues, in openIssues order", () => {
+    expect(by("FR-1").openIssues).toEqual([10, 11, 12]);
+    expect(by("FR-1").closedIssues).toEqual([10, 12]);
+  });
+  it("keeps an OPEN Todo issue only in openIssues", () => {
+    expect(by("FR-1").closedIssues).not.toContain(11);
+    expect(by("FR-3").openIssues).toEqual([15]);
+    expect(by("FR-3").closedIssues).toEqual([]);
+  });
+  it("counts a null-status CLOSED issue as closed", () => {
+    expect(by("FR-1").closedIssues).toContain(12);
+  });
+  it("keeps a CLOSED Done issue only in doneIssues", () => {
+    expect(by("FR-2").doneIssues).toEqual([13, 14]);
+    expect(by("FR-2").openIssues).toEqual([]);
+    expect(by("FR-2").closedIssues).toEqual([]);
+    expect(by("FR-1").doneIssues).toEqual([13]);
+  });
+  it("emits an empty closedIssues when no issue names the ID, and when the board is empty", () => {
+    expect(by("FR-4").closedIssues).toEqual([]);
+    const empty = buildProgress(glossary, [], []);
+    expect(empty.requirements.every((r) => Array.isArray(r.closedIssues) && r.closedIssues.length === 0)).toBe(true);
+  });
+  it("does not change state or counts (closed-not-Done still counts as not Done)", () => {
+    expect(p.requirements.map((r) => r.state)).toEqual(["in-progress", "shipped", "not-started", "not-started"]);
+    expect([p.shipped, p.inProgress, p.total, p.rule]).toEqual([1, 1, 4, "every-issue-done"]);
+  });
+});
+
 describe("fetchBoard (D-2, D-3, #4)", () => {
   const page = readFileSync(new URL("./fixtures/board-page.json", import.meta.url), "utf8");
   const stub = (respond: () => Response) =>

@@ -180,7 +180,7 @@ describe("progress fine print and evidence links follow Progress.rule (D-3, P-1,
     for (const n of [5, 6, 23]) expect(fr1).toContain(link(`issues/${n}`, `#${n}`));
     const fr8 = reqRow(html, "FR-8");
     expect(fr8).toContain(
-      `<span class="refs">${link("issues/7", "#7")} ${link("issues/28", "#28")} ${link("issues/51", "#51")} <span class="mono-label">+2</span> ${link("issues/41", "#41 open")} ${link("issues/45", "#45 open")}</span>`,
+      `<span class="refs">${link("issues/7", "#7")} ${link("issues/28", "#28")} ${link("issues/51", "#51")} <span class="mono-label">+2</span> ${link("issues/41", "#41 open")} ${link("issues/45", "#45 open")} <span class="mono-label">+2</span></span>`,
     );
   });
 
