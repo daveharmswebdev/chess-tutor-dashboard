@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-19",
-  "generatedAt": "2026-11-19T15:17:19.879Z",
+  "generatedAt": "2026-11-19T15:20:06.550Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44553026542",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44553026542"
+    "label": "Run 44553523321",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44553523321"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-19T15:17:20.291Z",
+      "checkedAt": "2026-11-19T15:20:06.856Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 239,
+      "ms": 113,
       "error": null
     },
     "deploy": {
@@ -33,7 +33,7 @@
     }
   },
   "digest": {
-    "windowStart": "2026-11-18T15:17:19.879Z",
+    "windowStart": "2026-11-18T15:20:06.550Z",
     "shippedToday": [
       {
         "number": 91,
@@ -328,6 +328,24 @@
     ],
     "inProgress": [
       {
+        "number": 84,
+        "title": "Choose how strong the bot is, from beginner (500) to master (2500)",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/84",
+        "status": "In Progress",
+        "priority": "P2",
+        "kind": "Feature",
+        "fromClient": false
+      },
+      {
+        "number": 90,
+        "title": "The eval check passes even when no case could reach Claude",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/90",
+        "status": "In Progress",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": false
+      },
+      {
         "number": 1,
         "title": "Epic: Play a coached game against a realistic sparring bot",
         "url": "https://github.com/daveharmswebdev/chess-tutor/issues/1",
@@ -408,7 +426,8 @@
           6,
           23,
           83
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-2",
@@ -429,7 +448,8 @@
           4,
           5,
           17
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-3",
@@ -445,7 +465,8 @@
         ],
         "doneIssues": [
           5
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-4",
@@ -462,7 +483,8 @@
           6,
           23,
           42
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-5",
@@ -479,7 +501,8 @@
           6,
           47,
           53
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-20",
@@ -492,7 +515,8 @@
         "openIssues": [],
         "doneIssues": [
           42
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-6",
@@ -507,7 +531,8 @@
           3,
           13,
           16
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-7",
@@ -527,7 +552,8 @@
           3,
           7,
           16
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-8",
@@ -555,7 +581,8 @@
           51,
           52,
           53
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-9",
@@ -570,7 +597,8 @@
           62,
           84
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "FR-10",
@@ -608,7 +636,8 @@
           52,
           53,
           59
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-11",
@@ -622,7 +651,8 @@
         "openIssues": [
           62
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "FR-12",
@@ -637,7 +667,8 @@
         ],
         "doneIssues": [
           7
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-24",
@@ -655,7 +686,8 @@
         "doneIssues": [
           51,
           52
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-25",
@@ -673,7 +705,8 @@
           53,
           54,
           83
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-13",
@@ -685,7 +718,8 @@
           8,
           62
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "FR-14",
@@ -696,7 +730,8 @@
         "openIssues": [
           8
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "FR-15",
@@ -707,7 +742,8 @@
         "openIssues": [
           8
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "FR-16",
@@ -720,7 +756,8 @@
         "openIssues": [],
         "doneIssues": [
           7
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-17",
@@ -731,7 +768,8 @@
         "openIssues": [
           46
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "FR-18",
@@ -744,7 +782,8 @@
         "openIssues": [],
         "doneIssues": [
           4
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-19",
@@ -759,7 +798,8 @@
         ],
         "doneIssues": [
           7
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "FR-21",
@@ -776,7 +816,8 @@
           46,
           62
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "FR-22",
@@ -789,7 +830,8 @@
           45,
           62
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "FR-23",
@@ -804,7 +846,8 @@
           44,
           46
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "NFR-1",
@@ -820,7 +863,8 @@
         "doneIssues": [
           7,
           83
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "NFR-2",
@@ -836,7 +880,8 @@
           2,
           36,
           37
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "NFR-3",
@@ -858,7 +903,8 @@
         "doneIssues": [
           6,
           36
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "NFR-4",
@@ -872,7 +918,8 @@
           9,
           29
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "NFR-5",
@@ -885,7 +932,8 @@
         "openIssues": [
           9
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "NFR-6",
@@ -908,7 +956,8 @@
         "doneIssues": [
           10,
           26
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "NFR-7",
@@ -929,7 +978,8 @@
         "doneIssues": [
           10,
           28
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "NFR-8",
@@ -943,7 +993,8 @@
         "doneIssues": [
           7,
           28
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "NFR-9",
@@ -960,7 +1011,8 @@
         ],
         "doneIssues": [
           47
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "NFR-10",
@@ -981,7 +1033,8 @@
         ],
         "doneIssues": [
           10
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "NFR-11",
@@ -992,7 +1045,8 @@
         "openIssues": [
           8
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "NFR-12",
@@ -1004,7 +1058,8 @@
           81,
           82
         ],
-        "doneIssues": []
+        "doneIssues": [],
+        "closedIssues": []
       },
       {
         "id": "NFR-13",
@@ -1023,7 +1078,8 @@
           12,
           36,
           58
-        ]
+        ],
+        "closedIssues": []
       },
       {
         "id": "NFR-14",
@@ -1049,7 +1105,8 @@
           54,
           71,
           83
-        ]
+        ],
+        "closedIssues": []
       }
     ],
     "shipped": 8,
