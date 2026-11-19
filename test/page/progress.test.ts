@@ -56,16 +56,26 @@ describe("remaining issue refs: closed label and +k (#14)", () => {
     expect(r).not.toContain("closed");
   });
 
-  it("a closed issue beyond the first two is not shown but is counted in +k", () => {
+  it("shows closed-not-Done issues first, so one is never hidden in +k behind open ones (P-7)", () => {
     const r = refs(withRow({ openIssues: [31, 32, 33], closedIssues: [33] }));
-    expect(r).toBe(`${link(31, "#31 open")} ${link(32, "#32 open")} <span class="mono-label">+1</span>`);
-    expect(r).not.toContain("#33");
+    expect(r).toBe(`${link(33, "#33 closed")} ${link(31, "#31 open")} <span class="mono-label">+1</span>`);
+  });
+
+  it("with three closed issues, shows the first two closed in original order, then +k", () => {
+    const r = refs(withRow({ openIssues: [30, 31, 32, 33], closedIssues: [31, 32, 33] }));
+    expect(r).toBe(`${link(31, "#31 closed")} ${link(32, "#32 closed")} <span class="mono-label">+2</span>`);
+  });
+
+  it("without closedIssues, keeps openIssues in their original order (O-4)", () => {
+    const s = withRow({ openIssues: [33, 31, 32] });
+    delete s.progress.requirements[0]!.closedIssues;
+    expect(refs(s)).toBe(`${link(33, "#33 open")} ${link(31, "#31 open")} <span class="mono-label">+1</span>`);
   });
 
   it("follows done refs and their own +k in order", () => {
     const r = refs(withRow({ doneIssues: [1, 2, 3, 4], openIssues: [12, 13, 14], closedIssues: [13] }));
     expect(r).toBe(
-      `${link(1, "#1")} ${link(2, "#2")} ${link(3, "#3")} <span class="mono-label">+1</span> ${link(12, "#12 open")} ${link(13, "#13 closed")} <span class="mono-label">+1</span>`,
+      `${link(1, "#1")} ${link(2, "#2")} ${link(3, "#3")} <span class="mono-label">+1</span> ${link(13, "#13 closed")} ${link(12, "#12 open")} <span class="mono-label">+1</span>`,
     );
   });
 

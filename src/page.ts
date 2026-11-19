@@ -189,7 +189,8 @@ function progress(s: Snapshot): string {
       ...done.slice(0, 3).map((n) => a(`${repoUrl}/${path}/${n}`, `#${n}`)),
       ...(done.length > 3 ? [`<span class="mono-label">+${done.length - 3}</span>`] : []),
       // Closed on GitHub but not Done on the board reads "closed"; without closedIssues (older snapshots) every ref reads "open" (#14, O-4).
-      ...r.openIssues.slice(0, 2).map((n) => a(`${repoUrl}/issues/${n}`, `#${n} ${r.closedIssues?.includes(n) ? "closed" : "open"}`)),
+      // Closed-not-Done issues come first so one is never hidden inside +k behind open ones (P-7).
+      ...[...r.openIssues.filter((n) => r.closedIssues?.includes(n)), ...r.openIssues.filter((n) => !r.closedIssues?.includes(n))].slice(0, 2).map((n) => a(`${repoUrl}/issues/${n}`, `#${n} ${r.closedIssues?.includes(n) ? "closed" : "open"}`)),
       ...(r.openIssues.length > 2 ? [`<span class="mono-label">+${r.openIssues.length - 2}</span>`] : []),
     ].join(" ");
     return `<li class="req ${r.state}"><span class="mark" aria-hidden="true">${mark}</span><span>${esc(r.label)} <span class="rid">${esc(r.id)}</span></span><span class="refs">${refs}</span></li>`;
