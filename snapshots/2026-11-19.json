@@ -1,39 +1,39 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-19",
-  "generatedAt": "2026-11-19T16:09:39.995Z",
+  "generatedAt": "2026-11-19T16:12:57.393Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44562854029",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44562854029"
+    "label": "Run 44563468291",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44563468291"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-19T16:09:40.413Z",
+      "checkedAt": "2026-11-19T16:12:57.718Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 219,
+      "ms": 94,
       "error": null
     },
     "deploy": {
       "status": "live",
-      "commit": "142f51039e0e2995a889dfacd7190207e3207749",
-      "commitMessage": "config: dashboard event codes and their client wording for #82 (FR-31, NFR-15, NFR-18)",
-      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/142f51039e0e2995a889dfacd7190207e3207749",
-      "finishedAt": "2026-11-19T16:05:20.884448Z"
+      "commit": "5dbbe59fccdfaf36a2ed67c4e07bdea9f369ef2b",
+      "commitMessage": "server: per-game bot strength, saved and passed to every bot move (FR-1, FR-2, FR-3, NFR-14; #84) (#93)",
+      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/5dbbe59fccdfaf36a2ed67c4e07bdea9f369ef2b",
+      "finishedAt": "2026-11-19T16:11:48.838824Z"
     },
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44561625298",
-      "finishedAt": "2026-11-19T16:04:01Z",
-      "commit": "142f51039e0e2995a889dfacd7190207e3207749"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44562822382",
+      "finishedAt": "2026-11-19T16:10:12Z",
+      "commit": "5dbbe59fccdfaf36a2ed67c4e07bdea9f369ef2b"
     }
   },
   "digest": {
-    "windowStart": "2026-11-18T16:09:39.995Z",
+    "windowStart": "2026-11-18T16:12:57.393Z",
     "shippedToday": [
       {
         "number": 93,
