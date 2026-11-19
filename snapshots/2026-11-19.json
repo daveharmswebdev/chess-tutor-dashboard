@@ -1,39 +1,39 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-19",
-  "generatedAt": "2026-11-19T15:11:54.618Z",
+  "generatedAt": "2026-11-19T15:17:19.879Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44552000636",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44552000636"
+    "label": "Run 44553026542",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44553026542"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-19T15:11:55.413Z",
+      "checkedAt": "2026-11-19T15:17:20.291Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 151,
+      "ms": 239,
       "error": null
     },
     "deploy": {
       "status": "live",
-      "commit": "34a2c463e66ef96f153be801cdd49b32e28a7b93",
-      "commitMessage": "chess-core: bot plays at a per-game strength 500-2500 (FR-1, FR-2, FR-3, FR-10, NFR-3; #84) (#88)",
-      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/34a2c463e66ef96f153be801cdd49b32e28a7b93",
-      "finishedAt": "2026-11-18T12:15:05.854098Z"
+      "commit": "8ec5429db65588635ed73b0b628060aa4152fdb8",
+      "commitMessage": "docs: one glossary of client wording in chess-tutor, checked by CI (NFR-18, IR-10 as amended by A10; #83) (#91)",
+      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/8ec5429db65588635ed73b0b628060aa4152fdb8",
+      "finishedAt": "2026-11-19T15:13:58.365286Z"
     },
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44306142361",
-      "finishedAt": "2026-11-18T12:41:26Z",
-      "commit": "027d7d9b72076ad340b321f38b725e18df8a652f"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44551980444",
+      "finishedAt": "2026-11-19T15:12:38Z",
+      "commit": "8ec5429db65588635ed73b0b628060aa4152fdb8"
     }
   },
   "digest": {
-    "windowStart": "2026-11-18T15:11:54.618Z",
+    "windowStart": "2026-11-18T15:17:19.879Z",
     "shippedToday": [
       {
         "number": 91,
