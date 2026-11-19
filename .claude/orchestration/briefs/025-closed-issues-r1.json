@@ -1,0 +1,35 @@
+{
+  "brief_id": "025-closed-issues-r1",
+  "agent": "data-agent",
+  "issue": 14,
+  "base_sha": "6c46fac",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/030f70e9-22a0-4746-9ace-28a7904380dc/scratchpad/025-closed-issues-r1",
+  "objective": "Issue #14 (data side): in src/fetch/progress.ts buildProgress, fill RequirementProgress.closedIssues with the numbers from openIssues whose board issue has GitHub state \"CLOSED\" (BoardIssue.state from src/fetch/digest.ts; fetchBoard already returns it). Always emit the array (empty when none) whenever doneIssues is emitted. Order matches openIssues. Do not change openIssues, doneIssues, state, or the counts. Widen buildProgress's NamedIssue type to include `state` and keep scripts/snapshot.ts passing board.issues as today.",
+  "requirements": [
+    "D-3",
+    "P-1",
+    "P-7",
+    "O-4",
+    "P-6"
+  ],
+  "contract": "Decided wording (user, 2026-11-16, ledger + issue #14): a board issue that is closed on GitHub but whose board Status is not \"Done\" is labelled `#n closed` (never `#n open`). When a requirement has more than two remaining (not-Done) issues, the page shows the first two and then a count `+k` of the rest, as it already does for Done issues.\nContract at base 6c46fac (src/types.ts, RequirementProgress, committed by the coordinator):\n  openIssues: number[];   // with rule every-issue-done: board issues naming the ID whose Status is not \"Done\"\n  doneIssues?: number[];  // Status \"Done\"\n  closedIssues?: number[]; // NEW: of openIssues, those whose GitHub state is CLOSED (closed but never marked Done, #14). Absent (older snapshots): unknown, so every openIssues entry is labelled open.\nclosedIssues is a subset of openIssues; openIssues itself is unchanged (closed-not-Done issues stay in it, so state calculation does not change).\nGate at base 6c46fac: 336 tests passed, typecheck clean.\nCode at base (src/fetch/progress.ts): `type NamedIssue = Pick<BoardItem, \"number\" | \"status\"> & { requirements: string[] };` and `const openIssues = naming.filter((i) => i.status !== DONE).map((i) => i.number);` returning `{ ...r, state, prs, openIssues, doneIssues }`. src/fetch/digest.ts: `export interface BoardIssue extends OpenIssue { state: string; }` with values \"OPEN\" / \"CLOSED\". scripts/snapshot.ts:47 calls `buildProgress(glossary, merged, board.issues)`. The existing progress tests live in test/data/digest.test.ts (search for buildProgress).",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "src/fetch/**",
+    "scripts/**",
+    "test/data/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green) for buildProgress: a CLOSED issue with Status Todo naming an ID appears in both openIssues and closedIssues; an OPEN Todo issue appears only in openIssues; a CLOSED Done issue appears only in doneIssues (not closedIssues); no issues -> closedIssues []; a null status CLOSED issue -> in closedIssues; state and shipped/inProgress counts unchanged versus base for the same input. No network.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 6c46fac..your head. Commit message references the requirement IDs and #14."
+  ],
+  "concurrency": "page-agent runs brief 026 in parallel on #14 in src/page.ts and test/page/** only (it renders closedIssues). No overlap with your scope. The coordinator edits .github/workflows/snapshot.yml on main for #33.",
+  "round": 1
+}

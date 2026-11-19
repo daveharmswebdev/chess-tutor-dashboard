@@ -1,0 +1,36 @@
+{
+  "brief_id": "026-closed-issue-label-r1",
+  "agent": "page-agent",
+  "issue": 14,
+  "base_sha": "6c46fac",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/030f70e9-22a0-4746-9ace-28a7904380dc/scratchpad/026-closed-issue-label-r1",
+  "objective": "Issue #14 (page side): in src/page.ts progress() row(), label each of the first two openIssues entries `#n closed` when n is in r.closedIssues, otherwise `#n open` (same link to the issue as today). When r.openIssues.length > 2, append `<span class=\"mono-label\">+${k}</span>` where k = openIssues.length - 2, the same markup the Done refs use for their overflow. When closedIssues is absent (older snapshots) every entry stays `#n open` exactly as at base, and the +k count still applies. Nothing else on the page changes.",
+  "requirements": [
+    "D-3",
+    "P-1",
+    "P-4",
+    "P-7",
+    "O-4"
+  ],
+  "contract": "Decided wording (user, 2026-11-16, ledger + issue #14): a board issue that is closed on GitHub but whose board Status is not \"Done\" is labelled `#n closed` (never `#n open`). When a requirement has more than two remaining (not-Done) issues, the page shows the first two and then a count `+k` of the rest, as it already does for Done issues.\nContract at base 6c46fac (src/types.ts, RequirementProgress, committed by the coordinator):\n  openIssues: number[];   // with rule every-issue-done: board issues naming the ID whose Status is not \"Done\"\n  doneIssues?: number[];  // Status \"Done\"\n  closedIssues?: number[]; // NEW: of openIssues, those whose GitHub state is CLOSED (closed but never marked Done, #14). Absent (older snapshots): unknown, so every openIssues entry is labelled open.\nclosedIssues is a subset of openIssues; openIssues itself is unchanged (closed-not-Done issues stay in it, so state calculation does not change).\nGate at base 6c46fac: 336 tests passed, typecheck clean.\nCode at base (src/page.ts progress(), row()): \n  const refs = [\n    ...done.slice(0, 3).map((n) => a(`${repoUrl}/${path}/${n}`, `#${n}`)),\n    ...(done.length > 3 ? [`<span class=\"mono-label\">+${done.length - 3}</span>`] : []),\n    ...r.openIssues.slice(0, 2).map((n) => a(`${repoUrl}/issues/${n}`, `#${n} open`)),\n  ].join(\" \");\ndata-agent fills closedIssues in parallel (brief 025); your tests build RequirementProgress values inline, so they don't need its change. test/fixtures/snapshot.json is the coordinator's and has no closedIssues; don't edit it.",
+  "contract_files": [
+    "src/types.ts"
+  ],
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green), in test/page/render.test.ts or a new test/page/progress.test.ts: closedIssues [12] with openIssues [12, 13] -> '#12 closed' and '#13 open', each linking to its chess-tutor issue; openIssues of 5 -> two refs then exact '<span class=\"mono-label\">+3</span>'; openIssues of exactly 2 -> no +k; closedIssues absent -> all 'open' (an old snapshot, O-4); a closed issue beyond the first two isn't shown but is counted in +k; every committed snapshot still renders. Look at the Progress section at desktop and 390 px (pnpm dev against a fixture with these cases) and report what you saw; if headless Chrome renders blank, say so and check the HTML.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in 6c46fac..your head. Commit message references the requirement IDs and #14."
+  ],
+  "concurrency": "data-agent runs brief 025 in parallel on #14 in src/fetch/progress.ts and test/data/** only. No overlap with your scope. The coordinator edits .github/workflows/snapshot.yml on main for #33.",
+  "round": 1
+}

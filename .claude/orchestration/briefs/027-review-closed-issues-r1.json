@@ -1,0 +1,31 @@
+{
+  "brief_id": "027-review-closed-issues-r1",
+  "agent": "reviewer",
+  "issue": 14,
+  "base_sha": "e6fc110",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/030f70e9-22a0-4746-9ace-28a7904380dc/scratchpad/027-review-closed-issues-r1",
+  "objective": "Review two changes. (A) Issue #14: git diff 6c46fac..e6fc110 (this worktree's HEAD). src/fetch/progress.ts fills RequirementProgress.closedIssues (of openIssues, those whose GitHub state is CLOSED). src/page.ts progress() labels the first two remaining issues '#n closed' when they are in closedIssues, else '#n open', and appends '<span class=\"mono-label\">+k</span>' when openIssues.length > 2. Done when: (1) a closed-not-Done issue is never labelled 'open' (P-1, P-7); (2) remaining issues past two are counted (P-7); (3) state, shipped, inProgress and total are unchanged; (4) snapshots without closedIssues render exactly as before, apart from the new +k count (O-4); (5) every ref still links to its source issue (P-4); (6) no secret is committed (P-6). (B) Issue #33: `git diff origin/main...origin/33-snapshot-slots -- .github/workflows/snapshot.yml` (fetch the branch, read-only). The Snapshot schedule now ticks at '7,27,47 * * * *', and a `plan` job builds only when a slot (07:00 or 17:00 America/Chicago) has started today and snapshots/<today>.json on main has a generatedAt earlier than that slot (or doesn't exist). Manual and repository_dispatch runs always build. Concurrency moved from the workflow to the snapshot job. Specifically assess: (i) the same row can now show two '+k' counts, e.g. rendered from the real 2026-11-18 snapshot: '#7 #28 #41 +3 #45 open #50 open +3' (the first counts more Done issues, the second more remaining ones). Would a client misread it? Is a fix needed within the approved wording ('#n closed'; '+k' after two remaining issues, 'as it already does for Done issues')? (ii) In #33, can moving concurrency to the job let a skipped tick, or two go=true ticks, race or drop a chess-tutor-merged build? Can two builds both commit (commit-snapshot.sh rebuilds when main moved)? (iii) snapshot.ts names today's file with DASHBOARD_TZ (default America/Chicago, not set in the workflow). The plan job computes today in SLOT_TZ. Do they always agree? (iv) Is skipping before 07:00 local right after a late evening build that never happened, given the 26-hour stale warning (#3)? Give severities blocking / major / minor.",
+  "requirements": [
+    "D-1",
+    "D-3",
+    "O-1",
+    "O-4",
+    "P-1",
+    "P-2",
+    "P-4",
+    "P-6",
+    "P-7"
+  ],
+  "contract": "Approved wording (user, 2026-11-16): a closed issue that was never marked Done is labelled `#n closed`; when a feature has more than two remaining issues the page shows a `+k` count 'as it already does for Done issues'.\nCoordinator verification so far: on e6fc110, 349 tests passed and typecheck is clean. pnpm snapshot on the data commit gave closedIssues on all 39 rows (all empty today) and counts 8/18/39, matching main's snapshots/2026-11-18.json. The #33 plan step was run on ubuntu-latest against 11 cases (before the first slot, stale, fresh, mid-afternoon, evening, after local midnight, 404, API error, manual, CDT), and all gave the expected go/skip.\nGitHub evidence for #33: scheduled Snapshot starts were 17 Nov 04:55Z and 21:30Z, 18 Nov 03:58Z and 21:06Z, and 19 Nov 03:55Z, against cron 13:00Z and 23:00Z.\nThe Demo workflow (.github/workflows/demo.yml) has its own concurrency group `demo`. Both workflows commit through .github/scripts/commit-snapshot.sh.",
+  "scope": [],
+  "negative": [
+    "Read-only: do not edit, commit, or run anything that writes to the repo."
+  ],
+  "rubric": [
+    "Every finding cites file:line and evidence (command output or code quote); no speculative findings without a concrete failure scenario.",
+    "Checks the six Done-when items for (A), the #33 behaviour in (B) and the four specific questions.",
+    "Read-only: no file in the repo changes."
+  ],
+  "concurrency": "Nothing else is in flight; PR #34 (#33) is open and waiting on this review.",
+  "round": 1
+}

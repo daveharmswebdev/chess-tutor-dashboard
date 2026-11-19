@@ -1,0 +1,33 @@
+{
+  "brief_id": "028-closed-issue-label-r2",
+  "agent": "page-agent",
+  "issue": 14,
+  "base_sha": "e6fc110",
+  "scratch_dir": "/private/tmp/claude-501/-Users-daveharms-personal-workspace-dashboard-chess-tutor/030f70e9-22a0-4746-9ace-28a7904380dc/scratchpad/028-closed-issue-label-r2",
+  "objective": "Issue #14 round 2 (reviewer 027 finding, P-7: bad news is never hidden). In src/page.ts progress() row(), order the remaining refs so that closed-not-Done issues come first: the shown list is [...openIssues in closedIssues, then the rest of openIssues], each group in its original order, before slice(0, 2). So a closed-not-Done issue can only be hidden inside +k when two or more closed issues are already shown. Labels, links, the +k markup and count, and old-snapshot behaviour (no closedIssues: order and output exactly as at e6fc110) are unchanged. Update the test in test/page/progress.test.ts that currently locks in hiding ('a closed issue beyond the first two is not shown but is counted in +k': openIssues [31, 32, 33], closedIssues [33] -> '#31 open #32 open +1') so it expects '#33 closed #31 open +1', and add a case with three closed issues [31, 32, 33] of [30, 31, 32, 33] -> '#31 closed #32 closed +2'.",
+  "requirements": [
+    "D-3",
+    "P-1",
+    "P-4",
+    "P-7",
+    "O-4"
+  ],
+  "contract": "You are continuing your own round 1 (brief 026). Your commit 1bb11ce, now rebased onto main together with data-agent's change (src/fetch/progress.ts fills closedIssues), is the branch issue-14-closed-issues at e6fc110, checked out in your worktree. Gate at e6fc110: 349 passed, typecheck clean.\nReviewer 027 finding (minor, P-7): 'A closed-not-Done issue that is not among the first two remaining issues is hidden inside +k ... A fix with no new wording: show closedIssues first among the remaining refs. The test \"a closed issue beyond the first two is not shown but is counted in +k\" currently locks in the hiding.'\nCurrent code at e6fc110 (src/page.ts row()):\n      ...r.openIssues.slice(0, 2).map((n) => a(`${repoUrl}/issues/${n}`, `#${n} ${r.closedIssues?.includes(n) ? \"closed\" : \"open\"}`)),\n      ...(r.openIssues.length > 2 ? [`<span class=\"mono-label\">+${r.openIssues.length - 2}</span>`] : []),\nNot in scope this round: the reviewer's other note that a row can show two unlabelled +k counts (Done and remaining). Leave it unchanged.",
+  "scope": [
+    "src/page.ts",
+    "src/server.ts",
+    "public/**",
+    "test/page/**"
+  ],
+  "negative": [
+    "Do not edit files outside scope: src/types.ts, glossary.json, snapshots/, test/fixtures/, docs, .github, render.yaml, root files and the lockfile belong to the coordinator.",
+    "No new dependencies. No live network calls in tests. Never read, print or commit a token or key (P-6)."
+  ],
+  "rubric": [
+    "Tests first (red then green) in test/page/progress.test.ts: [31,32,33] with closed [33] -> '#33 closed #31 open +1'; [30,31,32,33] with closed [31,32,33] -> '#31 closed #32 closed +2'; [12,13] with closed [12] still '#12 closed #13 open'; closedIssues absent -> order and output identical to e6fc110; every committed snapshot still renders.",
+    "pnpm test and pnpm typecheck clean from the repo root.",
+    "files_changed lists every file changed in e6fc110..your head. Commit message references the requirement IDs and #14."
+  ],
+  "concurrency": "Nothing else touches src/page.ts. The coordinator is merging PR #34 (.github/workflows/snapshot.yml) meanwhile.",
+  "round": 2
+}
