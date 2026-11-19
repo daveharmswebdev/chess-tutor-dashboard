@@ -383,8 +383,8 @@ describe("when a failed demo's saved video is from (#28, D-6, P-1, P-7)", () => 
     expect(card).toContain(`<p class="quiet">The video above is from unknown at unknown.</p>`);
   });
 
-  it("the real 2026-11-18 snapshot renders the exact approved sentence", () => {
-    const s = JSON.parse(readFileSync(new URL("../../snapshots/2026-11-18.json", import.meta.url), "utf8")) as Snapshot;
+  it("the real 2026-11-18 failed-demo snapshot (frozen at 13:06Z) renders the exact approved sentence", () => {
+    const s = JSON.parse(readFileSync(new URL("../fixtures/2026-11-18-failed-demo.json", import.meta.url), "utf8")) as Snapshot;
     const card = demoCard(render(s));
     expect(card).toContain("<video");
     expect(card).toContain(`<p class="quiet">The video above is from Wed, Nov 18 at 6:34 AM CST.</p>`);
