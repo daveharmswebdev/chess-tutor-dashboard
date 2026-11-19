@@ -21,12 +21,15 @@ permissions:
 
 env:
   SLOT_TIMES: "07:00 17:00" # local times of the morning and evening refresh
-  SLOT_TZ: America/Chicago
+  # One zone for both "today"s: the plan's slot day and the snapshot's file name (scripts/snapshot.ts).
+  DASHBOARD_TZ: America/Chicago
 
 jobs:
   plan:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read # only reads today's snapshot; the 72 daily ticks get a read-only token
     outputs:
       go: ${{ steps.plan.outputs.go }}
     steps:
@@ -41,14 +44,14 @@ jobs:
             echo "Run by $EVENT: building now."; echo "go=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
           now=$(date -u +%FT%TZ)
-          today=$(TZ="$SLOT_TZ" date +%F)
+          today=$(TZ="$DASHBOARD_TZ" date +%F)
           slot=""
           for t in $SLOT_TIMES; do
-            at=$(date -u -d "TZ=\"$SLOT_TZ\" $today $t" +%FT%TZ)
+            at=$(date -u -d "TZ=\"$DASHBOARD_TZ\" $today $t" +%FT%TZ)
             if [[ ! "$now" < "$at" ]]; then slot="$at"; fi
           done
           if [ -z "$slot" ]; then
-            echo "Not yet: today's first refresh is at ${SLOT_TIMES%% *} $SLOT_TZ."
+            echo "Not yet: today's first refresh is at ${SLOT_TIMES%% *} $DASHBOARD_TZ."
             echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
           # Only a 404 (no snapshot for today yet) means "never built"; other API errors fail the tick.
