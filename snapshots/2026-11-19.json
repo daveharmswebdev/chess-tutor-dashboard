@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-19",
-  "generatedAt": "2026-11-19T16:12:57.393Z",
+  "generatedAt": "2026-11-20T01:23:22.292Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 44563468291",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44563468291"
+    "label": "Run 44651876527",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44651876527"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-19T16:12:57.718Z",
+      "checkedAt": "2026-11-20T01:23:22.586Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 94,
+      "ms": 146,
       "error": null
     },
     "deploy": {
@@ -27,13 +27,13 @@
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44562822382",
-      "finishedAt": "2026-11-19T16:10:12Z",
-      "commit": "5dbbe59fccdfaf36a2ed67c4e07bdea9f369ef2b"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/44563441438",
+      "finishedAt": "2026-11-19T16:16:05Z",
+      "commit": "5f71b28a41a525c812a8c0a474b28727843bb925"
     }
   },
   "digest": {
-    "windowStart": "2026-11-18T16:12:57.393Z",
+    "windowStart": "2026-11-19T01:23:22.292Z",
     "shippedToday": [
       {
         "number": 93,
@@ -1122,6 +1122,21 @@
     "total": 39,
     "rule": "every-issue-done"
   },
-  "demo": null,
+  "demo": {
+    "outcome": "success",
+    "recordedAt": "2026-11-20T01:23:22.067Z",
+    "version": "5dbbe59fccdfaf36a2ed67c4e07bdea9f369ef2b",
+    "versionUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/5dbbe59fccdfaf36a2ed67c4e07bdea9f369ef2b",
+    "step": null,
+    "videoUrl": "https://github.com/daveharmswebdev/chess-tutor-dashboard/releases/download/demos/demo-2026-11-19.mp4",
+    "run": {
+      "label": "Run 44651876527",
+      "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/44651876527"
+    },
+    "planned": {
+      "at": "2026-11-19T22:00:00.000Z",
+      "late": true
+    }
+  },
   "demoPlannedAt": "2026-11-19T22:00:00.000Z"
 }
