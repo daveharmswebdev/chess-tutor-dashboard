@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-23",
-  "generatedAt": "2026-11-23T22:20:47.951Z",
+  "generatedAt": "2026-11-24T01:55:27.020Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 45277606553",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/45277606553"
+    "label": "Run 45308552116",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/45308552116"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-23T22:20:48.147Z",
+      "checkedAt": "2026-11-24T01:55:27.411Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 83,
+      "ms": 214,
       "error": null
     },
     "deploy": {
@@ -33,7 +33,7 @@
     }
   },
   "digest": {
-    "windowStart": "2026-11-22T22:20:47.951Z",
+    "windowStart": "2026-11-23T01:55:27.020Z",
     "shippedToday": [],
     "shippedThisWeek": [
       {
@@ -181,58 +181,6 @@
           "FR-28",
           "NFR-14",
           "NFR-3"
-        ]
-      },
-      {
-        "number": 70,
-        "title": "Demo games don't count as real usage",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/70",
-        "mergedAt": "2026-11-17T01:24:00Z",
-        "clientNote": "The app can now tell the daily demo's games apart from real players' games, so the usage numbers you see won't count the robot.",
-        "requirements": [
-          "FR-28",
-          "NFR-14"
-        ]
-      },
-      {
-        "number": 69,
-        "title": "Incident runbook: how to roll back past a database upgrade",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/69",
-        "mergedAt": "2026-11-17T01:20:43Z",
-        "clientNote": "If we ever need to undo a release quickly, the steps are now written down, including the one case that needs extra care.",
-        "requirements": [
-          "NFR-14",
-          "NFR-16"
-        ]
-      },
-      {
-        "number": 68,
-        "title": "The health check says which version is live",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/68",
-        "mergedAt": "2026-11-17T01:15:04Z",
-        "clientNote": "The app now reports which version is running, so the dashboard can show you exactly what's live.",
-        "requirements": [
-          "FR-26"
-        ]
-      },
-      {
-        "number": 67,
-        "title": "When something breaks, the client gets a plain incident note",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/67",
-        "mergedAt": "2026-11-17T01:12:23Z",
-        "clientNote": "If the app ever breaks, you'll get a short plain-language note about it: what happened, who was affected, what we did, and what stops it happening again.",
-        "requirements": [
-          "NFR-16"
-        ]
-      },
-      {
-        "number": 66,
-        "title": "Every PR carries one plain sentence for the client",
-        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/66",
-        "mergedAt": "2026-11-17T01:10:49Z",
-        "clientNote": "Every change now comes with one plain sentence explaining what it means for you.",
-        "requirements": [
-          "NFR-16"
         ]
       }
     ],
