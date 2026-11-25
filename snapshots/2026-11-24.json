@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-24",
-  "generatedAt": "2026-11-24T22:39:43.163Z",
+  "generatedAt": "2026-11-25T02:11:22.973Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 45502958892",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/45502958892"
+    "label": "Run 45530885357",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/45530885357"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-24T22:39:43.587Z",
+      "checkedAt": "2026-11-25T02:11:23.281Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 139,
+      "ms": 90,
       "error": null
     },
     "deploy": {
@@ -33,7 +33,7 @@
     }
   },
   "digest": {
-    "windowStart": "2026-11-23T22:39:43.163Z",
+    "windowStart": "2026-11-24T02:11:22.973Z",
     "shippedToday": [],
     "shippedThisWeek": [
       {
@@ -919,6 +919,21 @@
     "total": 39,
     "rule": "every-issue-done"
   },
-  "demo": null,
+  "demo": {
+    "outcome": "success",
+    "recordedAt": "2026-11-25T02:11:22.697Z",
+    "version": "5dbbe59fccdfaf36a2ed67c4e07bdea9f369ef2b",
+    "versionUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/5dbbe59fccdfaf36a2ed67c4e07bdea9f369ef2b",
+    "step": null,
+    "videoUrl": "https://github.com/daveharmswebdev/chess-tutor-dashboard/releases/download/demos/demo-2026-11-24.mp4",
+    "run": {
+      "label": "Run 45530885357",
+      "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/45530885357"
+    },
+    "planned": {
+      "at": "2026-11-24T22:00:00.000Z",
+      "late": true
+    }
+  },
   "demoPlannedAt": "2026-11-24T22:00:00.000Z"
 }
