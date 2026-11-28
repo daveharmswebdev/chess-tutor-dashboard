@@ -1,5 +1,5 @@
 {
-  "_note": "Hand-written client wording for each chess-tutor requirement (docs/requirements.md). Edit freely; the dashboard prints these word for word.",
+  "_note": "Hand-written client wording for each chess-tutor requirement (docs/requirements.md) and dashboard event code (config/ops-events.json). This file is the source of truth: the dashboard mirrors it on every merge to main and prints labels word for word. Written by a person, never generated. Each entry has a group and a label, or an excluded reason. Checked in CI by .claude/scripts/check-glossary.ts (NFR-18).",
   "requirements": [
     { "id": "FR-1", "group": "Playing games", "label": "Start a game against the bot as White or Black" },
     { "id": "FR-2", "group": "Playing games", "label": "The bot opens like real human players at your level" },
@@ -44,6 +44,23 @@
     { "id": "NFR-11", "group": "Quality", "label": "Fair play: no help in games on other sites" },
     { "id": "NFR-12", "group": "Quality", "label": "Keys and secrets are never stored in the code" },
     { "id": "NFR-13", "group": "Quality", "label": "Easy to run and deploy" },
-    { "id": "NFR-14", "group": "Quality", "label": "A game survives a refresh, restart or update" }
+    { "id": "NFR-14", "group": "Quality", "label": "A game survives a refresh, restart or update" },
+
+    { "id": "FR-27", "group": "Client dashboard", "label": "A recorded demo game shows the tutor at work" },
+    { "id": "FR-28", "group": "Client dashboard", "label": "Demo games are counted separately from real play" },
+    { "id": "FR-29", "group": "Client dashboard", "label": "Daily numbers: games, tutor replies, speed and AI cost" },
+    { "id": "FR-30", "group": "Client dashboard", "label": "The demo rotates between London and King's Indian games" },
+    { "id": "FR-31", "group": "Client dashboard", "label": "A day-by-day log of what happened in the app" },
+    { "id": "NFR-15", "group": "Client dashboard", "label": "The dashboard never shows anything a player typed or said" },
+    { "id": "NFR-16", "group": "Client dashboard", "label": "Every change comes with a plain note, and every outage gets a write-up" },
+
+    { "id": "FR-26", "excluded": "Plumbing: lets the dashboard confirm the live version." },
+    { "id": "NFR-18", "excluded": "Internal process: how this list is kept current." }
+  ],
+  "events": [
+    { "code": "deploy.live", "label": "A new version of the app went live" },
+    { "code": "tutor.reply", "label": "The tutor answered a question" },
+    { "code": "tutor.failed", "label": "The tutor couldn't answer a question" },
+    { "code": "explorer.unreachable", "label": "The opening database couldn't be reached, so the bot used the engine" }
   ]
 }

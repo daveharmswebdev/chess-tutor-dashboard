@@ -316,7 +316,7 @@ export function renderPage(s: Snapshot, history: string[], isLatest: boolean, no
     </div>
     <div class="footer-meta">
       <p class="mono-label">Source</p>
-      <p>${a(`https://github.com/${dashRepo}/blob/main/snapshots/${s.date}.json`, "This day's raw data")}${s.run ? ` · ${a(s.run.url, s.run.label)}` : ""}</p>
+      <p>${a(`https://github.com/${dashRepo}/blob/main/snapshots/${s.date}.json`, "This day's raw data")}${s.run ? ` · ${a(s.run.url, s.run.label)}` : ""}${s.glossarySource ? ` · ${a(s.glossarySource.url, "Feature wording")}` : ""}</p>
       <p class="fine">Generated ${esc(when(s.generatedAt, tz))}</p>
     </div>
     ${history.length > 1 ? `<div class="footer-meta"><p class="mono-label">Earlier days</p><p class="history">${hist}</p></div>` : ""}

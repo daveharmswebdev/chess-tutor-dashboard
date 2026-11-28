@@ -7,6 +7,9 @@
 # started. Any newer build counts (a chess-tutor merge, the Demo's snapshot, a manual run), because
 # what matters is that the page is fresh. Manual and dispatched runs always build. If every tick is
 # skipped, the page still prints when it was updated and warns past 26 hours (#3, P-2, P-7).
+#
+# Glossary (#21): on a chess-tutor merge or a manual run, the `mirror` job first copies chess-tutor's
+# docs/glossary.json at that commit into glossary.json (and the commit into glossary.source.json).
 name: Snapshot
 
 on:
@@ -71,9 +74,54 @@ jobs:
           echo "Building: the slot started at $slot, last build ${generated:-none today}."
           echo "go=true" >> "$GITHUB_OUTPUT"
 
+  # On a chess-tutor merge (or a manual run), copy chess-tutor's docs/glossary.json at that commit (#21,
+  # O-1, P-1). If the fetch fails this job goes red with the reason and the snapshot still builds from
+  # the copy already here, so the glossary is never emptied (P-2).
+  mirror:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    # Its own group: in the shared "snapshot" group a newer pending job could cancel this one.
+    concurrency:
+      group: glossary-mirror
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4 # validate-glossary.ts needs Node 22's type stripping; no install
+        with:
+          node-version-file: .nvmrc
+      - name: Mirror the glossary
+        env:
+          EVENT: ${{ github.event_name }}
+          DISPATCH_SHA: ${{ github.event.client_payload.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sha="$DISPATCH_SHA"
+          # A manual run mirrors chess-tutor's current main (public, read with the run's own token).
+          if [ "$EVENT" = "workflow_dispatch" ]; then sha=$(gh api repos/daveharmswebdev/chess-tutor/commits/main --jq .sha); fi
+          bash .github/scripts/mirror-glossary.sh "$sha"
+          git add glossary.json glossary.source.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "dashboard-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "glossary: mirror chess-tutor@${sha:0:7} docs/glossary.json (#21)"
+          # main may have moved (a snapshot commit); those never touch the glossary, so rebase and retry.
+          for attempt in 1 2 3; do
+            if git push -q origin HEAD:main; then echo "Pushed"; exit 0; fi
+            git pull -q --rebase origin main
+          done
+          echo "::error::Could not push the glossary mirror after 3 attempts." >&2; exit 1
+
   snapshot:
-    needs: plan
-    if: needs.plan.outputs.go == 'true'
+    needs: [plan, mirror]
+    # !cancelled(): a skipped mirror (scheduled ticks) or a failed one must not stop the build (P-2),
+    # but a cancelled run stays cancelled.
+    if: ${{ !cancelled() && needs.plan.outputs.go == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     # On the job, not the workflow, so ticks that skip never queue behind (or cancel) a real build.
@@ -82,6 +130,8 @@ jobs:
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main # includes the mirror job's glossary commit, which is newer than the event's sha
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:

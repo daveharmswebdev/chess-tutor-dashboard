@@ -5,6 +5,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { loadSnapshotDemo, planDemo } from "../src/fetch/demo.ts";
+import { parseGlossarySource } from "../src/fetch/glossary-source.ts";
 import { buildDigest, fetchBoard, fetchMergedPrs } from "../src/fetch/digest.ts";
 import { buildProgress, type Glossary } from "../src/fetch/progress.ts";
 import { snapshotDate } from "../src/fetch/snapshot-date.ts";
@@ -22,6 +23,14 @@ const now = new Date();
 const date = snapshotDate(process.env, now, timezone);
 
 const glossary = JSON.parse(await readFile(`${root}glossary.json`, "utf8")) as Glossary;
+// Where the glossary wording came from (#21, P-4): omitted with a warning when glossary.source.json is
+// absent or malformed; the snapshot is still written (P-2).
+const glossarySource = await readFile(`${root}glossary.source.json`, "utf8").then(
+  (text) => parseGlossarySource(text),
+  (e: NodeJS.ErrnoException) =>
+    e.code === "ENOENT" ? parseGlossarySource(null) : { source: null, reason: `glossary.source.json could not be read (${e.code ?? "error"})` },
+);
+if (glossarySource.source === null) console.warn(`Warning: glossarySource omitted: ${glossarySource.reason}`);
 // The evening demo (#6): from the Demo workflow's result file, else kept from today's earlier snapshot.
 const demo = await loadSnapshotDemo({ resultFile: process.env.DEMO_RESULT_FILE, snapshotsDir: `${root}snapshots`, date });
 // Today's planned demo start (#29): omitted with a warning when DEMO_TIME/DEMO_TZ are bad or the time
@@ -47,6 +56,7 @@ const snapshot: Snapshot = {
   progress: buildProgress(glossary, merged, board.issues),
   demo,
   ...(plan.at === null ? {} : { demoPlannedAt: plan.at }),
+  ...(glossarySource.source === null ? {} : { glossarySource: glossarySource.source }),
 };
 
 await mkdir(`${root}snapshots`, { recursive: true });
