@@ -18,8 +18,13 @@ trap 'rm -f "$tmp"' EXIT
 if ! curl -fsS --retry 3 --max-time 30 -o "$tmp" "https://raw.githubusercontent.com/$repo/$sha/$path"; then
   echo "::error::Glossary not mirrored: could not fetch $path at $repo@$sha. The previous copy is kept." >&2; exit 1
 fi
-if ! jq -e '(.requirements | type == "array" and length > 0)' "$tmp" > /dev/null 2>&1; then
-  echo "::error::Glossary not mirrored: $path at $repo@$sha has no requirements list. The previous copy is kept." >&2; exit 1
+# Same rules the snapshot build enforces (src/fetch/progress.ts labelledRequirements): every entry has an
+# id and either a group and label or an excluded reason. A file that would stop the build is refused here.
+valid='def text: type == "string" and length > 0;
+  (.requirements | type == "array" and length > 0)
+  and all(.requirements[]; type == "object" and (.id | text) and ((.excluded | text) or ((has("excluded") | not) and (.group | text) and (.label | text))))'
+if ! jq -e "$valid" "$tmp" > /dev/null 2>&1; then
+  echo "::error::Glossary not mirrored: $path at $repo@$sha has an entry without an id, or without a group and label or an excluded reason. The previous copy is kept." >&2; exit 1
 fi
 source_json=$(jq -n --arg repo "$repo" --arg path "$path" --arg commit "$sha" \
   '{ _note: "Written by the mirror step in .github/workflows/snapshot.yml. Do not edit by hand.", repo: $repo, path: $path, commit: $commit }')
