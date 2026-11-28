@@ -27,3 +27,5 @@ jobs:
         run: pnpm typecheck
       - name: Tests (app and delegation hooks)
         run: pnpm test
+      - name: Glossary mirrors chess-tutor (#21, P-1)
+        run: bash .github/scripts/check-glossary-mirror.sh

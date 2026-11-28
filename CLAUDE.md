@@ -31,6 +31,6 @@ TypeScript, Node 22 (type stripping, so `.ts` imports carry their extension), pn
 - `scripts/snapshot.ts`: builds `snapshots/YYYY-MM-DD.json` (data-agent)
 - `src/page.ts`, `src/server.ts`, `public/`: the page, the server, design tokens and styles (page-agent)
 - `src/types.ts`: the snapshot contract (coordinator)
-- `glossary.json`: requirement ID to client wording for chess-tutor's FR/NFR IDs (coordinator)
+- `glossary.json`: requirement ID to client wording, a byte-for-byte mirror of chess-tutor's `docs/glossary.json` at the commit in `glossary.source.json` (#21). Never edit it here: change the wording in chess-tutor; the Snapshot Action mirrors it on each merge and CI fails on a hand edit
 - `.github/workflows/snapshot.yml`: the pipeline; `ci.yml`: tests on PRs
 - Live: https://chess-tutor-dashboard.onrender.com (basic auth), chess-tutor app: https://chess-tutor-hyb9.onrender.com
