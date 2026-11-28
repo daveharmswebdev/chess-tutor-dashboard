@@ -186,6 +186,7 @@ jobs:
           SNAPSHOT_DATE: ${{ needs.plan.outputs.date }} # the planned day, even if the run crosses midnight
           GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          OPS_STATS_TOKEN: ${{ secrets.OPS_STATS_TOKEN }} # GET /ops/events (#20)
           APP_URL: ${{ vars.APP_URL }}
           DEMO_TIME: ${{ vars.DEMO_TIME }} # demoPlannedAt (#29); empty means the default
           DEMO_TZ: ${{ vars.DEMO_TZ }}
@@ -203,6 +204,7 @@ jobs:
           SNAPSHOT_DATE: ${{ needs.plan.outputs.date }}
           GH_TOKEN: ${{ secrets.DASHBOARD_GH_TOKEN }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          OPS_STATS_TOKEN: ${{ secrets.OPS_STATS_TOKEN }} # GET /ops/events (#20)
           APP_URL: ${{ vars.APP_URL }}
           DEMO_TIME: ${{ vars.DEMO_TIME }} # demoPlannedAt (#29); empty means the default
           DEMO_TZ: ${{ vars.DEMO_TZ }}

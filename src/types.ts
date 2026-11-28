@@ -29,6 +29,31 @@ export interface Snapshot {
   // docs/glossary.json the dashboard's glossary.json mirrors (recorded in glossary.source.json).
   // Absent: the snapshot predates #21, or glossary.source.json was missing when it was built.
   glossarySource?: GlossarySource;
+  // What the app did on this snapshot's date (#20, D-8), from chess-tutor's GET /ops/events.
+  // Absent: the snapshot predates #20.
+  appEvents?: AppEvents;
+}
+
+/**
+ * The app's own event record for this snapshot's date (#20, D-8, FR-31). Events are the ones whose
+ * `at` falls on `Snapshot.date` in `Snapshot.timezone`, in time order, demo events left out (FR-28).
+ */
+export interface AppEvents {
+  checkedAt: string; // ISO timestamp the feed was read
+  // null when the feed couldn't be read (see `unavailable`); [] means it was read and nothing happened.
+  events: AppEvent[] | null;
+  unavailable: string | null; // why events is null, in plain words (P-2)
+  // Events left out because their code has no client wording in glossary.json's `events` (P-7).
+  unworded: number;
+}
+
+export interface AppEvent {
+  at: string; // ISO timestamp, from the app
+  code: string; // the app's event code, e.g. "tutor.reply" (never shown on the page)
+  label: string; // glossary.json events[].label for this code, word for word (P-1)
+  latencyMs?: number; // tutor.reply: how long the answer took
+  commit?: string; // deploy.live: the full commit sha that went live
+  commitUrl?: string; // deploy.live: https://github.com/<repo>/commit/<commit> (P-4)
 }
 
 export interface GlossarySource {

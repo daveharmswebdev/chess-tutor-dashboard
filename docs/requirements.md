@@ -25,6 +25,7 @@ Derived from `dashboard-plan.md`. IDs are cited in briefs, commits, PRs and revi
 | D-5 | **History:** any earlier day's snapshot is viewable, clearly marked as not today. | 1 |
 | D-6 | **End-of-day demo:** a 60–90 s video of the live app, the tutor catching a planned mistake; on failure, "Today's demo failed" and the step where it stopped. | 3 |
 | D-7 | **Usage and health:** games, tutor replies, p50/p95 latency, errors by category, Claude spend, from `/ops/daily-stats` (demo runs excluded). | 4 |
+| D-8 | **What the app did:** the day's notable events from the app's `/ops/events` (FR-31), in time order, each in the owner's wording from the mirrored glossary's `events` section, with numbers filled in by code; demo events excluded; never a raw code (#20). | 4 |
 
 ## How it runs
 
