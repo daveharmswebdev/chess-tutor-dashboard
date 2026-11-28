@@ -1,39 +1,39 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-27",
-  "generatedAt": "2026-11-28T01:26:32.783Z",
+  "generatedAt": "2026-11-28T01:29:26.735Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 46093099875",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/46093099875"
+    "label": "Run 46093322011",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/46093322011"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-28T01:26:33.166Z",
+      "checkedAt": "2026-11-28T01:29:27.045Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 259,
+      "ms": 111,
       "error": null
     },
     "deploy": {
       "status": "live",
-      "commit": "c3256aa3649455caa8fe21c2d76158d35aeb47a7",
-      "commitMessage": "server: GET /ops/events, one UTC day's events from the fixed code list (FR-31, NFR-15, FR-28, IR-10, IR-7; #82) (#94)",
-      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/c3256aa3649455caa8fe21c2d76158d35aeb47a7",
-      "finishedAt": "2026-11-28T01:15:14.572559Z"
+      "commit": "d9156ec86fdf1c09e7344947d8aa6da5829362e9",
+      "commitMessage": "Browser tests check the tutor, with a fake Claude (FR-7, FR-8, FR-24; #75) (#95)",
+      "commitUrl": "https://github.com/daveharmswebdev/chess-tutor/commit/d9156ec86fdf1c09e7344947d8aa6da5829362e9",
+      "finishedAt": "2026-11-28T01:28:33.469462Z"
     },
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/46092202180",
-      "finishedAt": "2026-11-28T01:17:09Z",
-      "commit": "233efee8ca7a8a5b385016f74cda4bb3e1f230d8"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/46093081677",
+      "finishedAt": "2026-11-28T01:27:16Z",
+      "commit": "d9156ec86fdf1c09e7344947d8aa6da5829362e9"
     }
   },
   "digest": {
-    "windowStart": "2026-11-27T01:26:32.783Z",
+    "windowStart": "2026-11-27T01:29:26.735Z",
     "shippedToday": [
       {
         "number": 95,
@@ -322,7 +322,8 @@
           45,
           50,
           62,
-          80
+          80,
+          96
         ],
         "doneIssues": [
           7,
