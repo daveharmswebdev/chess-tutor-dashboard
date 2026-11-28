@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-27",
-  "generatedAt": "2026-11-27T22:40:18.641Z",
+  "generatedAt": "2026-11-28T01:10:08.607Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 46077837053",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/46077837053"
+    "label": "Run 46091678921",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/46091678921"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-27T22:40:18.944Z",
+      "checkedAt": "2026-11-28T01:10:08.957Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 93,
+      "ms": 100,
       "error": null
     },
     "deploy": {
@@ -33,7 +33,7 @@
     }
   },
   "digest": {
-    "windowStart": "2026-11-26T22:40:18.641Z",
+    "windowStart": "2026-11-27T01:10:08.607Z",
     "shippedToday": [],
     "shippedThisWeek": [],
     "needsYou": [
@@ -66,6 +66,24 @@
       }
     ],
     "inProgress": [
+      {
+        "number": 82,
+        "title": "A plain-words feed of what the app did each day, for the client dashboard",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/82",
+        "status": "In Progress",
+        "priority": "P2",
+        "kind": "Engineering",
+        "fromClient": false
+      },
+      {
+        "number": 75,
+        "title": "Browser tests can check the tutor, not just the moves",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/issues/75",
+        "status": "In Progress",
+        "priority": "P3",
+        "kind": "Engineering",
+        "fromClient": false
+      },
       {
         "number": 1,
         "title": "Epic: Play a coached game against a realistic sparring bot",
@@ -832,11 +850,125 @@
           83
         ],
         "closedIssues": []
+      },
+      {
+        "id": "FR-27",
+        "group": "Client dashboard",
+        "label": "A recorded demo game shows the tutor at work",
+        "state": "not-started",
+        "prs": [
+          91,
+          77
+        ],
+        "openIssues": [
+          62
+        ],
+        "doneIssues": [],
+        "closedIssues": []
+      },
+      {
+        "id": "FR-28",
+        "group": "Client dashboard",
+        "label": "Demo games are counted separately from real play",
+        "state": "in-progress",
+        "prs": [
+          77,
+          74,
+          72,
+          70
+        ],
+        "openIssues": [
+          82
+        ],
+        "doneIssues": [
+          71
+        ],
+        "closedIssues": []
+      },
+      {
+        "id": "FR-29",
+        "group": "Client dashboard",
+        "label": "Daily numbers: games, tutor replies, speed and AI cost",
+        "state": "not-started",
+        "prs": [
+          74
+        ],
+        "openIssues": [
+          82
+        ],
+        "doneIssues": [],
+        "closedIssues": []
+      },
+      {
+        "id": "FR-30",
+        "group": "Client dashboard",
+        "label": "The demo rotates between London and King's Indian games",
+        "state": "in-progress",
+        "prs": [],
+        "openIssues": [
+          62
+        ],
+        "doneIssues": [
+          83
+        ],
+        "closedIssues": []
+      },
+      {
+        "id": "FR-31",
+        "group": "Client dashboard",
+        "label": "A day-by-day log of what happened in the app",
+        "state": "in-progress",
+        "prs": [
+          91
+        ],
+        "openIssues": [
+          82
+        ],
+        "doneIssues": [
+          83
+        ],
+        "closedIssues": []
+      },
+      {
+        "id": "NFR-15",
+        "group": "Client dashboard",
+        "label": "The dashboard never shows anything a player typed or said",
+        "state": "in-progress",
+        "prs": [
+          91,
+          74
+        ],
+        "openIssues": [
+          57,
+          81,
+          82
+        ],
+        "doneIssues": [
+          83
+        ],
+        "closedIssues": []
+      },
+      {
+        "id": "NFR-16",
+        "group": "Client dashboard",
+        "label": "Every change comes with a plain note, and every outage gets a write-up",
+        "state": "shipped",
+        "prs": [
+          91,
+          69,
+          67,
+          66
+        ],
+        "openIssues": [],
+        "doneIssues": [
+          83
+        ],
+        "closedIssues": []
       }
     ],
-    "shipped": 8,
-    "inProgress": 18,
-    "total": 39,
+    "shipped": 9,
+    "inProgress": 22,
+    "total": 46,
     "rule": "every-issue-done"
   },
   "demo": {
@@ -855,5 +987,11 @@
       "late": true
     }
   },
-  "demoPlannedAt": "2026-11-27T22:00:00.000Z"
+  "demoPlannedAt": "2026-11-27T22:00:00.000Z",
+  "glossarySource": {
+    "repo": "daveharmswebdev/chess-tutor",
+    "path": "docs/glossary.json",
+    "commit": "142f51039e0e2995a889dfacd7190207e3207749",
+    "url": "https://github.com/daveharmswebdev/chess-tutor/blob/142f51039e0e2995a889dfacd7190207e3207749/docs/glossary.json"
+  }
 }
