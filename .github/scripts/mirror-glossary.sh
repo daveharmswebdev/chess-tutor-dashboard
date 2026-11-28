@@ -18,18 +18,17 @@ trap 'rm -f "$tmp"' EXIT
 if ! curl -fsS --retry 3 --max-time 30 -o "$tmp" "https://raw.githubusercontent.com/$repo/$sha/$path"; then
   echo "::error::Glossary not mirrored: could not fetch $path at $repo@$sha. The previous copy is kept." >&2; exit 1
 fi
-# Same rules the snapshot build enforces (src/fetch/progress.ts labelledRequirements): every entry has an
-# id and either a group and label or an excluded reason. A file that would stop the build is refused here.
-valid='def text: type == "string" and length > 0;
-  (.requirements | type == "array" and length > 0)
-  and all(.requirements[]; type == "object" and (.id | text) and ((.excluded | text) or ((has("excluded") | not) and (.group | text) and (.label | text))))'
-if ! jq -e "$valid" "$tmp" > /dev/null 2>&1; then
-  echo "::error::Glossary not mirrored: $path at $repo@$sha has an entry without an id, or without a group and label or an excluded reason. The previous copy is kept." >&2; exit 1
+# The snapshot build's own rules (validate-glossary.ts): a file that would stop the build is refused here.
+here=$(dirname "$0")
+if ! reason=$(node --no-warnings --experimental-strip-types "$here/validate-glossary.ts" "$tmp" 2>&1); then
+  echo "::error::Glossary not mirrored: $path at $repo@$sha is not usable ($reason). The previous copy is kept." >&2; exit 1
 fi
 source_json=$(jq -n --arg repo "$repo" --arg path "$path" --arg commit "$sha" \
   '{ _note: "Written by the mirror step in .github/workflows/snapshot.yml. Do not edit by hand.", repo: $repo, path: $path, commit: $commit }')
-if cmp -s "$tmp" glossary.json && [ "$(jq -r .commit glossary.source.json 2>/dev/null || true)" = "$sha" ]; then
-  echo "Glossary already mirrors $repo@$sha."; exit 0
+# Same bytes: keep glossary.source.json too. Its commit still holds this exact file, so the page's link
+# stays true, and a merge that doesn't touch the wording adds no commit or redeploy here.
+if cmp -s "$tmp" glossary.json && [ -f glossary.source.json ]; then
+  echo "Glossary unchanged at $repo@$sha; still mirrors $(jq -r .commit glossary.source.json)."; exit 0
 fi
 cp "$tmp" glossary.json
 printf '%s\n' "$source_json" > glossary.source.json

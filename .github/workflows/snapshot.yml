@@ -91,6 +91,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+      - uses: actions/setup-node@v4 # validate-glossary.ts needs Node 22's type stripping; no install
+        with:
+          node-version-file: .nvmrc
       - name: Mirror the glossary
         env:
           EVENT: ${{ github.event_name }}
@@ -116,8 +119,9 @@ jobs:
 
   snapshot:
     needs: [plan, mirror]
-    # always(): a skipped mirror (scheduled ticks) or a failed one must not stop the build (P-2).
-    if: always() && needs.plan.outputs.go == 'true'
+    # !cancelled(): a skipped mirror (scheduled ticks) or a failed one must not stop the build (P-2),
+    # but a cancelled run stays cancelled.
+    if: ${{ !cancelled() && needs.plan.outputs.go == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     # On the job, not the workflow, so ticks that skip never queue behind (or cancel) a real build.
