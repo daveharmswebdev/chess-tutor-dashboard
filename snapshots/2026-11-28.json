@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-28",
-  "generatedAt": "2026-11-28T11:58:58.835Z",
+  "generatedAt": "2026-11-28T12:09:18.008Z",
   "timezone": "America/Chicago",
   "run": {
-    "label": "Run 46142373437",
-    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/46142373437"
+    "label": "Run 46143216779",
+    "url": "https://github.com/daveharmswebdev/chess-tutor-dashboard/actions/runs/46143216779"
   },
   "repo": "daveharmswebdev/chess-tutor",
   "status": {
     "appUrl": "https://chess-tutor-hyb9.onrender.com",
     "health": {
-      "checkedAt": "2026-11-28T11:58:59.209Z",
+      "checkedAt": "2026-11-28T12:09:18.409Z",
       "ok": true,
       "httpStatus": 200,
-      "ms": 159,
+      "ms": 153,
       "error": null
     },
     "deploy": {
@@ -27,14 +27,35 @@
     "deployUnavailable": null,
     "ci": {
       "conclusion": "success",
-      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/46093315080",
-      "finishedAt": "2026-11-28T01:30:52Z",
-      "commit": "a557829f906377526580aed3bb9817409b1ef9fb"
+      "url": "https://github.com/daveharmswebdev/chess-tutor/actions/runs/46142367278",
+      "finishedAt": "2026-11-28T12:00:12Z",
+      "commit": "faf87709b9604b9049f982e0e36a8574dfafb550"
     }
   },
   "digest": {
-    "windowStart": "2026-11-27T11:58:58.835Z",
+    "windowStart": "2026-11-27T12:09:18.008Z",
     "shippedToday": [
+      {
+        "number": 97,
+        "title": "Client wording reviewed: six clearer labels, internal tools left out",
+        "url": "https://github.com/daveharmswebdev/chess-tutor/pull/97",
+        "mergedAt": "2026-11-28T12:08:45Z",
+        "clientNote": "Some feature descriptions now say more precisely what each feature does, and the tutor's internal tools are no longer listed as separate features.",
+        "requirements": [
+          "NFR-18",
+          "FR-3",
+          "FR-22",
+          "NFR-2",
+          "NFR-4",
+          "NFR-6",
+          "NFR-7",
+          "FR-16",
+          "FR-17",
+          "FR-18",
+          "FR-19",
+          "FR-21"
+        ]
+      },
       {
         "number": 92,
         "title": "The eval check passes even when no case could reach Claude",
@@ -203,9 +224,10 @@
       {
         "id": "FR-3",
         "group": "Playing games",
-        "label": "After the opening, the bot plays at a strength set for you",
+        "label": "After the opening, the bot plays at the strength you chose",
         "state": "in-progress",
         "prs": [
+          97,
           93,
           88,
           19
@@ -500,85 +522,13 @@
         "closedIssues": []
       },
       {
-        "id": "FR-16",
-        "group": "Tutor's tools",
-        "label": "Tutor can analyze a position",
-        "state": "shipped",
-        "prs": [
-          27
-        ],
-        "openIssues": [],
-        "doneIssues": [
-          7
-        ],
-        "closedIssues": []
-      },
-      {
-        "id": "FR-17",
-        "group": "Tutor's tools",
-        "label": "Tutor can check how good a move was",
-        "state": "not-started",
-        "prs": [],
-        "openIssues": [
-          46
-        ],
-        "doneIssues": [],
-        "closedIssues": []
-      },
-      {
-        "id": "FR-18",
-        "group": "Tutor's tools",
-        "label": "Tutor can look up what real players chose",
-        "state": "shipped",
-        "prs": [
-          14
-        ],
-        "openIssues": [],
-        "doneIssues": [
-          4
-        ],
-        "closedIssues": []
-      },
-      {
-        "id": "FR-19",
-        "group": "Tutor's tools",
-        "label": "Tutor knows your London and King's Indian repertoire",
-        "state": "in-progress",
-        "prs": [
-          27
-        ],
-        "openIssues": [
-          62
-        ],
-        "doneIssues": [
-          7
-        ],
-        "closedIssues": []
-      },
-      {
-        "id": "FR-21",
-        "group": "Tutor's tools",
-        "label": "Tutor can count attackers and defenders on a square",
-        "state": "not-started",
-        "prs": [
-          86
-        ],
-        "openIssues": [
-          43,
-          44,
-          45,
-          46,
-          62
-        ],
-        "doneIssues": [],
-        "closedIssues": []
-      },
-      {
         "id": "FR-22",
         "group": "Calculation training",
-        "label": "Count attackers and defenders, and get checked",
+        "label": "Count attackers and defenders, and see if you got it right",
         "state": "not-started",
-        "prs": [],
+        "prs": [
+          97
+        ],
         "openIssues": [
           43,
           45,
@@ -623,9 +573,10 @@
       {
         "id": "NFR-2",
         "group": "Quality",
-        "label": "Engine analysis is fast",
+        "label": "Engine analysis takes about a second",
         "state": "shipped",
         "prs": [
+          97,
           85,
           39
         ],
@@ -663,9 +614,10 @@
       {
         "id": "NFR-4",
         "group": "Quality",
-        "label": "AI cost stays under $25 a month",
+        "label": "AI cost aims for under $25 a month, never over $30",
         "state": "not-started",
         "prs": [
+          97,
           32
         ],
         "openIssues": [
@@ -692,9 +644,10 @@
       {
         "id": "NFR-6",
         "group": "Quality",
-        "label": "Tutor never mentions an illegal move or a made-up score",
+        "label": "Tutor's moves and scores are checked to be legal and real",
         "state": "in-progress",
         "prs": [
+          97,
           79,
           40,
           35,
@@ -716,9 +669,10 @@
       {
         "id": "NFR-7",
         "group": "Quality",
-        "label": "Tutor doesn't give the answer away too early",
+        "label": "Tutor usually lets you find the move before showing it",
         "state": "in-progress",
         "prs": [
+          97,
           40,
           35,
           33,
@@ -981,9 +935,9 @@
         "closedIssues": []
       }
     ],
-    "shipped": 12,
-    "inProgress": 21,
-    "total": 46,
+    "shipped": 10,
+    "inProgress": 20,
+    "total": 41,
     "rule": "every-issue-done"
   },
   "demo": null,
@@ -991,7 +945,7 @@
   "glossarySource": {
     "repo": "daveharmswebdev/chess-tutor",
     "path": "docs/glossary.json",
-    "commit": "142f51039e0e2995a889dfacd7190207e3207749",
-    "url": "https://github.com/daveharmswebdev/chess-tutor/blob/142f51039e0e2995a889dfacd7190207e3207749/docs/glossary.json"
+    "commit": "b4284ad15f77b907334f42d6ea57c0c12a30f636",
+    "url": "https://github.com/daveharmswebdev/chess-tutor/blob/b4284ad15f77b907334f42d6ea57c0c12a30f636/docs/glossary.json"
   }
 }
