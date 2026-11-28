@@ -25,6 +25,17 @@ export interface Snapshot {
   // snapshot's date (repo variables, default 16:00 America/Chicago). Shown while no demo has run yet.
   // Absent on snapshots from before #29.
   demoPlannedAt?: string;
+  // Where this snapshot's requirement wording came from (#21, P-4): the chess-tutor commit whose
+  // docs/glossary.json the dashboard's glossary.json mirrors (recorded in glossary.source.json).
+  // Absent: the snapshot predates #21, or glossary.source.json was missing when it was built.
+  glossarySource?: GlossarySource;
+}
+
+export interface GlossarySource {
+  repo: string; // owner/name, e.g. "daveharmswebdev/chess-tutor"
+  path: string; // the file in that repo, e.g. "docs/glossary.json"
+  commit: string; // full commit sha the mirror copied it at
+  url: string; // https://github.com/<repo>/blob/<commit>/<path>
 }
 
 /**
